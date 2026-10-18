@@ -1,10 +1,7 @@
-FROM node:24-alpine
+FROM node:24-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-COPY libs ./libs
-RUN npm install --no-audit --no-fund
 COPY . .
-RUN npm run build
-ENV NODE_ENV=production
-EXPOSE 3000
-CMD ["npm","start"]
+RUN npm install --no-audit --no-fund && npm run build:web
+FROM nginx:stable-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
