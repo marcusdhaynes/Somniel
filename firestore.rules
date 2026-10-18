@@ -1,0 +1,192 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: uid
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required, email format)
+    //   - displayName: string (optional)
+    //   - role: string (required, ['admin', 'user'])
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: employees
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required)
+    //   - position: string (required)
+    //   - rank: string (required)
+    //   - status: string (required, ['green', 'yellow', 'red', 'purple'])
+    //   - statusColor: string (optional, hex color)
+    //   - baseSalary: number (required)
+    //   - education: string (required)
+    //   - vocationalTraining: array (required)
+    //   - earningsContribution: number (required)
+    //   - performanceReports: array (optional)
+    //   - timeInPosition: number (required)
+    //   - timeInCompany: number (required)
+    //   - experience: number (required)
+    //   - terminated: boolean (required)
+    //   - customFields: map (optional)
+    //
+    // Collection: config
+    // Document ID: cms, payscale
+    //
+    // Collection: tasks
+    // Document ID: auto-generated
+    //
+    // Collection: files
+    // Document ID: auto-generated
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        (request.auth.token.email == "marcusdhaynes@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+    
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'user'];
+    }
+
+     function isValidEmployee(data) {
+      return data.keys().hasAll(['name', 'position', 'rank', 'status', 'baseSalary', 'education', 'vocationalTraining', 'earningsContribution', 'timeInPosition', 'timeInCompany', 'experience', 'terminated']) &&
+             data.keys().hasOnly(['name', 'position', 'rank', 'status', 'statusColor', 'baseSalary', 'education', 'vocationalTraining', 'earningsContribution', 'timeInPosition', 'timeInCompany', 'experience', 'terminated', 'performanceReports', 'customFields', 'phone', 'email', 'birthday', 'startDate', 'endDate', 'positionChanges', 'createdAt', 'terminationDate']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.position is string &&
+             data.rank is string &&
+             data.status in ['green', 'yellow', 'red', 'purple'] &&
+             (!('statusColor' in data) || (data.statusColor is string && data.statusColor.matches("^#[0-9a-fA-F]{6}$"))) &&
+             data.baseSalary is number &&
+             data.education is string &&
+             data.vocationalTraining is list &&
+             data.earningsContribution is number &&
+             data.timeInPosition is string &&
+             data.timeInCompany is string &&
+             data.experience is number &&
+             data.terminated is bool &&
+             (!('performanceReports' in data) || data.performanceReports is list) &&
+             (!('customFields' in data) || data.customFields is map);
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['title', 'status']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.status in ['planned', 'in-progress', 'completed'];
+    }
+
+    function isValidFile(data) {
+      return data.keys().hasAll(['name', 'ownerId', 'url']) &&
+             data.name is string && data.name.size() > 0 &&
+             data.ownerId == request.auth.uid &&
+             data.url is string;
+    }
+
+    function isValidJobPosting(data) {
+      return data.keys().hasAll(['title', 'department', 'status']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.department is string &&
+             data.status in ['open', 'closed'];
+    }
+
+    function isValidApplicant(data) {
+      return data.keys().hasAll(['name', 'email', 'jobId', 'status']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             data.jobId is string &&
+             data.status in ['new', 'interviewing', 'hired', 'rejected'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    (isOwner(userId) && request.resource.data.role == 'user' || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    (isOwner(userId) && request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    // Employees
+    match /employees/{employeeId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin() && isValidEmployee(request.resource.data);
+    }
+
+    // Config (CMS + Payscale)
+    match /config/cms {
+      allow read: if true; // Publicly readable for site content
+      allow write: if isAdmin();
+    }
+    
+    match /config/payscale {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Tasks
+    match /tasks/{taskId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin() && isValidTask(request.resource.data);
+    }
+
+    // Files
+    match /files/{fileId} {
+      allow read: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isValidFile(request.resource.data);
+      allow update: if isAuthenticated() && (resource.data.ownerId == request.auth.uid) && isValidFile(request.resource.data);
+      allow delete: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Activity Logs
+    match /activity_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated(); // Allow any authenticated user to log their actions (though mostly admins will)
+      allow update, delete: if false; // Logs are immutable
+    }
+
+    // Job Postings
+    match /job_postings/{jobId} {
+      allow read: if true; // Publicly readable for applicants
+      allow write: if isAdmin() && isValidJobPosting(request.resource.data);
+    }
+
+    // Applicants
+    match /applicants/{applicantId} {
+      allow read: if isAdmin();
+      allow create: if true; // Allow anyone to apply
+      allow update: if isAdmin() && isValidApplicant(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

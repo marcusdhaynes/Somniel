@@ -1,0 +1,192 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Authenticated user profile and role management.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Employee": {
+      "title": "Employee Record",
+      "description": "Detailed employee data for management and payroll.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "position": { "type": "string" },
+        "rank": { "type": "string" },
+        "timeInPosition": { "type": "number", "description": "Months" },
+        "timeInCompany": { "type": "number", "description": "Months" },
+        "education": { "type": "string" },
+        "experience": { "type": "number", "description": "Years" },
+        "vocationalTraining": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["green", "yellow", "red", "purple"] },
+        "statusColor": { "type": "string", "description": "Custom hex color for the status dot." },
+        "baseSalary": { "type": "number" },
+        "earningsContribution": { "type": "number" },
+        "benefits": { "type": "array", "items": { "type": "string" } },
+        "terminated": { "type": "boolean" },
+        "terminationDate": { "type": "string", "format": "date-time" },
+        "performanceReports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "date": { "type": "string", "format": "date-time" },
+              "scores": { "type": "object" },
+              "totalScore": { "type": "number" }
+            }
+          }
+        },
+        "customFields": {
+          "type": "object",
+          "description": "Additional customizable fields for the employee.",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "required": ["name", "position", "rank", "status"]
+    },
+    "PayscaleConfig": {
+      "title": "Payroll Configuration",
+      "description": "Variables and weights for the pay calculation engine.",
+      "type": "object",
+      "properties": {
+        "baseRate": { "type": "number" },
+        "factors": {
+          "type": "object",
+          "properties": {
+            "rank": { "type": "object" },
+            "position": { "type": "object" },
+            "education": { "type": "object" },
+            "experience": { "type": "object" }
+          }
+        }
+      }
+    },
+    "CMSContent": {
+      "title": "CMS Content",
+      "description": "Dynamic content for the public website and global settings.",
+      "type": "object",
+      "properties": {
+        "hero": { "type": "object" },
+        "subsidiaries": { "type": "array" },
+        "founders": { "type": "array" },
+        "projects": { "type": "array" },
+        "benefits": { "type": "array" },
+        "training": { "type": "object" },
+        "performanceReport": { "type": "array" },
+        "ranks": { "type": "array" },
+        "contracts": { "type": "object" }
+      }
+    },
+    "Task": {
+      "title": "Roadmap Task",
+      "description": "Internal roadmap and task tracking.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["planned", "in-progress", "completed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "FileMetadata": {
+      "title": "File Metadata",
+      "description": "Metadata for user-uploaded files.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "size": { "type": "number" },
+        "parentId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "url": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ActivityLog": {
+      "title": "Activity Log",
+      "description": "System-wide activity tracking for administrators.",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "JobPosting": {
+      "title": "Job Posting",
+      "description": "Open positions for recruitment.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "department": { "type": "string" },
+        "description": { "type": "string" },
+        "requirements": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["open", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "department", "status"]
+    },
+    "Applicant": {
+      "title": "Job Applicant",
+      "description": "Candidates applying for open positions.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "jobId": { "type": "string" },
+        "status": { "type": "string", "enum": ["new", "interviewing", "hired", "rejected"] },
+        "resumeUrl": { "type": "string" },
+        "appliedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "jobId", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profile documents."
+    },
+    "/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "Employee records."
+    },
+    "/config/payscale": {
+      "schema": "PayscaleConfig",
+      "description": "Global payscale configuration."
+    },
+    "/config/cms": {
+      "schema": "CMSContent",
+      "description": "Global CMS content."
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Roadmap tasks."
+    },
+    "/files/{fileId}": {
+      "schema": "FileMetadata",
+      "description": "User file metadata."
+    },
+    "/activity_logs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "System activity logs."
+    },
+    "/job_postings/{jobId}": {
+      "schema": "JobPosting",
+      "description": "Recruitment job postings."
+    },
+    "/applicants/{applicantId}": {
+      "schema": "Applicant",
+      "description": "Recruitment applicants."
+    }
+  }
+}

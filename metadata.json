@@ -1,0 +1,8 @@
+{
+  "name": "Somniel Holdings LLC",
+  "description": "Enterprise-grade holdings company platform featuring public corporate site, user dashboards, and comprehensive administrative backend with payroll, employee management, and CMS.",
+  "requestFramePermissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

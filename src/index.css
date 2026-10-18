@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Vibrant Colors */
+  --color-brand-primary: #E8C48C; /* Gold/Tan */
+  --color-brand-secondary: #8b5cf6; /* Violet 500 */
+  --color-brand-accent: #f43f5e; /* Rose 500 */
+  
+  /* Theme Colors */
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-subtle: var(--subtle);
+  
+  --radius-4xl: 2rem;
+  --radius-5xl: 3rem;
+}
+
+@layer base {
+  :root {
+    --bg: #F3F2EE; /* Slightly deeper warm off-white for better distinction */
+    --fg: #1A1A1A;
+    --surface: #FFFFFF; /* White surfaces pop on warm bg */
+    --border: #DEDCD6; /* More distinct warm border */
+    --muted: #6B6B6B;
+    --accent: #E8C48C;
+    --subtle: #EBE9E2; /* Secondary background for sidebars/headers */
+  }
+
+  .dark {
+    --bg: #0B0E14;
+    --fg: #FFFFFF;
+    --surface: #11141D;
+    --border: #1E232E;
+    --muted: #8E9299;
+    --accent: #E8C48C;
+    --subtle: #161B26;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (max-width: 767px) {
+    body {
+      font-size: 10.5px; /* 5% larger than 10px */
+    }
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  /* Condensed Layout Utilities */
+  .condensed-container {
+    @apply max-w-4xl mx-auto px-1.5 sm:px-2; /* Reduced padding and max-width */
+  }
+
+  .condensed-card {
+    @apply p-2 sm:p-2.5 rounded-lg border border-border bg-surface/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.05)]; /* Added subtle shadow */
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px; /* Thinner */
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface rounded-full hover:bg-border transition-colors;
+  }
+}
+
+@layer components {
+  .btn-vibrant {
+    @apply relative overflow-hidden px-4 py-1.5 rounded-lg font-bold transition-all
+           bg-accent text-bg hover:opacity-90 active:scale-95
+           shadow-[0_0_20px_rgba(232,196,140,0.2)] hover:shadow-[0_0_30px_rgba(232,196,140,0.4)];
+  }
+
+  .btn-vibrant-secondary {
+    @apply relative overflow-hidden px-4 py-1.5 rounded-lg font-bold transition-all
+           bg-violet-500 text-white hover:bg-violet-400 active:scale-95
+           shadow-[0_0_20px_rgba(139,92,246,0.2)] hover:shadow-[0_0_30px_rgba(139,92,246,0.4)];
+  }
+
+  .glass-panel {
+    @apply bg-surface/5 backdrop-blur-md border border-border rounded-3xl;
+  }
+}
