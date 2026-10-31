@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { useCMS } from '../../context/CMSContext';
 import { Save, RefreshCcw, Plus, Trash2, Layout, Users, Zap, Gift, Globe, GripVertical, ShieldCheck, Eye, X, Printer, Download, FileText, UserPlus, RefreshCw, UserMinus } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
 import { cn } from '../../lib/utils';
 import { EditableInput, EditableTextarea } from '../../components/EditableInput';
 
@@ -675,8 +674,9 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
     }, 250);
   };
 
-  const handleSavePDF = () => {
+  const handleSavePDF = async () => {
     if (!contentRef.current) return;
+    const { default: html2pdf } = await import('html2pdf.js');
     const element = contentRef.current;
     const opt = {
       margin: 10,
@@ -858,10 +858,10 @@ const CMSManagement: React.FC = () => {
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 
   React.useEffect(() => {
-    if (content && !localContent) {
+    if (!loading && content && !localContent) {
       setLocalContent(content);
     }
-  }, [content, localContent]);
+  }, [content, localContent, loading]);
 
   const handleSave = async () => {
     if (!localContent) return;

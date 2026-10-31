@@ -358,7 +358,8 @@ const DEFAULT_CONTENT: CMSContent = {
 };
 
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [content, setContent] = useState<CMSContent | null>(null);
+  // Show public content immediately while the Firestore listener synchronizes.
+  const [content, setContent] = useState<CMSContent | null>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

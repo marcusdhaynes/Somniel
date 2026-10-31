@@ -2,14 +2,13 @@ import React, { Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
-import { PayscaleProvider } from './context/PayscaleContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Loader2 } from 'lucide-react';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
-import DashboardLayout from './components/layout/DashboardLayout';
-import AdminLayout from './components/layout/AdminLayout';
+const DashboardLayout = lazy(() => import('./components/layout/DashboardLayout'));
+const AdminWorkspace = lazy(() => import('./components/layout/AdminWorkspace'));
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
@@ -45,7 +44,6 @@ const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <CMSProvider>
-          <PayscaleProvider>
             <Router>
               <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-zinc-950"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>}>
                 <Routes>
@@ -65,7 +63,7 @@ const App: React.FC = () => {
                   </Route>
 
                   {/* Admin Routes */}
-                  <Route path="/admin" element={<ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>}>
+                  <Route path="/admin" element={<ProtectedRoute adminOnly><AdminWorkspace /></ProtectedRoute>}>
                     <Route index element={<AdminOverview />} />
                     <Route path="employees" element={<EmployeeManagement />} />
                     <Route path="payroll" element={<PayrollManagement />} />
@@ -79,7 +77,6 @@ const App: React.FC = () => {
                 </Routes>
               </Suspense>
             </Router>
-          </PayscaleProvider>
         </CMSProvider>
       </AuthProvider>
     </ThemeProvider>
