@@ -6,6 +6,9 @@ type App = {
   name: string;
   description: string;
   url: string;
+  /** Static thumbnail path relative to the site base (e.g. 'thumbnails/deltos.png').
+      When set, it is used instead of the live thum.io screenshot. */
+  thumbnail?: string;
 };
 
 type PublicRepo = {
@@ -20,21 +23,26 @@ type PublicRepo = {
 
 // These verified public GitHub Pages repositories render immediately, even if
 // GitHub's public API is rate-limited or unavailable to a visitor.
+// Note: 'inbox-reborn' (retired predecessor of Deltos) and 'Somniel' (this
+// site itself) are intentionally NOT listed here.
 const STARTER_APPS: App[] = [
   { repo: 'Calliopen', name: 'Calliopen', description: 'Creative application workspace.', url: 'https://marcusdhaynes.github.io/Calliopen/' },
   { repo: 'Calypso', name: 'Calypso', description: 'Workspace for teams, agents, projects, and automation.', url: 'https://marcusdhaynes.github.io/Calypso/' },
   { repo: 'Candlelight', name: 'Candlelight', description: 'Trading charts, paper trading, orders, and journal.', url: 'https://marcusdhaynes.github.io/Candlelight/' },
   { repo: 'ChatGPTBackup', name: 'ChatGPT Backup', description: 'ChatGPT backup application.', url: 'https://marcusdhaynes.github.io/ChatGPTBackup/' },
-  { repo: 'Deltos', name: 'Deltos', description: 'Email triage and organization.', url: 'https://marcusdhaynes.github.io/Deltos/' },
-  { repo: 'inbox-reborn', name: 'Inbox Reborn', description: 'Inbox management application.', url: 'https://marcusdhaynes.github.io/inbox-reborn/' },
+  { repo: 'Deltos', name: 'Deltos', description: 'Email triage and organization.', url: 'https://marcusdhaynes.github.io/Deltos/', thumbnail: 'thumbnails/deltos.png' },
   { repo: 'MarmaladePlayer', name: 'Marmalade Player', description: 'Video playback application.', url: 'https://marcusdhaynes.github.io/MarmaladePlayer/' },
   { repo: 'Pheme', name: 'PHEME', description: 'Digital newspaper and news platform.', url: 'https://marcusdhaynes.github.io/Pheme/' },
   { repo: 'ProSeU', name: 'ProSeU', description: 'Legal education and curriculum platform.', url: 'https://marcusdhaynes.github.io/ProSeU/' },
-  { repo: 'Sennet', name: 'Sennet', description: 'Web application.', url: 'https://marcusdhaynes.github.io/Sennet/' },
-  { repo: 'Somniel', name: 'Somniel', description: 'Somniel Holdings company platform.', url: 'https://marcusdhaynes.github.io/Somniel/' },
-  { repo: 'Starborn', name: 'Starborn', description: 'Interactive entertainment application.', url: 'https://marcusdhaynes.github.io/Starborn/' },
+  { repo: 'Sennet', name: 'Sennet', description: 'Web application.', url: 'https://marcusdhaynes.github.io/Sennet/', thumbnail: 'thumbnails/sennet.png' },
+  { repo: 'Starborn', name: 'Starborn', description: 'Interactive entertainment application.', url: 'https://marcusdhaynes.github.io/Starborn/', thumbnail: 'thumbnails/starborn.png' },
   { repo: 'Subversion', name: 'Subversion', description: 'Web application.', url: 'https://marcusdhaynes.github.io/Subversion/' },
 ];
+
+// Repositories that must never appear in the gallery, even if GitHub reports
+// them as having Pages: inbox-reborn is Deltos's retired predecessor, and
+// Somniel is this website itself.
+const EXCLUDED_REPOS = new Set(['inbox-reborn', 'somniel']);
 
 function previewUrl(siteUrl: string, refresh: number): string {
   // A new snapshot is requested from the live public homepage when needed.
@@ -46,7 +54,11 @@ function previewUrl(siteUrl: string, refresh: number): string {
 const AppCard: React.FC<{ app: App }> = ({ app }) => {
   const [failed, setFailed] = useState(false);
   const [refresh, setRefresh] = useState(0);
-  const source = previewUrl(app.url, refresh);
+  // Curated static thumbnails (dark mode, key visuals) take precedence over
+  // the live thum.io screenshot, which cannot do dark mode and often captures
+  // loading states.
+  const staticSource = app.thumbnail ? import.meta.env.BASE_URL + app.thumbnail : null;
+  const source = staticSource ?? previewUrl(app.url, refresh);
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
@@ -108,6 +120,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             title={'Refresh ' + app.name + ' screenshot'}
             aria-label={'Refresh ' + app.name + ' live homepage screenshot'}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            style={staticSource ? { display: 'none' } : undefined}
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -139,13 +152,13 @@ const GitHubAppGallery: React.FC = () => {
         for (const repo of repos) {
           if (!repo.has_pages || repo.archived || repo.fork || repo.size === 0) continue;
           const key = repo.name.toLowerCase();
-          if (combined.has(key)) continue;
+          if (combined.has(key) || EXCLUDED_REPOS.has(key)) continue;
           const fallbackUrl = 'https://marcusdhaynes.github.io/' + encodeURIComponent(repo.name) + '/';
           const homepage = repo.homepage?.trim();
-          const url = homepage && /^https:\/\/[^/\s]+/i.test(homepage) ? homepage : fallbackUrl;
+          const url = homepage && /^https?:\/\/[^\s]+/i.test(homepage) ? homepage : fallbackUrl;
           combined.set(key, {
             repo: repo.name,
-            name: repo.name.replace(/[-_]/g, ' '),
+            name: repo.name.replace(/[_-]/g, ' '),
             description: repo.description || 'Explore this application.',
             url,
           });
