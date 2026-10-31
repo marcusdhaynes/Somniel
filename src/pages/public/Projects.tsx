@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useCMS } from '../../context/CMSContext';
 import { Zap, ArrowRight, Sparkles } from 'lucide-react';
+import GitHubAppGallery from '../../components/projects/GitHubAppGallery';
 
 const Projects: React.FC = () => {
   const { content } = useCMS();
@@ -40,6 +41,10 @@ const Projects: React.FC = () => {
           </motion.div>
         </div>
       </header>
+
+      <GitHubAppGallery />
+
+      <div className="mx-auto max-w-7xl px-6 pt-1 lg:px-12"><h2 className="font-serif text-xl font-semibold text-fg">Additional Initiatives</h2></div>
 
       <div className="py-1 px-6 lg:px-12 max-w-7xl mx-auto relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
