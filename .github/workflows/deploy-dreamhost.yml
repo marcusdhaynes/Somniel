@@ -24,16 +24,17 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      # NOTE (Oct 31, 2026): SamKirkland/FTP-Deploy-Action does NOT support
-      # SFTP/SSH at all — its protocol setting only accepts ftp/ftps/ftps-legacy
-      # (its README points SSH users to a different action). DreamHost needs
-      # SSH, so we deploy with rsync over SSH instead, reusing the same secrets.
-      - name: Deploy to DreamHost over SSH (rsync)
+      # NOTE (Oct 31, 2026): deploys with rsync over SSH using a dedicated
+      # deploy key (DREAMHOST_SSH_KEY secret). Password-based SSH hung on
+      # DreamHost's side, and FTP-Deploy-Action never supported SFTP.
+      - name: Deploy to DreamHost over SSH (rsync + deploy key)
         env:
-          SSHPASS: ${{ secrets.DREAMHOST_SFTP_PASSWORD }}
+          SSH_KEY: ${{ secrets.DREAMHOST_SSH_KEY }}
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
-          sshpass -e rsync -avz --delete --exclude='.dh-diag' \
-            -e "ssh -p 22 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          rsync -avz --delete --exclude='.dh-diag' \
+            -e "ssh -i ~/.ssh/deploy_key -p 22 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             dist/ \
             "${{ secrets.DREAMHOST_SFTP_USER }}@${{ secrets.DREAMHOST_SFTP_HOST }}:/home/marcusdhaynes/somniel.com/"
