@@ -1,0 +1,43 @@
+name: Deploy to somniel.com
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Deploy to DreamHost over SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.DREAMHOST_SFTP_HOST }}
+          username: ${{ secrets.DREAMHOST_SFTP_USER }}
+          password: ${{ secrets.DREAMHOST_SFTP_PASSWORD }}
+          protocol: sftp
+          port: 22
+          local-dir: ./dist/
+          # Web directory for somniel.com on the DreamHost account.
+          # Confirmed during the Oct 31, 2026 manual deploy.
+          server-dir: ./somniel.com/
+          # Never wipe the remote dir: only add/overwrite changed files.
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
