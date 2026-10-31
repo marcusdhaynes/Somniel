@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -44,7 +44,7 @@ const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <CMSProvider>
-            <Router>
+            <Router basename={import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL}>
               <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-zinc-950"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>}>
                 <Routes>
                   {/* Public Routes */}
