@@ -1364,8 +1364,8 @@ const CMSManagement: React.FC = () => {
                       <UserPlus className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">Hiring Contract Template</h3>
-                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Legal Framework for New Talent</p>
+                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">Hiring Contract Template</h3>
+                      <p className="text-[8px] text-muted normal-case tracking-widest mt-0.5">Legal Framework for New Talent</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1384,7 +1384,7 @@ const CMSManagement: React.FC = () => {
                     >Restore Original</button>
                   <button 
                     onClick={() => setPreviewContract({ type: 'Hiring', template: localContent.contracts?.hiring || '' })}
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold uppercase tracking-widest"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold normal-case tracking-widest"
                   >
                     <Eye className="w-3 h-3" />
                     <span>Preview</span>
@@ -1392,7 +1392,7 @@ const CMSManagement: React.FC = () => {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">HTML Template (Use double curly braces for variables)</label>
+                  <label className="text-[8px] font-bold normal-case tracking-[0.2em] text-muted">HTML Template (Use Double Curly Braces for Variables)</label>
                   <EditableTextarea
                     rows={8}
                     value={localContent.contracts?.hiring || ''}
@@ -1414,8 +1414,8 @@ const CMSManagement: React.FC = () => {
                       <Globe className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">International Student Hiring Contract</h3>
-                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Separate International Agreement • Engagement and Contractor Terms</p>
+                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">International Student Hiring Contract</h3>
+                      <p className="text-[8px] text-muted normal-case tracking-widest mt-0.5">Separate International Agreement • Engagement and Contractor Terms</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -1435,16 +1435,16 @@ const CMSManagement: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setPreviewContract({ type: 'International Student Hiring', template: localContent.contracts?.internationalStudentHiring || '' })}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-colors text-[9px] font-bold uppercase tracking-widest"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-colors text-[9px] font-bold normal-case tracking-widest"
                     ><Eye className="w-3 h-3" /><span>Preview</span></button>
                   </div>
                 </div>
                 <p className="text-[10px] text-muted leading-relaxed">
-                  A standalone conditional offer and optional contractor agreement. It cannot authorize work under a student visa;
-                  all locally required immigration, labor, tax, and classification approvals must be documented before starting.
+                  A separate agreement with conditional commencement. All required legal, classification, labor, payroll,
+                  tax, privacy, and operational reviews must be documented before services begin.
                 </p>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">
+                  <label className="text-[8px] font-bold normal-case tracking-[0.2em] text-muted">
                     International Student HTML Template (Double Curly Brace Variables)
                   </label>
                   <EditableTextarea
@@ -1467,20 +1467,20 @@ const CMSManagement: React.FC = () => {
                       <RefreshCw className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">Change of Position Contract Template</h3>
-                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Legal Framework for Internal Mobility</p>
+                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">Change of Position Contract Template</h3>
+                      <p className="text-[8px] text-muted normal-case tracking-widest mt-0.5">Legal Framework for Internal Mobility</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setPreviewContract({ type: 'Change of Position', template: localContent.contracts?.changeOfPosition || '' })}
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold uppercase tracking-widest"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold normal-case tracking-widest"
                   >
                     <Eye className="w-3 h-3" />
                     <span>Preview</span>
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">HTML Template (Use double curly braces for variables)</label>
+                  <label className="text-[8px] font-bold normal-case tracking-[0.2em] text-muted">HTML Template (Use Double Curly Braces for Variables)</label>
                   <EditableTextarea
                     rows={8}
                     value={localContent.contracts?.changeOfPosition || ''}
@@ -1501,20 +1501,20 @@ const CMSManagement: React.FC = () => {
                       <UserMinus className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">Termination Contract Template</h3>
-                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Legal Framework for Offboarding</p>
+                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">Termination Contract Template</h3>
+                      <p className="text-[8px] text-muted normal-case tracking-widest mt-0.5">Legal Framework for Offboarding</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setPreviewContract({ type: 'Termination', template: localContent.contracts?.termination || '' })}
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold uppercase tracking-widest"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold normal-case tracking-widest"
                   >
                     <Eye className="w-3 h-3" />
                     <span>Preview</span>
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">HTML Template (Use double curly braces for variables)</label>
+                  <label className="text-[8px] font-bold normal-case tracking-[0.2em] text-muted">HTML Template (Use Double Curly Braces for Variables)</label>
                   <EditableTextarea
                     rows={8}
                     value={localContent.contracts?.termination || ''}
@@ -1535,20 +1535,20 @@ const CMSManagement: React.FC = () => {
                       <FileText className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">Non-Disclosure Agreement</h3>
-                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Confidentiality and IP Protection</p>
+                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">Non-Disclosure Agreement</h3>
+                      <p className="text-[8px] text-muted normal-case tracking-widest mt-0.5">Confidentiality and IP Protection</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setPreviewContract({ type: 'NDA', template: localContent.contracts?.nda || '' })}
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold uppercase tracking-widest"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold normal-case tracking-widest"
                   >
                     <Eye className="w-3 h-3" />
                     <span>Preview</span>
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">HTML Template (Use double curly braces for variables)</label>
+                  <label className="text-[8px] font-bold normal-case tracking-[0.2em] text-muted">HTML Template (Use Double Curly Braces for Variables)</label>
                   <EditableTextarea
                     rows={8}
                     value={localContent.contracts?.nda || ''}
