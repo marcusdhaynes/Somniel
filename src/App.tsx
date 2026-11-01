@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { Loader2 } from 'lucide-react';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
@@ -31,13 +30,9 @@ const CMSManagement = lazy(() => import('./pages/admin/CMSManagement'));
 const Roadmap = lazy(() => import('./pages/admin/Roadmap'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 
-const RouteLoading: React.FC = () => (
-  <div className="flex min-h-28 items-center justify-center px-6 py-12" role="status" aria-label="Opening page">
-    <div className="h-5 w-5 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
-  </div>
-);
-
-const page = (content: React.ReactNode) => <Suspense fallback={<RouteLoading />}>{content}</Suspense>;
+// Keep existing navigation and layout mounted during asynchronous route imports.
+// Preloaded routes appear directly without a spinner, modal, or layout jump.
+const page = (content: React.ReactNode) => <Suspense fallback={null}>{content}</Suspense>;
 
 const RouteWarmup: React.FC = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -50,13 +45,22 @@ const RouteWarmup: React.FC = () => {
       void import('./pages/public/Projects');
       void import('./pages/public/Subsidiaries');
       void import('./pages/public/Founders');
+      void import('./pages/public/Login');
       if (user) {
         void import('./components/layout/DashboardLayout');
         void import('./pages/dashboard/UserDashboard');
+        void import('./pages/dashboard/FileExplorer');
         if (isAdmin) {
           void import('./components/layout/AdminWorkspace');
           void import('./pages/admin/AdminOverview');
           void import('./pages/admin/AdminSettings');
+          // Warm remaining console screens in the background after auth.
+          // Navigation stays instantaneous once the chunks are cached.
+          void import('./pages/admin/EmployeeManagement');
+          void import('./pages/admin/PayrollManagement');
+          void import('./pages/admin/PayScale');
+          void import('./pages/admin/CMSManagement');
+          void import('./pages/admin/Roadmap');
         }
       }
     };
@@ -74,7 +78,7 @@ const RouteWarmup: React.FC = () => {
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ children, adminOnly }) => {
   const { user, loading, isAdmin } = useAuth();
 
-  if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-zinc-950"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>;
+  if (loading) return null;
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && !isAdmin) return <Navigate to="/dashboard" />;
 
@@ -88,7 +92,7 @@ const App: React.FC = () => {
         <CMSProvider>
             <RouteWarmup />
             <Router basename={import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL}>
-              <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-zinc-950"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>}>
+              <Suspense fallback={null}>
                 <Routes>
                   {/* OAuth relay must not render the standard site navigation. */}
                   <Route path="/auth-bridge" element={page(<AuthBridge />)} />

@@ -143,11 +143,10 @@ const PayrollConfig: React.FC = () => {
   }, [content?.positions, localConfig, isDirty]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <section className="space-y-2 pt-5" aria-busy="true">
+      <h1 className="font-serif text-lg font-bold text-fg">Pay Scale Configuration</h1>
+      <p role="status" className="text-xs text-muted">Synchronizing configuration…</p>
+    </section>;
   }
 
   if (!localConfig) {

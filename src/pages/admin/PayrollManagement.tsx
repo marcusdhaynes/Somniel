@@ -49,6 +49,7 @@ const PayrollManagement: React.FC = () => {
   }, []);
 
   const handleProcessPayroll = async () => {
+    if (loading) return;
     if (!confirm('Are you sure you want to process payroll for all active employees?')) return;
     
     try {
@@ -62,16 +63,9 @@ const PayrollManagement: React.FC = () => {
   const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const totalMonthlyPayroll = employees.reduce((acc, curr) => acc + (curr.baseSalary || 0), 0) / 12;
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-1.5 pb-1">
+    <div className="space-y-1.5 pb-1" aria-busy={loading}>
+      {loading && <p role="status" className="mb-1 text-[10px] text-muted">Syncing payroll records…</p>}
       {/* Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-1 border-b border-border pb-1.5">
         <div className="space-y-0.5">

@@ -888,11 +888,10 @@ const CMSManagement: React.FC = () => {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCcw className="w-6 h-6 text-accent animate-spin" />
-      </div>
-    );
+    return <section className="space-y-2 pt-5" aria-busy="true">
+      <h1 className="font-serif text-lg font-bold text-fg">Content Studio</h1>
+      <p role="status" className="text-xs text-muted">Synchronizing content…</p>
+    </section>;
   }
 
   if (!localContent) {

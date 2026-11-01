@@ -215,7 +215,7 @@ const FileExplorer: React.FC = () => {
               disabled={uploading}
               className="flex-1 lg:flex-none flex items-center justify-center space-x-1.5 bg-accent hover:opacity-90 text-bg px-3 py-1 rounded-lg text-[7px] font-bold tracking-[0.1em] uppercase shadow-2xl shadow-accent/20 transition-all disabled:opacity-50 active:scale-95"
             >
-              {uploading ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <FilePlus className="w-2.5 h-2.5" />}
+              <FilePlus className="w-2.5 h-2.5" />
               <span>{uploading ? 'Processing...' : 'Upload'}</span>
             </button>
             <input 
@@ -258,8 +258,7 @@ const FileExplorer: React.FC = () => {
         {/* Files Grid/List */}
         {loading ? (
           <div className="h-64 flex flex-col items-center justify-center space-y-2">
-            <Loader2 className="w-8 h-8 animate-spin text-accent/40" />
-            <span className="text-[8px] font-bold uppercase tracking-[0.5em] text-muted/20">Accessing Archives</span>
+            <span role="status" className="text-xs font-medium text-muted">Syncing your files…</span>
           </div>
         ) : filteredFiles.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-muted/40 space-y-4">

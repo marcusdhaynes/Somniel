@@ -486,16 +486,9 @@ const EmployeeManagement: React.FC = () => {
 
   const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-1.5 pb-1">
+    <div className="space-y-1.5 pb-1" aria-busy={loading}>
+      {loading && <p role="status" className="mb-1 text-[10px] text-muted">Syncing directory…</p>}
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-1 border-b border-border pb-1.5">
         <div className="space-y-0.5">
