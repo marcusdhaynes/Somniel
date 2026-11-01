@@ -175,6 +175,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let unsubscribe: () => void = () => {};
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let retryCount = 0;
+    let hiringMigrationChecked = false;
     setSynced(false);
     setLoading(true);
 
@@ -193,6 +194,24 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           retryCount = 0;
           if (snapshot.exists()) {
             const data = snapshot.data();
+            // Only the exact unmodified stock template is upgraded in place.
+            // Never overwrite an administrator's custom hiring terms.
+            if (isAdmin && !hiringMigrationChecked && !snapshot.metadata.fromCache &&
+                !snapshot.metadata.hasPendingWrites && typeof data.contracts?.hiring === 'string') {
+              hiringMigrationChecked = true;
+              void Promise.all([
+                import('../data/legacyHiringContract'),
+                import('../data/defaultContracts'),
+              ]).then(async ([{ LEGACY_STOCK_HIRING_TEMPLATE }, { DEFAULT_CONTRACTS }]) => {
+                if (!active || data.contracts.hiring.trim() !== LEGACY_STOCK_HIRING_TEMPLATE.trim()) return;
+                // Re-read inside a transaction to avoid overwriting concurrent edits.
+                await store.runTransaction(sdk.db, async transaction => {
+                  const current = await transaction.get(cmsDoc);
+                  if (current.data()?.contracts?.hiring?.trim() !== LEGACY_STOCK_HIRING_TEMPLATE.trim()) return;
+                  transaction.update(cmsDoc, { 'contracts.hiring': DEFAULT_CONTRACTS.hiring });
+                });
+              }).catch(error => console.warn('Automatic stock hiring template migration deferred:', error));
+            }
             setContent({
               ...DEFAULT_CONTENT,
               ...data,
