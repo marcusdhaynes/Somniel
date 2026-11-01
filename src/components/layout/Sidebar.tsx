@@ -23,6 +23,20 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { cn } from '../../lib/utils';
 
+// Prefetch route chunks only when users signal intent to navigate.
+// This shortens the click-to-page gap without preloading large editors at startup.
+const prefetchTarget = (path: string) => {
+  switch (path) {
+    case '/dashboard/files': void import('../../pages/dashboard/FileExplorer'); break;
+    case '/dashboard/settings':
+    case '/admin/settings': void import('../../pages/admin/AdminSettings'); break;
+    case '/admin/employees': void import('../../pages/admin/EmployeeManagement'); break;
+    case '/admin/cms': void import('../../pages/admin/CMSManagement'); break;
+    case '/admin/payroll': void import('../../pages/admin/PayrollManagement'); break;
+    case '/admin/payscale': void import('../../pages/admin/PayScale'); break;
+  }
+};
+
 interface SidebarProps {
   type: 'dashboard' | 'admin';
 }
@@ -54,6 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
 
   const dashboardItems = [
     { name: 'My Files', path: '/dashboard/files', icon: Database },
+    { name: 'Settings', path: '/dashboard/settings', icon: Settings },
   ];
 
   const adminItems = [
@@ -162,6 +177,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
               <Link
                 key={item.path}
                 to={item.path}
+                onPointerEnter={() => prefetchTarget(item.path)}
+                onFocus={() => prefetchTarget(item.path)}
+                onTouchStart={() => prefetchTarget(item.path)}
                 className={cn(
                   "flex transition-colors duration-200 group relative overflow-hidden rounded-lg font-bold flex-row items-center",
                   isMobile ? "h-5 px-1.5 text-[5px]" : "h-10 px-3 text-[10px]",
