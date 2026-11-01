@@ -866,8 +866,26 @@ const CMSManagement: React.FC = () => {
 
   // The confirmed document is copied once. Subsequent live updates must not
   // silently overwrite in-progress edits in this management screen.
+  const latestCMSHiringRef = React.useRef<string | undefined>(undefined);
   React.useEffect(() => {
-    if (synced && content) setLocalContent((current: any) => current ?? content);
+    if (!synced || !content) return;
+    const previousServerHiring = latestCMSHiringRef.current;
+    const latestServerHiring = content.contracts?.hiring;
+    setLocalContent((current: any) => {
+      if (!current) return content;
+      // When the stock template migrates on the server, update only an
+      // unchanged local hiring editor. Never discard an admin's unsaved edits.
+      if (previousServerHiring !== undefined &&
+          current.contracts?.hiring === previousServerHiring &&
+          latestServerHiring && latestServerHiring !== previousServerHiring) {
+        return {
+          ...current,
+          contracts: { ...current.contracts, hiring: latestServerHiring }
+        };
+      }
+      return current;
+    });
+    latestCMSHiringRef.current = latestServerHiring;
   }, [content, synced]);
 
   // Template hydration runs separately: a Firestore metadata update cannot
