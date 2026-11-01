@@ -80,7 +80,7 @@ const Projects: React.FC = () => {
                     </p>
                     
                     <div className="mt-1 flex justify-end">
-                      <button className="inline-flex items-center space-x-2 text-fg font-bold hover:text-accent transition-all duration-500 text-[8px] uppercase tracking-[0.3em] group/btn">
+                      <button className="public-section-action text-fg font-bold hover:text-accent transition-colors duration-200 text-[8px] uppercase tracking-[0.2em] group/btn">
                         <span className="relative">
                           Explore Project
                           <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-accent transition-all duration-500 group-hover/btn:w-full" />

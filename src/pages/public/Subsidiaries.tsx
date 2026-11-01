@@ -70,7 +70,7 @@ const Subsidiaries: React.FC = () => {
                   <div className="mt-1 flex justify-end">
                     <a
                       href={sub.website}
-                      className="inline-flex items-center space-x-2 text-accent font-bold hover:text-accent/80 transition-all text-[8px] uppercase tracking-[0.3em] group/link"
+                      className="public-section-action text-accent font-bold hover:text-accent/80 transition-colors text-[8px] uppercase tracking-[0.2em] group/link"
                     >
                       <span className="border-b border-accent/20 group-hover/link:border-accent transition-all pb-0.5">Visit Website</span>
                       <ArrowRight className="w-3 h-3 transform group-hover/link:translate-x-1 transition-transform duration-500" />
