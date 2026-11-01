@@ -1382,6 +1382,20 @@ const CMSManagement: React.FC = () => {
                       <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Legal Framework for New Talent</p>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!window.confirm('Load the updated international hiring template? This will replace only the unsaved Hiring Contract editor text. Save a copy of any custom terms first; you must select Publish Changes to make the replacement permanent.')) return;
+                        const { DEFAULT_CONTRACTS } = await import('../../data/defaultContracts');
+                        setLocalContent((current: any) => ({
+                          ...current,
+                          contracts: { ...current.contracts, hiring: DEFAULT_CONTRACTS.hiring }
+                        }));
+                      }}
+                      className="rounded-lg border border-accent/30 px-3 py-1.5 text-[9px] font-bold text-accent hover:bg-accent/10"
+                      title="Replace only the hiring editor with the current international student-compliance template"
+                    >Load Updated Template</button>
                   <button 
                     onClick={() => setPreviewContract({ type: 'Hiring', template: localContent.contracts?.hiring || '' })}
                     className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold uppercase tracking-widest"
@@ -1389,6 +1403,7 @@ const CMSManagement: React.FC = () => {
                     <Eye className="w-3 h-3" />
                     <span>Preview</span>
                   </button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">HTML Template (Use double curly braces for variables)</label>
