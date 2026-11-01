@@ -44,6 +44,33 @@ const STARTER_APPS: App[] = [
 // Somniel is this website itself.
 const EXCLUDED_REPOS = new Set(['inbox-reborn', 'somniel']);
 
+const APP_CACHE_KEY = 'somniel-public-app-catalog-v1';
+const APP_CACHE_TTL_MS = 5 * 60 * 1000;
+// Cache public, non-sensitive repository metadata for repeat visits. New
+// public GitHub Pages apps are rediscovered after the short TTL.
+function getCachedApps(): App[] | null {
+  try {
+    const raw = sessionStorage.getItem(APP_CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as { fetchedAt?: number; apps?: App[] };
+    if (!data.fetchedAt || Date.now() - data.fetchedAt > APP_CACHE_TTL_MS) return null;
+    if (!Array.isArray(data.apps) || data.apps.length > 150) return null;
+    return data.apps.every(app =>
+      typeof app.name === 'string' && typeof app.repo === 'string' &&
+      typeof app.url === 'string' && /^https:\/\//.test(app.url)
+    ) ? data.apps : null;
+  } catch {
+    return null;
+  }
+}
+function saveCachedApps(apps: App[]): void {
+  try {
+    sessionStorage.setItem(APP_CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), apps }));
+  } catch {
+    // Private browsing and disabled storage must still work normally.
+  }
+}
+
 function previewUrl(siteUrl: string, refresh: number): string {
   // A new snapshot is requested from the live public homepage when needed.
   // Thumbnails are cached for at most an hour and only fetched near viewport.
@@ -131,9 +158,10 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
 };
 
 const GitHubAppGallery: React.FC = () => {
-  const [apps, setApps] = useState<App[]>(STARTER_APPS);
+  const [apps, setApps] = useState<App[]>(() => getCachedApps() ?? STARTER_APPS);
 
   useEffect(() => {
+    if (getCachedApps()) return;
     const controller = new AbortController();
 
     // Automatically add newly published public apps in this GitHub account.
@@ -163,7 +191,9 @@ const GitHubAppGallery: React.FC = () => {
             url,
           });
         }
-        setApps(Array.from(combined.values()).sort((a, b) => a.name.localeCompare(b.name)));
+        const latest = Array.from(combined.values()).sort((a, b) => a.name.localeCompare(b.name));
+        setApps(latest);
+        saveCachedApps(latest);
       })
       .catch(() => {
         // Use the known app catalog when GitHub is unavailable or rate-limited.

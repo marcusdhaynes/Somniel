@@ -46,8 +46,8 @@ const Login: React.FC = () => {
     }
   };
 
-  if (loading) return null;
-
+  // Render the secure login page immediately; SDK initialization runs
+  // independently and the button becomes active as soon as it is ready.
   return (
     <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
       {/* Background Elements */}
@@ -98,15 +98,15 @@ const Login: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             onClick={handleLogin}
-            disabled={signingIn}
-            aria-busy={signingIn}
+            disabled={signingIn || loading}
+            aria-busy={signingIn || loading}
             className="w-full group flex items-center justify-between bg-fg hover:bg-fg/90 text-bg px-10 py-6 rounded-[2rem] font-bold transition-all duration-500 transform hover:scale-[1.02] active:scale-95 text-sm shadow-2xl shadow-fg/20 disabled:cursor-wait disabled:opacity-60"
           >
             <div className="flex items-center space-x-5">
               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-inner">
                 <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
               </div>
-              <span className="tracking-[0.1em] uppercase text-xs">{signingIn ? 'Connecting to Google...' : 'Continue with Google'}</span>
+              <span className="tracking-[0.1em] uppercase text-xs">{loading ? 'Preparing Google sign-in…' : signingIn ? 'Connecting to Google...' : 'Continue with Google'}</span>
             </div>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
           </motion.button>
