@@ -50,10 +50,10 @@ const Founders: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
 
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
-              className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-3 backdrop-blur-2xl shadow-2xl shadow-black/20"
+              className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-2.5 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
               <div className="flex min-h-0 items-start gap-2.5">
-                <div className="w-14 h-20 sm:w-14 sm:h-20 rounded-xl bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
+                <div className="w-11 h-16 rounded-lg bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
                   <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={founder.photo} alt={founder.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110" />
                 </div>
                 
@@ -63,11 +63,11 @@ const Founders: React.FC = () => {
                     <p className="text-accent font-bold uppercase text-[8px] tracking-[0.4em] mt-1 opacity-80">{founder.role}</p>
                   </div>
                   
-                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3">
+                  <p className="text-muted text-[10px] leading-4 mb-1 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2" title={founder.bio}>
                     {founder.bio}
                   </p>
                   
-                  <div className="mt-1 flex justify-end space-x-2.5">
+                  <div className="mt-0.5 flex justify-end space-x-2.5">
                     <a href="#" className="text-muted hover:text-accent transition-all transform hover:scale-110"><Linkedin className="w-4 h-4" /></a>
                     <a href="#" className="text-muted hover:text-accent transition-all transform hover:scale-110"><Twitter className="w-4 h-4" /></a>
                     <a href="#" className="text-muted hover:text-accent transition-all transform hover:scale-110"><Mail className="w-4 h-4" /></a>
