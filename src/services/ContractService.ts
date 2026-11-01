@@ -6,6 +6,7 @@ export interface ContractData {
   rank: string;
   baseSalary: number;
   startDate: string;
+  todayDate?: string;
   benefits: string[];
   terminationDate?: string;
   severancePay?: number;

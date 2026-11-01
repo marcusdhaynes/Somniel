@@ -374,6 +374,7 @@ const EmployeeManagement: React.FC = () => {
       rank: emp.rank,
       baseSalary: emp.baseSalary,
       startDate: formatDate(emp.createdAt || Timestamp.now()),
+      todayDate: formatDate(Timestamp.now()),
       benefits: content.benefits.map((b: any) => typeof b === 'string' ? b : b.text),
       terminationDate: emp.terminationDate ? formatDate(emp.terminationDate) : formatDate(Timestamp.now()),
       severancePay: emp.baseSalary * 0.2, // 20% severance
