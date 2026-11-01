@@ -23,7 +23,7 @@ ensure(annexes >= 17, 'Missing annexes (' + annexes + ')');
 for (const term of ['Contractor', 'SOW', 'W-8BEN', 'Sanctions', 'Intellectual', 'Annex M', 'Tax', 'data']) {
   ensure(intl.toLowerCase().includes(term.toLowerCase()), 'Missing provision ' + term);
 }
-ensure(!/\\bvisa\\b|immigra|E30B|E33G|\\bF-1\\b|\\bCPT\\b|\\bOPT\\b/i.test(intl),
+ensure(!/\bvisa\b|immigra|E30B|E33G|\bF-1\b|\bCPT\b|\bOPT\b/i.test(intl),
   'International contract must contain no visa-specific discussion');
 ensure(migration.includes("updates['contracts.hiring'] = LEGACY_STOCK_HIRING_TEMPLATE"),
   'Migration does not restore the old hiring template');
