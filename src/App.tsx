@@ -16,6 +16,7 @@ const Subsidiaries = lazy(() => import('./pages/public/Subsidiaries'));
 const Founders = lazy(() => import('./pages/public/Founders'));
 const Projects = lazy(() => import('./pages/public/Projects'));
 const Login = lazy(() => import('./pages/public/Login'));
+const AuthBridge = lazy(() => import('./pages/public/AuthBridge'));
 
 // Dashboard Pages
 const UserDashboard = lazy(() => import('./pages/dashboard/UserDashboard'));
@@ -47,6 +48,9 @@ const App: React.FC = () => {
             <Router basename={import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL}>
               <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-zinc-950"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>}>
                 <Routes>
+                  {/* OAuth relay must not render the standard site navigation. */}
+                  <Route path="/auth-bridge" element={<AuthBridge />} />
+
                   {/* Public Routes */}
                   <Route element={<PublicLayout />}>
                     <Route path="/" element={<Home />} />

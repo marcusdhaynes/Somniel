@@ -42,3 +42,25 @@ the checked-in Firestore rules. The verified owner receives admin access
 through the verified Firebase email claim; this matches the server-side
 Firestore `isAdmin` rule. Do not grant elevated rights from an unverified
 email address or client-provided role.
+
+## Google sign-in without authorizing the custom domain
+
+The `somniel.com` and `www.somniel.com` login buttons use Somniel's
+existing **authorized** GitHub Pages origin
+(`https://marcusdhaynes.github.io/Somniel/auth-bridge`) as a first-party
+Google OAuth relay. The user presses **Continue with Google** on Somniel and
+then once more in the opened bridge window to start Google's popup.
+
+On successful Google popup authentication, the trusted bridge returns only
+the Google credential to the exact calling origin via `postMessage`. The
+caller checks the source window, sender origin and unique one-time nonce,
+then calls `signInWithCredential` to establish its **own** Firebase session.
+No credentials are included in URLs, local storage, or logs. The relay
+only accepts `somniel.com` and `www.somniel.com` as return origins.
+
+The relay needs GitHub Pages to remain hosted at
+`marcusdhaynes.github.io` and already authorized in Firebase. It uses a
+popup window for Google authentication, so browsers must permit popups for
+the two Somniel origins; certain isolated/mobile browser contexts may still
+restrict popup-to-opener communication. The preferred long-term solution is
+to authorize the custom domain directly when Firebase console access exists.

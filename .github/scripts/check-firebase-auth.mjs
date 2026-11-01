@@ -28,13 +28,16 @@ if (response) {
     const domains = Array.isArray(data.authorizedDomains) ? data.authorizedDomains : [];
     console.log('Firebase project identifier returned:', data.projectId || '(not provided)');
     for (const domain of expected) console.log(`${domain}: ${domains.includes(domain) ? 'authorized' : 'NOT AUTHORIZED'}`);
-    const missing = expected.filter(domain => !domains.includes(domain));
-    if (missing.length) {
-      console.error('Missing authorized domains:', missing.join(', '));
-      console.error('Fix: Firebase Console > Authentication > Settings > Authorized domains > Add domain.');
+    // somniel.com uses a first-party relay for the Google popup. Only the
+    // actual popup origin (GitHub Pages) must be authorized in Firebase.
+    if (!domains.includes('marcusdhaynes.github.io')) {
+      console.error('Required Google OAuth bridge host is not authorized: marcusdhaynes.github.io');
       process.exitCode = 1;
     } else {
-      console.log('Required production domains are authorized.');
+      console.log('OAuth relay origin is authorized; somniel.com uses the secure relay.');
+      if (!domains.includes('somniel.com')) {
+        console.log('Direct popup on somniel.com is not authorized (relay will be used).');
+      }
     }
     // The public API may return the numeric Google project identifier
     // rather than the Firebase project slug; both forms are legitimate.
