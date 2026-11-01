@@ -98,7 +98,7 @@ const MultiplierItem = ({ category, id, name, value, onUpdateName, onUpdateValue
 const PayrollConfig: React.FC = () => {
   const { config, loading, updateConfig } = usePayscale();
   const { content } = useCMS();
-  const [localConfig, setLocalConfig] = useState<PayscaleConfig | null>(() => config ? structuredClone(config) : null);
+  const [localConfig, setLocalConfig] = useState<PayscaleConfig | null>(() => config ? JSON.parse(JSON.stringify(config)) : null);
   const [isDirty, setIsDirty] = useState(false);
 
   // Initialize localConfig from context config

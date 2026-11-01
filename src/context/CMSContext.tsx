@@ -186,7 +186,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ]);
         if (!active) return;
         const cmsDoc = store.doc(sdk.db, 'config', 'cms');
-        unsubscribe = store.onSnapshot(cmsDoc, snapshot => {
+        // Include metadata-only updates so cached snapshots transition into
+        // an authoritative server snapshot even when values don't change.
+        unsubscribe = store.onSnapshot(cmsDoc, { includeMetadataChanges: true }, snapshot => {
           if (!active) return;
           retryCount = 0;
           if (snapshot.exists()) {
@@ -216,6 +218,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           // Preserve the last good content and keep the UI usable. A Firestore
           // error terminates its subscription; network problems need a new one.
           setLoading(false);
+          setSynced(false);
           const code = String(error?.code || '').split('/').pop();
           if (['unavailable', 'deadline-exceeded', 'cancelled', 'internal', 'unknown', 'resource-exhausted'].includes(code || '')) {
             const delay = Math.min(30000, 1500 * (2 ** Math.min(retryCount++, 5)));

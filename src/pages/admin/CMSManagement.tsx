@@ -881,7 +881,7 @@ const CMSManagement: React.FC = () => {
       });
     }).catch(error => console.warn('Default templates deferred:', error));
     return () => { active = false; };
-  }, [content, synced, localContent]);
+  }, [content, synced]);
   const handleSave = async () => {
     if (!localContent) return;
     try {
