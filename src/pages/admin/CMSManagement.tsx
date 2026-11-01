@@ -858,15 +858,18 @@ const CMSManagement: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'hero' | 'subsidiaries' | 'founders' | 'projects' | 'benefits' | 'training' | 'performanceReport' | 'positions' | 'ranks' | 'contracts' | 'nda'>('hero');
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 
+  // The confirmed document is copied once. Subsequent live updates must not
+  // silently overwrite in-progress edits in this management screen.
   React.useEffect(() => {
-    // This page may mount while Firebase or the templates are still loading.
-    // Only initialize an editable copy from a confirmed server snapshot.
-    if (!synced || !content || localContent) return;
+    if (synced && content) setLocalContent((current: any) => current ?? content);
+  }, [content, synced]);
+
+  // Template hydration runs separately: a Firestore metadata update cannot
+  // cancel the download between page mounts. This closes another timing race
+  // that previously caused intermittent incomplete editor initialization.
+  React.useEffect(() => {
+    if (!synced || !content) return;
     let active = true;
-    // Make the editor usable immediately; templates hydrate in parallel.
-    setLocalContent(content);
-    // Most existing CMS documents already store all templates, so don't
-    // fetch a second chunk unnecessarily.
     if (['hiring', 'termination', 'changeOfPosition', 'nda']
       .every(key => typeof (content.contracts as any)?.[key] === 'string' &&
         (content.contracts as any)[key].trim().length > 0)) {
@@ -875,7 +878,6 @@ const CMSManagement: React.FC = () => {
     }
     void import('../../data/defaultContracts').then(({ DEFAULT_CONTRACTS }) => {
       if (!active) return;
-      setTemplatesReady(true);
       setLocalContent((current: any) => {
         if (!current) return current;
         const saved = current.contracts || {};
@@ -889,9 +891,11 @@ const CMSManagement: React.FC = () => {
           }
         };
       });
+      setTemplatesReady(true);
     }).catch(error => console.warn('Default templates deferred:', error));
     return () => { active = false; };
-  }, [content, synced]);
+  }, [synced]);
+
   const handleSave = async () => {
     if (!localContent || !synced || !templatesReady) return;
     try {
