@@ -1,0 +1,26 @@
+name: Diagnose Google sign-in
+
+on:
+  push:
+    paths:
+      - 'firebase-applet-config.json'
+      - '.github/scripts/check-firebase-auth.mjs'
+      - '.github/workflows/auth-diagnostics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-firebase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Verify Firebase Auth project and authorized domains
+        run: node .github/scripts/check-firebase-auth.mjs
