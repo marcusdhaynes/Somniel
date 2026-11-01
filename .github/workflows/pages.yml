@@ -40,6 +40,7 @@ jobs:
       - run: npm run build:web
         env:
           GITHUB_PAGES: 'true'
+      - run: node scripts/verify-public-card-layout.mjs
       - run: node scripts/report-bundle.mjs
       - run: node scripts/verify-site-build.mjs pages
       # Materialize each known SPA route as an index.html so GitHub Pages
