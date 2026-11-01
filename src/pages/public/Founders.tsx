@@ -42,7 +42,7 @@ const Founders: React.FC = () => {
       </header>
 
       <div className="py-1 px-6 lg:px-12 max-w-[1600px] mx-auto relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="public-section-grid">
           {content.founders.map((founder, i) => (
             <motion.div
               key={founder.id}
@@ -50,16 +50,16 @@ const Founders: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
 
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
-              className="group relative overflow-hidden rounded-3xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-all p-6 backdrop-blur-2xl shadow-2xl shadow-black/20"
+              className="public-section-card group relative overflow-hidden rounded-3xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-4 sm:p-6 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
-              <div className="flex items-start space-x-6">
-                <div className="w-24 h-32 rounded-2xl bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
+              <div className="flex h-full min-h-0 items-start gap-4 sm:gap-6">
+                <div className="w-20 h-28 sm:w-24 sm:h-32 rounded-2xl bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
                   <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={founder.photo} alt={founder.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110" />
                 </div>
                 
-                <div className="flex-1 flex flex-col min-h-[8rem]">
+                <div className="flex-1 min-w-0 flex flex-col h-full">
                   <div className="mb-2">
-                    <h3 className="text-xl font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors italic leading-none">{founder.name}</h3>
+                    <h3 title={founder.name} className="line-clamp-2 break-words text-lg sm:text-xl font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors italic leading-tight">{founder.name}</h3>
                     <p className="text-accent font-bold uppercase text-[8px] tracking-[0.4em] mt-1 opacity-80">{founder.role}</p>
                   </div>
                   

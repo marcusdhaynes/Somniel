@@ -15,7 +15,6 @@ export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const navItems = [
-    { name: 'Home', path: '/' },
     { name: 'Subsidiaries', path: '/subsidiaries' },
     { name: 'Founders', path: '/founders' },
     { name: 'Projects', path: '/projects' },

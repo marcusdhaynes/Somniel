@@ -90,13 +90,13 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
-    <article className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg">
+    <article className="public-section-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg">
       <a
         href={app.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={'Open ' + app.name + ' live site'}
-        className="relative block aspect-[16/10] overflow-hidden bg-subtle"
+        className="relative block h-36 shrink-0 overflow-hidden bg-subtle"
       >
         {failed ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
@@ -123,10 +123,10 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
           Homepage preview
         </span>
       </a>
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <h3 className="truncate font-serif text-lg font-semibold tracking-tight text-fg">{app.name}</h3>
-        <p className="mt-2 min-h-10 flex-1 text-xs leading-relaxed text-muted">{app.description}</p>
-        <div className="mt-4 flex items-center gap-2">
+      <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4">
+        <h3 className="truncate font-serif text-base sm:text-lg font-semibold tracking-tight text-fg">{app.name}</h3>
+        <p className="mt-1 min-h-0 flex-1 line-clamp-2 overflow-hidden text-xs leading-relaxed text-muted">{app.description}</p>
+        <div className="mt-2 flex items-center gap-2">
           <a
             href={app.url}
             target="_blank"
@@ -207,7 +207,7 @@ const GitHubAppGallery: React.FC = () => {
   }, []);
 
   return (
-    <section aria-labelledby="github-apps-heading" className="relative mx-auto max-w-7xl px-6 pb-12 pt-8 lg:px-12">
+    <section aria-labelledby="github-apps-heading" className="relative mx-auto max-w-[1600px] px-6 pb-12 pt-8 lg:px-12">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent">Built by Somniel</p>
@@ -222,7 +222,7 @@ const GitHubAppGallery: React.FC = () => {
           {apps.length} applications
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="public-section-grid">
         {apps.map(app => <AppCard key={app.repo} app={app} />)}
       </div>
     </section>

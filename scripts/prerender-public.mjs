@@ -30,6 +30,7 @@ const style = '<style id="somniel-first-paint">' +
   '#somniel-static-shell p{font-size:clamp(13px,1.3vw,18px);line-height:1.65;color:var(--muted,#777);max-width:680px;margin:0 auto 22px}' +
   '#somniel-static-shell .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.22em;color:var(--accent,#e8c48c)}' +
   '#somniel-static-shell .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin:30px auto 0;text-align:left}' +
+  '#somniel-static-shell .tile{height:19rem;box-sizing:border-box;overflow:hidden}' +
   '#somniel-static-shell .tile{padding:20px;border-radius:16px;border:1px solid var(--border,#ddd);background:var(--surface,#fff);min-width:0}' +
   '#somniel-static-shell .tile h2{font-size:17px;margin:0 0 10px;font-family:Georgia,serif}' +
   '#somniel-static-shell .tile p{font-size:12px;margin:0;line-height:1.5}' +
@@ -39,7 +40,7 @@ const style = '<style id="somniel-first-paint">' +
   '</style>';
 
 const navigation = '<nav><a href="' + base + '">SOMNIEL</a><span>' +
-  [['Home', ''], ['Subsidiaries', 'subsidiaries/'], ['Founders', 'founders/'], ['Projects', 'projects/']]
+  [['Subsidiaries', 'subsidiaries/'], ['Founders', 'founders/'], ['Projects', 'projects/']]
   .map(([title, url]) => '<a href="' + base + url + '">' + title + '</a>').join('') + '</span></nav>';
 const card = (title, description, img, url) => '<article class="tile">' +
   (img ? '<img src="' + safeUrl(img) + '" alt="" width="70" height="70" decoding="async" loading="lazy">' : '') +
