@@ -6,10 +6,19 @@
     <meta name="theme-color" content="#0B0E14" />
     <!-- Set theme before paint to prevent the light/dark flash on cold loads. -->
     <script>
+      // A separately-designed prerender shell must never replace the visible
+      // React layout after loading; keep it only as a no-JavaScript fallback.
+      document.documentElement.classList.add('somniel-js');
       try {
         const saved = localStorage.getItem('theme');
         const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.classList.add(dark ? 'dark' : 'light');
+        // Match the exact sidebar geometry before the first browser paint.
+        const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        const narrow = matchMedia('(max-width: 767px)').matches;
+        document.documentElement.style.setProperty('--sidebar-width',
+          collapsed ? (narrow ? '2.3625rem' : '2.625rem')
+                    : (narrow ? '4.68rem' : '8.5rem'));
         document.querySelector('meta[name="theme-color"]').content = dark ? '#0B0E14' : '#F3F2EE';
       } catch (_) {}
     </script>

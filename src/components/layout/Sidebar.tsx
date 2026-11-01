@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -48,7 +48,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
   const collapsedWidth = isMobile ? '2.3625rem' : '2.625rem';
   const currentWidth = isCollapsed ? collapsedWidth : expandedWidth;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     localStorage.setItem('sidebar-collapsed', String(isCollapsed));
     document.documentElement.style.setProperty('--sidebar-width', currentWidth);
     window.dispatchEvent(new Event('sidebar-toggle'));
@@ -69,13 +69,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
 
   const items = type === 'dashboard' ? dashboardItems : adminItems;
 
-  const sidebarTransition = {
-    type: "spring",
-    stiffness: 400,
-    damping: 40,
-    mass: 1
-  } as const;
-
   return (
     <>
       {/* Toggle Button - Positioned relative to the sidebar width variable */}
@@ -87,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
         )}
         style={{ 
           left: `calc(var(--sidebar-width, ${currentWidth}) - ${isMobile ? '0.5rem' : '0.5rem'})`,
-          transition: 'left 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          transition: 'none'
         }}
         title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
@@ -98,10 +91,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
         )}
       </button>
 
-      <motion.div 
-        initial={false}
-        animate={{ width: currentWidth }}
-        transition={sidebarTransition}
+      <div
+        style={{ width: currentWidth }}
         className="h-screen fixed left-0 top-0 bg-subtle/80 backdrop-blur-3xl border-r border-border flex flex-col z-40 overflow-hidden"
       >
         {/* Header */}
@@ -119,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
             <AnimatePresence>
               {!isCollapsed && (
                 <motion.div 
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={false}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.15 }}
@@ -144,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
             <AnimatePresence>
               {!isCollapsed && (
                 <motion.div 
-                  initial={{ opacity: 0, y: 5 }}
+                  initial={false}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
@@ -177,8 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
                 )}
               >
                 {isActive && (
-                  <motion.div 
-                    layoutId="sidebar-active"
+                  <div
                     className={cn(
                       "absolute bg-accent rounded-full left-0 top-1/2 -translate-y-1/2 w-0.5",
                       isMobile ? "h-1.5" : "h-3"
@@ -193,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
                 <AnimatePresence>
                   {!isCollapsed && (
                     <motion.span 
-                      initial={{ opacity: 0, x: -4 }}
+                      initial={false}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -4 }}
                       transition={{ duration: 0.15 }}
@@ -225,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
               <AnimatePresence>
                 {!isCollapsed && (
                   <motion.span
-                    initial={{ opacity: 0 }}
+                    initial={false}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
@@ -248,7 +238,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
               <AnimatePresence>
                 {!isCollapsed && (
                   <motion.span
-                    initial={{ opacity: 0 }}
+                    initial={false}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
@@ -261,7 +251,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
             </button>
           )}
         </div>
-      </motion.div>
+      </div>
     </>
   );
 };

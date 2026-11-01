@@ -510,7 +510,7 @@ const EmployeeManagement: React.FC = () => {
 
   return (
     <div className="space-y-1.5 pb-1" aria-busy={loading}>
-      {loading && <p role="status" className="mb-1 text-[10px] text-muted">Syncing directory…</p>}
+      {loading && <p role="status" className="sr-only">Syncing directory…</p>}
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-1 border-b border-border pb-1.5">
         <div className="space-y-0.5">

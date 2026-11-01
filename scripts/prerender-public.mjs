@@ -19,7 +19,7 @@ const safeUrl = value => {
 };
 
 const style = '<style id="somniel-first-paint">' +
-  '#root:not(:empty)+#somniel-static-shell{display:none!important}' +
+  'html.somniel-js #somniel-static-shell,#root:not(:empty)+#somniel-static-shell{display:none!important}' +
   '#somniel-static-shell{min-height:100vh;background:var(--bg,#f3f2ee);color:var(--fg,#1a1a1a);font-family:Inter,system-ui,sans-serif}' +
   '#somniel-static-shell nav{min-height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 3%;border-bottom:1px solid rgba(120,120,120,.16)}' +
   '#somniel-static-shell nav a{color:inherit;text-decoration:none;font-weight:650;font-size:12px}' +

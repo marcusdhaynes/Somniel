@@ -25,6 +25,7 @@
 
 @layer base {
   :root {
+    --sidebar-width: 8.5rem;
     --bg: #F3F2EE; /* Slightly deeper warm off-white for better distinction */
     --fg: #1A1A1A;
     --surface: #FFFFFF; /* White surfaces pop on warm bg */
@@ -32,6 +33,10 @@
     --muted: #6B6B6B;
     --accent: #E8C48C;
     --subtle: #EBE9E2; /* Secondary background for sidebars/headers */
+  }
+
+  @media (max-width: 767px) {
+    :root { --sidebar-width: 4.68rem; }
   }
 
   .dark {
