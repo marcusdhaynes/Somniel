@@ -65,7 +65,8 @@ const FileExplorer: React.FC = () => {
       setFiles(docs);
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'files');
+      console.error('File list failed:', error);
+      setLoading(false);
     });
 
     return () => unsubscribe();

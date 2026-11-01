@@ -24,7 +24,9 @@ const AdminOverview: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [employeesReady, setEmployeesReady] = useState(false);
+  const [tasksReady, setTasksReady] = useState(false);
+  const [logsReady, setLogsReady] = useState(false);
 
   useEffect(() => {
     const empQuery = query(collection(db, 'employees'), limit(5));
@@ -33,34 +35,38 @@ const AdminOverview: React.FC = () => {
 
     const unsubEmp = onSnapshot(empQuery, (snapshot) => {
       setEmployees(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setEmployeesReady(true);
     }, (error) => {
       try {
         handleFirestoreError(error, OperationType.LIST, 'employees');
       } catch (e) {
         console.error("Employee load error:", e);
+        setEmployeesReady(true);
       }
     });
 
     const unsubTasks = onSnapshot(taskQuery, (snapshot) => {
       setTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setTasksReady(true);
     }, (error) => {
       try {
         handleFirestoreError(error, OperationType.LIST, 'tasks');
       } catch (e) {
         console.error("Task load error:", e);
+        setTasksReady(true);
       }
     });
 
     const unsubLogs = onSnapshot(logQuery, (snapshot) => {
       setLogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
+      setLogsReady(true);
     }, (error) => {
       try {
         handleFirestoreError(error, OperationType.LIST, 'activity_logs');
       } catch (e) {
         console.error("Logs load error:", e);
       }
-      setLoading(false);
+      setLogsReady(true);
     });
 
     return () => {
@@ -89,21 +95,14 @@ const AdminOverview: React.FC = () => {
   };
 
   const stats = [
-    { label: "Total Employees", value: employees.length.toString(), icon: Users, color: "text-accent", bg: "bg-accent/10" },
-    { label: "Monthly Payroll", value: formatCurrency(employees.reduce((acc, curr) => acc + (curr.baseSalary || 0), 0) / 12), icon: DollarSign, color: "text-accent", bg: "bg-accent/10" },
-    { label: "Active Tasks", value: tasks.filter(t => t.status !== 'completed').length.toString(), icon: Activity, color: "text-accent", bg: "bg-accent/10" }
+    { label: "Total Employees", value: employeesReady ? employees.length.toString() : '…', icon: Users, color: "text-accent", bg: "bg-accent/10" },
+    { label: "Monthly Payroll", value: employeesReady ? formatCurrency(employees.reduce((acc, curr) => acc + (curr.baseSalary || 0), 0) / 12) : '…', icon: DollarSign, color: "text-accent", bg: "bg-accent/10" },
+    { label: "Active Tasks", value: tasksReady ? tasks.filter(t => t.status !== 'completed').length.toString() : '…', icon: Activity, color: "text-accent", bg: "bg-accent/10" }
   ];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Activity className="w-6 h-6 text-accent animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <section className="space-y-3 pt-6 pb-4">
+      {(!employeesReady || !tasksReady || !logsReady) && <p role="status" className="text-xs text-muted">Synchronizing live data…</p>}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-border pb-3">
         <div>
           <h1 className="text-lg font-serif font-bold tracking-tight text-fg mb-0.5">Admin Control Center</h1>

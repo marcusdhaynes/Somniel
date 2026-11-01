@@ -105,3 +105,29 @@
     @apply bg-surface/5 backdrop-blur-md border border-border rounded-3xl;
   }
 }
+
+/* User preference: reduce decorative work, including large animated blur layers. */
+html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Give the comfortable workspace mode more room while leaving the mobile layout intact. */
+html[data-density="comfortable"] .condensed-container {
+  max-width: 76rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+html[data-density="comfortable"] .condensed-card {
+  padding: 0.875rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

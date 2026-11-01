@@ -160,11 +160,13 @@ const EmployeeManagement: React.FC = () => {
   useEffect(() => {
     const unsubEmployees = onSnapshot(collection(db, 'employees'), (snapshot) => {
       setEmployees(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee)));
+      setLoading(false);
     }, (error) => {
       try {
         handleFirestoreError(error, OperationType.LIST, 'employees');
       } catch (e) {
         console.error("Employee load error:", e);
+        setLoading(false);
       }
     });
 

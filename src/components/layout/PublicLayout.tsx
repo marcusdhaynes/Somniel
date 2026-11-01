@@ -1,25 +1,15 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Navbar } from './Navbar';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const PublicLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg text-fg selection:bg-accent/30 selection:text-accent">
       <Navbar />
       <main className="">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={window.location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="pt-8 lg:pt-12"
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        <div className="pt-8 lg:pt-12">
+          <Outlet />
+        </div>
       </main>
       
       <footer className="bg-bg border-t border-white/5 py-8 mt-0 relative overflow-hidden">
