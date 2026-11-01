@@ -90,13 +90,13 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
-    <article style={{ height: 112, minHeight: 112, maxHeight: 112 }} className="public-section-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg">
+    <article className="project-preview-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg">
       <a
         href={app.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={'Open ' + app.name + ' live site'}
-        className="relative block h-7 shrink-0 overflow-hidden bg-subtle"
+        className="relative block aspect-[16/10] overflow-hidden bg-subtle"
       >
         {failed ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
@@ -119,19 +119,19 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             onError={() => setFailed(true)}
           />
         )}
-        <span className="absolute bottom-1 left-2 rounded-full border border-white/20 bg-black/75 px-2 py-0.5 text-[9px] font-semibold tracking-wide text-white">
+        <span className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/75 px-3 py-1 text-[10px] font-semibold tracking-wide text-white">
           Homepage preview
         </span>
       </a>
-      <div className="flex min-h-0 flex-col p-1.5">
-        <h3 className="truncate font-serif text-sm font-semibold tracking-tight text-fg">{app.name}</h3>
-        <p className="mt-0.5 min-h-0 truncate text-[10px] leading-4 text-muted">{app.description}</p>
-        <div className="mt-0.5 flex items-center gap-1.5">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <h3 className="truncate font-serif text-lg font-semibold tracking-tight text-fg">{app.name}</h3>
+        <p className="mt-2 min-h-10 flex-1 text-xs leading-relaxed text-muted">{app.description}</p>
+        <div className="mt-4 flex items-center gap-2">
           <a
             href={app.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="public-section-action rounded-md bg-accent px-2 text-[10px] font-bold text-bg transition-opacity hover:opacity-85"
+            className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-bold text-bg transition-opacity hover:opacity-85"
           >
             Open App <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
@@ -141,7 +141,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             rel="noopener noreferrer"
             title={'View ' + app.name + ' on GitHub'}
             aria-label={'View ' + app.name + ' repository on GitHub'}
-            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-fg transition-colors hover:border-accent hover:text-accent"
           >
             <Github className="h-4 w-4" aria-hidden="true" />
           </a>
@@ -150,7 +150,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             onClick={() => { setFailed(false); setRefresh(Date.now()); }}
             title={'Refresh ' + app.name + ' screenshot'}
             aria-label={'Refresh ' + app.name + ' live homepage screenshot'}
-            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-fg transition-colors hover:border-accent hover:text-accent"
             style={staticSource ? { display: 'none' } : undefined}
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />
@@ -222,7 +222,7 @@ const GitHubAppGallery: React.FC = () => {
           {apps.length} applications
         </span>
       </div>
-      <div className="public-section-grid">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {apps.map(app => <AppCard key={app.repo} app={app} />)}
       </div>
     </section>
