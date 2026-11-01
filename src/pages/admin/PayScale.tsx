@@ -98,7 +98,7 @@ const MultiplierItem = ({ category, id, name, value, onUpdateName, onUpdateValue
 const PayrollConfig: React.FC = () => {
   const { config, loading, updateConfig } = usePayscale();
   const { content } = useCMS();
-  const [localConfig, setLocalConfig] = useState<PayscaleConfig | null>(null);
+  const [localConfig, setLocalConfig] = useState<PayscaleConfig | null>(() => config ? structuredClone(config) : null);
   const [isDirty, setIsDirty] = useState(false);
 
   // Initialize localConfig from context config
@@ -142,30 +142,12 @@ const PayrollConfig: React.FC = () => {
     }
   }, [content?.positions, localConfig, isDirty]);
 
-  if (loading) {
-    return <section className="space-y-2 pt-5" aria-busy="true">
-      <h1 className="font-serif text-lg font-bold text-fg">Pay Scale Configuration</h1>
-      <p role="status" className="text-xs text-muted">Synchronizing configuration…</p>
-    </section>;
-  }
-
-  if (!localConfig) {
+  if (loading || !localConfig) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <div className="p-3 rounded-full bg-red-500/10 border border-red-500/20">
-          <RefreshCcw className="w-6 h-6 text-red-500" />
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-serif font-bold text-fg">Failed to load configuration</p>
-          <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Please check your connection and try again</p>
-        </div>
-        <button 
-          onClick={() => window.location.reload()}
-          className="btn-vibrant px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest"
-        >
-          Reload Page
-        </button>
-      </div>
+      <section className="space-y-2 pt-5" role="status" aria-busy="true">
+        <h1 className="font-serif text-lg font-bold text-fg">Pay Scale Configuration</h1>
+        <p className="text-xs text-muted">Synchronizing configuration…</p>
+      </section>
     );
   }
 

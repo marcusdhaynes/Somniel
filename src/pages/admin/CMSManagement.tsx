@@ -852,34 +852,36 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
 };
 
 const CMSManagement: React.FC = () => {
-  const { content, loading, updateContent } = useCMS();
+  const { content, loading, synced, updateContent } = useCMS();
   const [localContent, setLocalContent] = React.useState<any>(null);
   const [activeTab, setActiveTab] = React.useState<'hero' | 'subsidiaries' | 'founders' | 'projects' | 'benefits' | 'training' | 'performanceReport' | 'positions' | 'ranks' | 'contracts' | 'nda'>('hero');
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 
   React.useEffect(() => {
-    if (loading || !content || localContent) return;
+    // This page may mount while Firebase or the templates are still loading.
+    // Only initialize an editable copy from a confirmed server snapshot.
+    if (!synced || !content || localContent) return;
     let active = true;
-    // The editor needs complete defaults; public visitors never download them.
+    // Make the editor usable immediately; templates hydrate in parallel.
+    setLocalContent(content);
     void import('../../data/defaultContracts').then(({ DEFAULT_CONTRACTS }) => {
       if (!active) return;
-      const saved = content.contracts || {};
-      setLocalContent({
-        ...content,
-        contracts: {
-          hiring: saved.hiring || DEFAULT_CONTRACTS.hiring,
-          termination: saved.termination || DEFAULT_CONTRACTS.termination,
-          changeOfPosition: saved.changeOfPosition || DEFAULT_CONTRACTS.changeOfPosition,
-          nda: saved.nda || DEFAULT_CONTRACTS.nda,
-        }
+      setLocalContent((current: any) => {
+        if (!current) return current;
+        const saved = current.contracts || {};
+        return {
+          ...current,
+          contracts: {
+            hiring: saved.hiring || DEFAULT_CONTRACTS.hiring,
+            termination: saved.termination || DEFAULT_CONTRACTS.termination,
+            changeOfPosition: saved.changeOfPosition || DEFAULT_CONTRACTS.changeOfPosition,
+            nda: saved.nda || DEFAULT_CONTRACTS.nda,
+          }
+        };
       });
-    }).catch(error => {
-      console.error('Could not load editor templates:', error);
-      if (active) setLocalContent(content);
-    });
+    }).catch(error => console.warn('Default templates deferred:', error));
     return () => { active = false; };
-  }, [content, localContent, loading]);
-
+  }, [content, synced, localContent]);
   const handleSave = async () => {
     if (!localContent) return;
     try {
@@ -904,30 +906,14 @@ const CMSManagement: React.FC = () => {
     { id: 'contracts', name: 'Contracts', icon: Save },
   ];
 
-  if (loading) {
-    return <section className="space-y-2 pt-5" aria-busy="true">
-      <h1 className="font-serif text-lg font-bold text-fg">Content Studio</h1>
-      <p role="status" className="text-xs text-muted">Synchronizing content…</p>
-    </section>;
-  }
-
-  if (!localContent) {
+  if (loading || !synced || !localContent) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <div className="p-3 rounded-full bg-red-500/10 border border-red-500/20">
-          <RefreshCcw className="w-6 h-6 text-red-500" />
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-serif font-bold text-fg">Failed to load content</p>
-          <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Please check your connection and try again</p>
-        </div>
-        <button 
-          onClick={() => window.location.reload()}
-          className="btn-vibrant px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest"
-        >
-          Reload Page
-        </button>
-      </div>
+      <section className="space-y-2 pt-5" aria-busy="true" role="status">
+        <h1 className="font-serif text-lg font-bold text-fg">Content Studio</h1>
+        <p className="text-xs text-muted">
+          {loading || !synced ? 'Synchronizing content securely…' : 'Preparing editor…'}
+        </p>
+      </section>
     );
   }
 

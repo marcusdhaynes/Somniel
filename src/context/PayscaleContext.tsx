@@ -119,8 +119,11 @@ export const PayscaleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setConfig(DEFAULT_CONFIG);
       }
       setLoading(false);
-    }, () => {
-      setConfig(DEFAULT_CONFIG);
+    }, (error) => {
+      console.warn('Pay scale sync interrupted, retaining last known configuration:', error);
+      // Never overwrite a previously loaded configuration with invented
+      // defaults just because an existing live subscription loses connection.
+      setConfig(previous => previous ?? DEFAULT_CONFIG);
       setLoading(false);
     });
 

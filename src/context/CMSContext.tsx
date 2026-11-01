@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
 import { PUBLIC_DEFAULTS } from '../data/publicFallback.mjs';
 
 interface CMSContent {
@@ -61,6 +62,8 @@ interface CMSContent {
 interface CMSContextType {
   content: CMSContent | null;
   loading: boolean;
+  /** True only after Firestore confirms a server snapshot in this session. */
+  synced: boolean;
   updateContent: (newContent: CMSContent) => Promise<void>;
 }
 
@@ -157,21 +160,35 @@ const DEFAULT_CONTENT: CMSContent = {
 };
 
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Show public content immediately while the Firestore listener synchronizes.
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  // Readable fallback content is immediate, even with no network.
   const [content, setContent] = useState<CMSContent | null>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
+  const [synced, setSynced] = useState(false);
 
   useEffect(() => {
+    // Do not attach the listener until Firebase has resolved the authenticated
+    // user. Otherwise Firestore can permanently terminate the listener with a
+    // permission error during initial sign-in.
+    if (authLoading) return;
     let active = true;
     let unsubscribe: () => void = () => {};
-    // Public pages paint with defaults immediately while Firebase initializes
-    // in a separate JS chunk. Real CMS updates still arrive live afterward.
-    void Promise.all([import('../firebase'), import('firebase/firestore')])
-      .then(([sdk, store]) => {
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let retryCount = 0;
+    setSynced(false);
+    setLoading(true);
+
+    const subscribe = async () => {
+      try {
+        const [sdk, store] = await Promise.all([
+          import('../firebase'),
+          import('firebase/firestore'),
+        ]);
         if (!active) return;
         const cmsDoc = store.doc(sdk.db, 'config', 'cms');
         unsubscribe = store.onSnapshot(cmsDoc, snapshot => {
           if (!active) return;
+          retryCount = 0;
           if (snapshot.exists()) {
             const data = snapshot.data();
             setContent({
@@ -184,33 +201,49 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 ? { ...DEFAULT_CONTENT.contracts, ...data.contracts }
                 : DEFAULT_CONTENT.contracts,
             } as CMSContent);
-          } else {
-            // A public session may be read-only. Failure to initialize the
-            // default document is non-fatal; public pages keep their fallback.
+          } else if (!snapshot.metadata.fromCache && isAdmin) {
+            // Never write default CMS documents from public/unauthorized pages
+            // or while a cached offline snapshot is uncertain.
             void import('../data/defaultContracts').then(({ DEFAULT_CONTRACTS }) =>
               store.setDoc(cmsDoc, { ...DEFAULT_CONTENT, contracts: DEFAULT_CONTRACTS })
-            ).catch(() => {});
+            ).catch(error => console.warn('CMS initialization deferred:', error));
           }
+          if (!snapshot.metadata.fromCache) setSynced(true);
           setLoading(false);
-        }, error => {
+        }, (error: { code?: string; message?: string }) => {
           if (!active) return;
-          console.error('CMS synchronization unavailable:', error);
-          // Do not overwrite already displayed or previously synced content.
+          console.warn('CMS live subscription interrupted:', error);
+          // Preserve the last good content and keep the UI usable. A Firestore
+          // error terminates its subscription; network problems need a new one.
           setLoading(false);
+          const code = String(error?.code || '').split('/').pop();
+          if (['unavailable', 'deadline-exceeded', 'cancelled', 'internal', 'unknown', 'resource-exhausted'].includes(code || '')) {
+            const delay = Math.min(30000, 1500 * (2 ** Math.min(retryCount++, 5)));
+            retryTimer = setTimeout(() => { if (active) void subscribe(); }, delay);
+          }
+          // Permission errors recover when user/role changes, via effect deps.
         });
-      }).catch(error => {
+      } catch (error) {
         if (!active) return;
-        console.error('CMS initialization failed:', error);
+        console.warn('CMS initialization temporarily unavailable:', error);
         setLoading(false);
-      });
+        const delay = Math.min(30000, 1500 * (2 ** Math.min(retryCount++, 5)));
+        retryTimer = setTimeout(() => { if (active) void subscribe(); }, delay);
+      }
+    };
+    void subscribe();
+
     return () => {
       active = false;
+      if (retryTimer) clearTimeout(retryTimer);
       unsubscribe();
     };
-  }, []);
+  }, [authLoading, user?.uid, isAdmin]);
 
   const updateContent = async (newContent: CMSContent) => {
-    // Save remains an awaited, authenticated Firestore operation.
+    if (!synced) {
+      throw new Error('Content is still synchronizing; changes cannot be saved until the live content is available.');
+    }
     const [{ db }, { doc, setDoc }] = await Promise.all([
       import('../firebase'),
       import('firebase/firestore'),
@@ -219,7 +252,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <CMSContext.Provider value={{ content, loading, updateContent }}>
+    <CMSContext.Provider value={{ content, loading, synced, updateContent }}>
       {children}
     </CMSContext.Provider>
   );
