@@ -78,15 +78,20 @@ function previewUrl(siteUrl: string, refresh: number, width = 480): string {
   return `https://image.thum.io/get/width/${width}/crop/${Math.round(width * 0.625)}/maxAge/1/noanimate/` + target;
 }
 
-const AppCard: React.FC<{ app: App }> = ({ app }) => {
+const AppCard: React.FC<{ app: App; capturedPath?: string }> = ({ app, capturedPath }) => {
   const [failed, setFailed] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const [capturedFailed, setCapturedFailed] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
   // Curated static thumbnails (dark mode, key visuals) take precedence over
   // the live thum.io screenshot, which cannot do dark mode and often captures
   // loading states.
   const staticSource = app.thumbnail ? import.meta.env.BASE_URL + app.thumbnail : null;
-  const source = staticSource ?? previewUrl(app.url, refresh);
-  const responsiveSources = staticSource ? undefined : `${previewUrl(app.url, refresh, 320)} 320w, ${previewUrl(app.url, refresh, 480)} 480w, ${previewUrl(app.url, refresh, 720)} 720w`;
+  const capturedSource = capturedPath && !capturedFailed && refresh === 0
+    ? import.meta.env.BASE_URL + capturedPath : null;
+  const source = capturedSource ?? staticSource ?? previewUrl(app.url, refresh);
+  const responsiveSources = capturedSource || staticSource ? undefined :
+    `${previewUrl(app.url, refresh, 320)} 320w, ${previewUrl(app.url, refresh, 480)} 480w, ${previewUrl(app.url, refresh, 720)} 720w`;
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
@@ -105,6 +110,12 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             <span className="text-[10px]">Open the app to view its homepage</span>
           </div>
         ) : (
+          <>
+          {!imageReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-subtle px-3 text-center">
+              <span className="font-serif text-xl font-bold text-fg/75">{app.name}</span>
+            </div>
+          )}
           <img
             src={source}
             srcSet={responsiveSources}
@@ -116,8 +127,14 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             loading="lazy"
             fetchPriority="low"
             decoding="async"
-            onError={() => setFailed(true)}
+            onLoad={() => setImageReady(true)}
+            onError={() => {
+              setImageReady(false);
+              if (capturedSource) setCapturedFailed(true);
+              else setFailed(true);
+            }}
           />
+          </>
         )}
         <span className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/75 px-3 py-1 text-[10px] font-semibold tracking-wide text-white">
           Homepage preview
@@ -147,7 +164,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
           </a>
           <button
             type="button"
-            onClick={() => { setFailed(false); setRefresh(Date.now()); }}
+            onClick={() => { setFailed(false); setCapturedFailed(true); setImageReady(false); setRefresh(Date.now()); }}
             title={'Refresh ' + app.name + ' screenshot'}
             aria-label={'Refresh ' + app.name + ' live homepage screenshot'}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-fg transition-colors hover:border-accent hover:text-accent"
@@ -163,6 +180,23 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
 
 const GitHubAppGallery: React.FC = () => {
   const [apps, setApps] = useState<App[]>(() => getCachedApps() ?? STARTER_APPS);
+  const [captures, setCaptures] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch(import.meta.env.BASE_URL + 'thumbnails/manifest.json', { signal: controller.signal })
+      .then(response => response.ok ? response.json() : {})
+      .then(data => {
+        if (controller.signal.aborted || !data || typeof data !== 'object') return;
+        const safe: Record<string, string> = {};
+        for (const [key, value] of Object.entries(data)) {
+          if (/^[a-z0-9-]+$/.test(key) && typeof value === 'string' &&
+              /^thumbnails\/live\/[a-z0-9-]+\.png$/.test(value)) safe[key] = value;
+        }
+        setCaptures(safe);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (getCachedApps()) return;
@@ -223,7 +257,7 @@ const GitHubAppGallery: React.FC = () => {
         </span>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {apps.map(app => <AppCard key={app.repo} app={app} />)}
+        {apps.map(app => <AppCard key={app.repo} app={app} capturedPath={captures[app.repo.toLowerCase()]} />)}
       </div>
     </section>
   );
