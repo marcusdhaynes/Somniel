@@ -35,18 +35,34 @@ export function prefetchRoute(path: string): void {
   });
   pending.set(path, task);
 }
+// Download one route at a time and only during idle time, so prewarming
+// cannot block initial paint, user interaction, or slow/data-saving networks.
 export function prefetchOnIdle(paths: string[]): () => void {
   if (isDataConstrained()) return () => {};
-  const idle = window as PrefetchableWindow;
-  const load = () => {
-    // Do not saturate the network with all editors; at most 2 lightweight
-    // likely next destinations in the first background batch.
-    paths.slice(0, 2).forEach(prefetchRoute);
+  const win = window as PrefetchableWindow;
+  let cancelled = false;
+  let next = 0;
+  let idleId: number | undefined;
+  let timerId: number | undefined;
+  const schedule = () => {
+    if (cancelled || next >= paths.length) return;
+    const work = () => {
+      if (cancelled) return;
+      if (document.visibilityState === 'visible' && !isDataConstrained()) {
+        prefetchRoute(paths[next++]);
+      }
+      timerId = window.setTimeout(schedule, 900);
+    };
+    if (win.requestIdleCallback) {
+      idleId = win.requestIdleCallback(work, { timeout: 3000 });
+    } else {
+      timerId = window.setTimeout(work, 800);
+    }
   };
-  if (idle.requestIdleCallback) {
-    const id = idle.requestIdleCallback(load, { timeout: 2500 });
-    return () => idle.cancelIdleCallback?.(id);
-  }
-  const id = window.setTimeout(load, 900);
-  return () => window.clearTimeout(id);
+  schedule();
+  return () => {
+    cancelled = true;
+    if (idleId !== undefined) win.cancelIdleCallback?.(idleId);
+    if (timerId !== undefined) window.clearTimeout(timerId);
+  };
 }

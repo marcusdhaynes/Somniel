@@ -142,7 +142,7 @@ const AdminOverview: React.FC = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="text-base font-serif font-bold text-fg tracking-tight truncate">{stat.value}</p>
+                  <p className="text-base font-serif font-bold text-fg tracking-tight truncate tabular-nums min-w-[7ch]">{stat.value}</p>
                   <div className="flex items-center space-x-1">
                     <TrendingUp className="w-2 h-2 text-accent/40" />
                     <span className="text-[5px] font-bold text-accent/60 uppercase tracking-widest">+12.5%</span>
@@ -166,7 +166,7 @@ const AdminOverview: React.FC = () => {
             <button className="text-[7px] font-bold uppercase tracking-[0.15em] text-accent hover:opacity-80 transition-opacity border-b border-accent/30 pb-0.5">Directory</button>
           </div>
           
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 min-h-[14rem]">
             {employees.map((emp, i) => (
               <motion.div 
                 key={i}
@@ -249,7 +249,7 @@ const AdminOverview: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-surface/30 rounded-xl border border-border overflow-hidden shadow-sm">
+          <div className="bg-surface/30 rounded-xl border border-border overflow-hidden shadow-sm min-h-[14rem]">
             <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
               <table className="w-full text-left border-collapse">
                 <thead>

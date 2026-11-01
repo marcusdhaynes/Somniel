@@ -44,11 +44,15 @@ const RouteWarmup: React.FC = () => {
   const { user, isAdmin, loading } = useAuth();
   React.useEffect(() => {
     if (loading) return;
-    // Prioritize rendering. Only warm the next two small routes after paint;
-    // heavyweight admin editors load on pointer/focus/touch intent instead.
+    // Stage likely route code in idle slices. After an admin signs in,
+    // management pages are ready before clicks without a download waterfall.
+    // Slow-data users are automatically excluded from speculative work.
     const destinations = user
-      ? (isAdmin ? ['/admin', '/admin/settings'] : ['/dashboard', '/dashboard/settings'])
-      : ['/projects', '/subsidiaries'];
+      ? (isAdmin
+        ? ['/admin', '/admin/employees', '/admin/cms', '/admin/payroll',
+           '/admin/payscale', '/admin/roadmap', '/admin/settings']
+        : ['/dashboard', '/dashboard/files', '/dashboard/settings'])
+      : ['/projects', '/subsidiaries', '/founders'];
     return prefetchOnIdle(destinations);
   }, [user, isAdmin, loading]);
   return null;

@@ -587,8 +587,8 @@ const EmployeeManagement: React.FC = () => {
           </div>
 
           {/* Employee Table */}
-          <div className="bg-surface/30 rounded-lg border border-border overflow-hidden backdrop-blur-md shadow-md">
-            <div className="overflow-x-auto">
+          <div className="bg-surface/30 rounded-lg border border-border overflow-hidden backdrop-blur-md shadow-md min-h-[18rem]">
+            <div className="overflow-auto min-h-[18rem] max-h-[70vh]">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border text-[6px] font-bold uppercase tracking-[0.2em] text-muted/60 bg-surface/50">

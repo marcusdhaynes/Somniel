@@ -853,8 +853,14 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
 
 const CMSManagement: React.FC = () => {
   const { content, loading, synced, updateContent } = useCMS();
-  const [localContent, setLocalContent] = React.useState<any>(null);
-  const [templatesReady, setTemplatesReady] = React.useState(false);
+  // Seed the editor synchronously when the provider already has live data.
+  // Navigating back to Content Studio must not render an intermediate empty page.
+  const [localContent, setLocalContent] = React.useState<any>(() => synced ? content : null);
+  const [templatesReady, setTemplatesReady] = React.useState(
+    () => !!(synced && content && ['hiring', 'termination', 'changeOfPosition', 'nda']
+      .every(key => typeof (content.contracts as any)?.[key] === 'string' &&
+        (content.contracts as any)[key].trim().length > 0))
+  );
   const [activeTab, setActiveTab] = React.useState<'hero' | 'subsidiaries' | 'founders' | 'projects' | 'benefits' | 'training' | 'performanceReport' | 'positions' | 'ranks' | 'contracts' | 'nda'>('hero');
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 

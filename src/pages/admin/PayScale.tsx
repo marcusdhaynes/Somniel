@@ -142,7 +142,7 @@ const PayrollConfig: React.FC = () => {
     }
   }, [content?.positions, localConfig, isDirty]);
 
-  if (loading || !synced || !localConfig) {
+  if (!localConfig) {
     return (
       <section className="space-y-2 pt-5" role="status" aria-busy="true">
         <h1 className="font-serif text-lg font-bold text-fg">Pay Scale Configuration</h1>
@@ -250,7 +250,7 @@ const PayrollConfig: React.FC = () => {
   };
 
   return (
-    <div key={localConfig.baseRate} className="space-y-3 pb-6">
+    <div className="space-y-3 pb-6" aria-busy={!synced} inert={!synced}>
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 border-b border-border pb-1.5">
         <div>
           <h1 className="text-sm font-serif font-bold tracking-tight text-fg leading-none">Pay Scale Configuration</h1>
