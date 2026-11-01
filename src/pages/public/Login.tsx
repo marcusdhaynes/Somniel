@@ -56,7 +56,7 @@ const Login: React.FC = () => {
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-accent/5 blur-[150px] rounded-full delay-1000" />
       
       <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 30 }}
+        initial={false}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
         className="w-full max-w-xl relative z-10"
@@ -67,7 +67,7 @@ const Login: React.FC = () => {
           
           <div className="text-center mb-16">
             <motion.div 
-              initial={{ rotate: -10, scale: 0.9 }}
+              initial={false}
               animate={{ rotate: 0, scale: 1 }}
               transition={{ duration: 0.2 }}
               className="w-20 h-20 bg-accent/10 rounded-[2rem] flex items-center justify-center mx-auto mb-12 group-hover:scale-110 transition-all duration-700 shadow-2xl shadow-accent/10 border border-accent/20"
@@ -76,7 +76,7 @@ const Login: React.FC = () => {
             </motion.div>
             
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
@@ -94,7 +94,7 @@ const Login: React.FC = () => {
           </div>
 
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             onClick={handleLogin}
@@ -117,7 +117,7 @@ const Login: React.FC = () => {
           )}
 
           <motion.div 
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
             className="mt-16 pt-10 border-t border-white/5 text-center"

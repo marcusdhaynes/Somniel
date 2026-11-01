@@ -20,7 +20,7 @@ const Home: React.FC = () => {
 
         <div className="max-w-[1400px] mx-auto text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={false}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
@@ -31,7 +31,7 @@ const Home: React.FC = () => {
               {content.hero.title.split(' ').map((word, i) => (
                 <motion.span 
                   key={i} 
-                  initial={{ opacity: 0, y: 50, rotateX: -30 }}
+                  initial={false}
                   animate={{ opacity: 1, y: 0, rotateX: 0 }}
                   transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
                   className="inline-block mr-[0.15em] last:mr-0"
@@ -41,7 +41,7 @@ const Home: React.FC = () => {
               ))}
             </h1>
             <motion.p 
-              initial={{ opacity: 0 }}
+              initial={false}
               animate={{ opacity: 0.7 }}
               transition={{ duration: 0.2 }}
               className="text-sm md:text-lg text-muted max-w-2xl mx-auto mb-8 leading-relaxed font-light tracking-tight"
@@ -82,9 +82,9 @@ const Home: React.FC = () => {
             ].map((feature, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                initial={false}
+                animate={{ opacity: 1, y: 0 }}
+
                 transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
                 className="p-3 md:p-4 rounded-[1rem] md:rounded-[1.5rem] bg-surface/20 border border-white/5 hover:border-accent/40 transition-all group relative overflow-hidden backdrop-blur-xl shadow-lg shadow-black/5"
               >
@@ -114,9 +114,9 @@ const Home: React.FC = () => {
             ].map((stat, i) => (
               <motion.div 
                 key={i} 
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                initial={false}
+                animate={{ opacity: 1, y: 0 }}
+
                 transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2 }}
                 className="space-y-1 md:space-y-2"
               >

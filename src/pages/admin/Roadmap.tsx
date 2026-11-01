@@ -141,12 +141,12 @@ const Roadmap: React.FC = () => {
             </div>
 
             <div className="space-y-3 min-h-[12rem]">
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="sync" initial={false}>
                 {filteredTasks.filter(t => t.status === status).map((task) => (
                   <motion.div
                     key={task.id}
-                    layout
-                    initial={{ opacity: 0, y: 15 }}
+
+                    initial={false}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className="p-3 rounded-xl bg-surface/50 border border-border hover:border-accent/40 transition-all group relative backdrop-blur-sm shadow-sm hover:shadow-lg hover:shadow-accent/5"
@@ -207,7 +207,7 @@ const Roadmap: React.FC = () => {
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/90 backdrop-blur-lg">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              initial={false}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               className="w-full max-w-sm bg-surface border border-border rounded-xl overflow-hidden shadow-2xl"

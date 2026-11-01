@@ -35,7 +35,7 @@ const UserDashboard: React.FC = () => {
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
+              initial={false}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center space-x-2 mb-1"
             >
@@ -71,7 +71,7 @@ const UserDashboard: React.FC = () => {
         ].map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               className="p-2 rounded-xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-all group relative overflow-hidden backdrop-blur-xl shadow-xl hover:shadow-accent/5"

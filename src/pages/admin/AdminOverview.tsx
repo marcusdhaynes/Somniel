@@ -102,7 +102,7 @@ const AdminOverview: React.FC = () => {
 
   return (
     <section className="space-y-3 pt-6 pb-4">
-      {(!employeesReady || !tasksReady || !logsReady) && <p role="status" className="text-xs text-muted">Synchronizing live data…</p>}
+      {(!employeesReady || !tasksReady || !logsReady) && <p role="status" className="sr-only">Synchronizing live data…</p>}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-border pb-3">
         <div>
           <h1 className="text-lg font-serif font-bold tracking-tight text-fg mb-0.5">Admin Control Center</h1>
@@ -127,7 +127,7 @@ const AdminOverview: React.FC = () => {
         {stats.map((stat, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 10 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             className="p-2.5 rounded-lg bg-surface border border-border hover:border-accent/40 transition-all group relative overflow-hidden shadow-sm"
@@ -170,7 +170,7 @@ const AdminOverview: React.FC = () => {
             {employees.map((emp, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, x: -10 }}
+                initial={false}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
                 className="p-2 rounded-lg bg-surface/40 border border-border flex items-center justify-between group hover:bg-surface hover:border-accent/30 transition-all shadow-sm"
@@ -265,7 +265,7 @@ const AdminOverview: React.FC = () => {
                     filteredLogs.map((log, i) => (
                       <motion.tr 
                         key={i}
-                        initial={{ opacity: 0 }}
+                        initial={false}
                         animate={{ opacity: 1 }}
                         className="group hover:bg-accent/[0.02] transition-colors"
                       >
@@ -321,7 +321,7 @@ const AdminOverview: React.FC = () => {
           {tasks.map((task, i) => (
             <motion.div 
               key={i}
-              initial={{ opacity: 0, y: 10 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               className="p-2 rounded-lg bg-surface/50 border border-border flex items-center justify-between group hover:bg-surface hover:border-accent/30 transition-all shadow-sm"

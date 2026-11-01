@@ -20,7 +20,7 @@ const Projects: React.FC = () => {
 
         <div className="max-w-[1400px] mx-auto text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={false}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
@@ -31,7 +31,7 @@ const Projects: React.FC = () => {
               Future <span className="text-accent italic font-light lowercase font-serif">Initiatives</span>
             </h1>
             <motion.p 
-              initial={{ opacity: 0 }}
+              initial={false}
               animate={{ opacity: 0.7 }}
               transition={{ duration: 0.2 }}
               className="text-sm md:text-lg text-muted max-w-2xl mx-auto mb-8 leading-relaxed font-light tracking-tight"
@@ -51,9 +51,9 @@ const Projects: React.FC = () => {
           {content.projects.map((project, i) => (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
+              initial={false}
+              animate={{ opacity: 1, y: 0 }}
+
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="group relative flex flex-col"
             >

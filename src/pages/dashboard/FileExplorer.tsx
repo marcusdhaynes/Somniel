@@ -167,7 +167,7 @@ const FileExplorer: React.FC = () => {
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-2 mb-3">
           <div className="space-y-2">
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
+              initial={false}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center space-x-2 text-[8px] font-bold uppercase tracking-[0.4em] text-accent/60"
             >
@@ -273,12 +273,12 @@ const FileExplorer: React.FC = () => {
           </div>
         ) : view === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="sync" initial={false}>
               {filteredFiles.map((file) => (
                 <motion.div
                   key={file.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
+
+                  initial={false}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
