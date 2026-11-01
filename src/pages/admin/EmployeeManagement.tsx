@@ -4,6 +4,7 @@ import { db, handleFirestoreError, OperationType, logActivity } from '../../fire
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { 
   UserPlus, 
+  Globe,
   Search, 
   Edit2, 
   FileText, 
@@ -360,7 +361,7 @@ const EmployeeManagement: React.FC = () => {
     }
   };
 
-  const handleGenerateContract = async (emp: Employee, type: 'hiring' | 'termination' | 'changeOfPosition' | 'nda') => {
+  const handleGenerateContract = async (emp: Employee, type: 'hiring' | 'internationalStudentHiring' | 'termination' | 'changeOfPosition' | 'nda') => {
     if (!content) return;
     // Keep large default templates out of the main bundle. CMS overrides,
     // when present, always take precedence over the default text.
@@ -389,6 +390,10 @@ const EmployeeManagement: React.FC = () => {
       template = content.contracts?.hiring || fallback;
       html = generateHiringContract(data, template);
       title = `Hiring Contract - ${emp.name}`;
+    } else if (type === 'internationalStudentHiring') {
+      template = content.contracts?.internationalStudentHiring || fallback;
+      html = generateHiringContract(data, template);
+      title = `International Student Hiring Contract - ${emp.name}`;
     } else if (type === 'termination') {
       template = content.contracts?.termination || fallback;
       html = generateTerminationContract(data, template);
@@ -773,6 +778,14 @@ const EmployeeManagement: React.FC = () => {
                                 title="Hiring Contract"
                               >
                                 <FileText className="w-2 h-2" />
+                              </button>
+                              <button
+                                onClick={() => handleGenerateContract(emp, 'internationalStudentHiring')}
+                                className="p-0.5 text-muted hover:text-accent transition-all rounded hover:bg-accent/10 border border-transparent hover:border-accent/20"
+                                title="International Student Hiring Contract"
+                                aria-label={`International Student Hiring Contract for ${emp.name}`}
+                              >
+                                <Globe className="w-2 h-2" />
                               </button>
                               <button 
                                 onClick={() => handleGenerateContract(emp, 'changeOfPosition')} 
