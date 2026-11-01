@@ -148,27 +148,26 @@ html[data-density="comfortable"] .condensed-card {
   .payscale-number-controls { visibility: visible; opacity: 1; }
 }
 
-/* Minimal, matching card geometry for every public entity section. Grid breakpoints
-   and card height are shared by Subsidiaries, Founders, and both Projects
-   sections; content and footer alignment remain responsive. */
+/* Public section cards retain full responsive column widths but have a
+   minimal, uniform 160px height across Subsidiaries, Founders, Projects,
+   and app previews. Every card has the same vertical footprint. */
 @layer components {
   .public-section-grid {
     display: grid;
-    grid-template-columns: minmax(0, min(100%, 17rem));
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.75rem;
-    justify-content: center;
-    align-items: start;
+    align-items: stretch;
   }
   .public-section-card {
     box-sizing: border-box;
     width: 100%;
-    height: 12rem;
+    height: 10rem;
     min-width: 0;
   }
   @media (min-width: 768px) {
-    .public-section-grid { grid-template-columns: repeat(2, minmax(0, 17rem)); }
+    .public-section-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (min-width: 1024px) {
-    .public-section-grid { grid-template-columns: repeat(3, minmax(0, 17rem)); }
+    .public-section-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 }

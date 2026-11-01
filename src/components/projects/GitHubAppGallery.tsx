@@ -96,7 +96,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={'Open ' + app.name + ' live site'}
-        className="relative block h-20 shrink-0 overflow-hidden bg-subtle"
+        className="relative block h-14 shrink-0 overflow-hidden bg-subtle"
       >
         {failed ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
@@ -119,7 +119,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             onError={() => setFailed(true)}
           />
         )}
-        <span className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/75 px-3 py-1 text-[10px] font-semibold tracking-wide text-white">
+        <span className="absolute bottom-1 left-2 rounded-full border border-white/20 bg-black/75 px-2 py-0.5 text-[9px] font-semibold tracking-wide text-white">
           Homepage preview
         </span>
       </a>
