@@ -96,7 +96,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={'Open ' + app.name + ' live site'}
-        className="relative block h-12 shrink-0 overflow-hidden bg-subtle"
+        className="relative block h-10 shrink-0 overflow-hidden bg-subtle"
       >
         {failed ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
@@ -125,7 +125,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
       </a>
       <div className="flex min-h-0 flex-col p-2">
         <h3 className="truncate font-serif text-sm font-semibold tracking-tight text-fg">{app.name}</h3>
-        <p className="mt-0.5 min-h-0 line-clamp-2 overflow-hidden text-[10px] leading-4 text-muted" title={app.description}>{app.description}</p>
+        <p className="mt-0.5 min-h-0 line-clamp-2 overflow-hidden text-[10px] leading-4 text-muted">{app.description}</p>
         <div className="mt-1 flex items-center gap-1.5">
           <a
             href={app.url}

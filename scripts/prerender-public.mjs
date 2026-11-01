@@ -29,12 +29,12 @@ const style = '<style id="somniel-first-paint">' +
   '#somniel-static-shell h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(34px,5.4vw,70px);letter-spacing:-.05em;line-height:1.06;margin:8px auto 16px;max-width:1000px}' +
   '#somniel-static-shell p{font-size:clamp(13px,1.3vw,18px);line-height:1.65;color:var(--muted,#777);max-width:680px;margin:0 auto 22px}' +
   '#somniel-static-shell .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.22em;color:var(--accent,#e8c48c)}' +
-  '#somniel-static-shell .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(0,208px));justify-content:start;gap:8px;margin:30px auto 0;text-align:left}' +
-  '#somniel-static-shell .tile{height:148px;min-height:148px;box-sizing:border-box;overflow:hidden}' +
-  '#somniel-static-shell .tile{padding:10px;border-radius:12px;border:1px solid var(--border,#ddd);background:var(--surface,#fff);min-width:0}' +
+  '#somniel-static-shell .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),288px));justify-content:center;gap:12px;margin:30px auto 0;text-align:left}' +
+  '#somniel-static-shell .tile{height:9rem;min-height:9rem;box-sizing:border-box;overflow:hidden}' +
+  '#somniel-static-shell .tile{padding:12px;border-radius:12px;border:1px solid var(--border,#ddd);background:var(--surface,#fff);min-width:0}' +
   '#somniel-static-shell .tile h2{font-size:17px;margin:0 0 10px;font-family:Georgia,serif}' +
   '#somniel-static-shell .tile p{font-size:12px;margin:0;line-height:1.5}' +
-  '#somniel-static-shell .tile img{width:44px;height:44px;object-fit:cover;border-radius:10px;float:left;margin:0 14px 8px 0}' +
+  '#somniel-static-shell .tile img{width:70px;height:70px;object-fit:cover;border-radius:10px;float:left;margin:0 14px 8px 0}' +
   '#somniel-static-shell .cta{display:inline-flex;padding:12px 22px;border-radius:30px;background:var(--accent,#e8c48c);color:var(--bg,#111);text-decoration:none;font-size:12px;font-weight:bold}' +
   '@media(max-width:650px){#somniel-static-shell nav span{gap:9px}#somniel-static-shell nav span a{font-size:9px}#somniel-static-shell main{padding-top:28px}}' +
   '</style>';

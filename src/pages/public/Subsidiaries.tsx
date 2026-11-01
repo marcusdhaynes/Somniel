@@ -50,10 +50,10 @@ const Subsidiaries: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
 
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
-              className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-2.5 backdrop-blur-2xl shadow-2xl shadow-black/20"
+              className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-3 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
               <div className="flex min-h-0 items-start gap-2.5">
-                <div className="w-10 h-10 bg-bg rounded-lg flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shadow-2xl group-hover:shadow-accent/10 shrink-0">
+                <div className="w-12 h-12 bg-bg rounded-xl flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shadow-2xl group-hover:shadow-accent/10 shrink-0">
                   <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={sub.logo} alt={sub.name} className="w-full h-full object-cover transform group-hover:scale-125 transition-transform duration-1000" />
                 </div>
                 
@@ -63,11 +63,11 @@ const Subsidiaries: React.FC = () => {
                     <ExternalLink className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-x-2 group-hover:translate-x-0" />
                   </div>
                   
-                  <p className="text-muted text-[10px] leading-4 mb-1 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3" title={sub.description}>
+                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3">
                     {sub.description}
                   </p>
                   
-                  <div className="mt-0.5 flex justify-end">
+                  <div className="mt-1 flex justify-end">
                     <a
                       href={sub.website}
                       className="public-section-action text-accent font-bold hover:text-accent/80 transition-colors text-[8px] uppercase tracking-[0.2em] group/link"

@@ -1,24 +1,29 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-// Validate the card dimensions in both source AND compiled CSS, since a
-// production-only cascade regression previously made deployed cards too wide.
+// Prevent a deployed CSS regression: all public cards must have the same
+// small HEIGHT. Widths and action buttons intentionally retain their prior
+// (pre-compact-width-change) layout.
 const source = await readFile('src/index.css', 'utf8');
-const expectations = [
-  ['card width', /--public-tile-width:\s*13rem\s*;/],
-  ['card height', /--public-tile-height:\s*9\.25rem\s*;/],
-  ['action width', /\.public-section-action\s*\{[^}]*width:\s*7\.5rem\s*;/s],
-  ['unlayered card selector', /^\.public-section-grid\s*>\s*\.public-section-card\s*\{/m],
+const cssCheck = [
+  ['144px uniform banner height', /\.public-section-card\s*\{[^}]*height:\s*9rem\s*;/s],
+  ['previous 288px max width', /\.public-section-card\s*\{[^}]*max-width:\s*18rem\s*;/s],
+  ['original button size', /\.public-section-action\s*\{[^}]*width:\s*9rem\s*;/s],
+  ['no forced 208px width', /--public-tile-width/],
 ];
-for (const [label, pattern] of expectations) {
-  if (!pattern.test(source)) throw new Error('Public geometry regression: ' + label);
+for (const [label, pattern] of cssCheck) {
+  const found = pattern.test(source);
+  if (label === 'no forced 208px width' ? found : !found) {
+    throw new Error('Public card geometry check failed: ' + label);
+  }
 }
 const assets = await readdir('dist/assets');
-const cssFiles = assets.filter(f => f.endsWith('.css'));
-if (!cssFiles.length) throw new Error('No compiled production CSS');
-const compiled = (await Promise.all(cssFiles.map(f => readFile(join('dist/assets', f), 'utf8')))).join('\n');
-for (const token of ['--public-tile-width', '--public-tile-height', '.public-section-action', '.public-section-grid']) {
-  if (!compiled.includes(token)) throw new Error('Missing public geometry in compiled CSS: ' + token);
+const stylesheets = assets.filter(file => file.endsWith('.css'));
+if (!stylesheets.length) throw new Error('No production CSS was generated');
+const compiled = (await Promise.all(stylesheets.map(file => readFile(join('dist/assets',file),'utf8')))).join('\n');
+if (!/\.public-section-card\s*\{[^}]*height:\s*9rem/s.test(compiled) ||
+    !compiled.includes('.public-section-action')) {
+  throw new Error('Uniform compact banner height missing from compiled production CSS');
 }
 for (const path of [
   'src/pages/public/Subsidiaries.tsx',
@@ -26,7 +31,7 @@ for (const path of [
   'src/pages/public/Projects.tsx',
   'src/components/projects/GitHubAppGallery.tsx',
 ]) {
-  const jsx = await readFile(path,'utf8');
-  if (!jsx.includes('public-section-card')) throw new Error('Shared geometry missing from ' + path);
+  const jsx = await readFile(path, 'utf8');
+  if (!jsx.includes('public-section-card')) throw new Error('Unstyled banner: ' + path);
 }
-console.log('PASS: all public cards compile with shared 208x148px geometry and 120px actions.');
+console.log('PASS: all public banners have a uniform 144px height; original widths and buttons restored.');

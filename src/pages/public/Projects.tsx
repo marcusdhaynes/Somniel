@@ -57,7 +57,7 @@ const Projects: React.FC = () => {
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="public-section-card group relative flex flex-col"
             >
-              <div className="relative flex-1 overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-[border-color,box-shadow] duration-200 p-2.5 backdrop-blur-2xl group-hover:shadow-2xl group-hover:shadow-accent/5">
+              <div className="relative flex-1 overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-[border-color,box-shadow] duration-200 p-3 backdrop-blur-2xl group-hover:shadow-2xl group-hover:shadow-accent/5">
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent/5 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 <div className="flex items-start gap-2.5 relative z-10 min-h-0">
@@ -75,11 +75,11 @@ const Projects: React.FC = () => {
                       </span>
                     </div>
                     
-                    <p className="text-muted/60 text-[10px] leading-4 mb-1 font-medium line-clamp-2" title={project.description}>
+                    <p className="text-muted/60 text-[10px] leading-4 mb-2 font-medium line-clamp-2">
                       {project.description}
                     </p>
                     
-                    <div className="mt-0.5 flex justify-end">
+                    <div className="mt-1 flex justify-end">
                       <button className="public-section-action text-fg font-bold hover:text-accent transition-colors duration-200 text-[8px] uppercase tracking-[0.2em] group/btn">
                         <span className="relative">
                           Explore Project

@@ -29,7 +29,7 @@ jobs:
         env:
           SOMNIEL_WEB: 'true'
 
-      - name: Verify compact public card geometry in the production CSS
+      - name: Verify uniform compact public banner heights
         run: node scripts/verify-public-card-layout.mjs
 
       - name: Pre-render four public pages before React loads
