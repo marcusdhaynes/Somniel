@@ -28,8 +28,48 @@ for (const key of ['legal-field-grid','legal-initials','signature_company_typed'
 for (const term of ['Contractor','SOW','Sanctions','Annex M','tax','privacy','salary','employment','local']) {
   ensure(intl.toLowerCase().includes(term.toLowerCase()), 'Missing required term: ' + term);
 }
-ensure(!/\\bvisa\\b|immigra|E30B|E33G|\\bF-1\\b|\\bCPT\\b|\\bOPT\\b|\\bstudent\\b|\\bacademic\\b|\\bscholarship\\b/i.test(intl),
+ensure(!/\bvisa\b|immigra|E30B|E33G|\bF-1\b|\bCPT\b|\bOPT\b|\bstudent\b|\bacademic\b|\bscholarship\b/i.test(intl),
  'Circumstance-specific content is not allowed in the agreement');
+
+const minorWords = new Set(['a','an','and','as','at','but','by','for','from','in','into','nor','of','on','onto','or','over','per','the','to','via','vs','with','without']);
+const abbreviations = new Set(['AI','IP','HR','ID','LLC','MFA','SOW','PDF','US','UK','A','I','II','III','IV','Q']);
+const titleCase = value => {
+  const pieces = [...value.matchAll(/[A-Za-z]+(?:['’][A-Za-z]+)?|\d+(?:\.\d+)*/g)];
+  return value.replace(/[A-Za-z]+(?:['’][A-Za-z]+)?|\d+(?:\.\d+)*/g, (word, offset) => {
+    if (/^\d/.test(word)) return word;
+    const upper = word.toUpperCase();
+    if (abbreviations.has(upper) && word === upper) return word;
+    const lower = word.toLowerCase();
+    const before = value.slice(0, offset).trimEnd();
+    const major = offset === pieces[0]?.index || offset === pieces[pieces.length-1]?.index || /[·—|:(/]\s*$/.test(before);
+    return major || !minorWords.has(lower) ? lower[0].toUpperCase() + lower.slice(1) : lower;
+  });
+};
+const headingTexts = [
+  ...[...intl.matchAll(/<h1>([^<]+)<\/h1>/g)].map(x => x[1]),
+  ...[...intl.matchAll(/<h2><span class="legal-section-number">\d+<\/span>([^<]+)<\/h2>/g)].map(x => x[1]),
+  ...[...intl.matchAll(/<h3>([^<]+)<\/h3>/g)].map(x => x[1]),
+  ...[...intl.matchAll(/<div class="legal-part-title">([^<]+)<\/div>/g)].map(x => x[1]),
+  ...[...intl.matchAll(/<p class="legal-eyebrow">([^<]+)<\/p>/g)].map(x => x[1]),
+  ...[...intl.matchAll(/<div class="legal-notice"><strong>([^<]+)<\/strong>/g)].map(x => x[1])
+];
+ensure(headingTexts.length === 70, 'Unexpected number of contract display headings: ' + headingTexts.length);
+for (const heading of headingTexts) {
+  ensure(heading === titleCase(heading), 'Heading not Title Case: ' + heading);
+}
+const annexTags = [...intl.matchAll(/<header class="legal-annex-heading"><span>([^<]+)<\/span>/g)].map(x => x[1]);
+ensure(annexTags.length === 17 && annexTags.every(label => /^Annex [A-Q]$/.test(label)),
+  'Annex tags must be consistently Title Case');
+const fieldLabels = [...intl.matchAll(/<span class="legal-label">([^<]+)<\/span>/g)].map(x => x[1]);
+const accessibilityLabels = [...intl.matchAll(/aria-label="([^"]*)"/g)].map(x => x[1]);
+ensure(fieldLabels.length === 345 && accessibilityLabels.length === 345,
+  'Expected 345 exact field and accessibility labels');
+fieldLabels.forEach((label, index) => {
+  ensure(label === titleCase(label), 'Field label not Title Case: ' + label);
+  ensure(label === accessibilityLabels[index], 'Accessible field label does not match visible text: ' + label);
+});
+ensure(intl.includes('Controlled Template | Revision'), 'Document metadata should use Title Case');
+
 ensure(migration.includes("updates['contracts.hiring'] = LEGACY_STOCK_HIRING_TEMPLATE"),
   'Migration does not restore the old hiring template');
 ensure(migration.includes('LEGACY_INTERNATIONAL_HIRING_TEMPLATE.trim()'),
@@ -46,4 +86,4 @@ ensure(employee.includes("handleGenerateContract(emp, 'internationalStudentHirin
        employee.includes('content.contracts?.internationalStudentHiring'),
   'Employee documents must generate the separate contract');
 console.log('PASS: standard Hiring Contract unchanged; independent neutral engagement template has ' +
- sections + ' clauses, ' + annexes + ' annexes, and ' + controls + ' editable fields, with safe migration.');
+ sections + ' Title Case clauses, ' + annexes + ' annexes, and ' + controls + ' consistent Title Case labels, with safe migration.');
