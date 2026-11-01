@@ -857,7 +857,7 @@ const CMSManagement: React.FC = () => {
   // Navigating back to Content Studio must not render an intermediate empty page.
   const [localContent, setLocalContent] = React.useState<any>(() => synced ? content : null);
   const [templatesReady, setTemplatesReady] = React.useState(
-    () => !!(synced && content && ['hiring', 'termination', 'changeOfPosition', 'nda']
+    () => !!(synced && content && ['hiring', 'internationalStudentHiring', 'termination', 'changeOfPosition', 'nda']
       .every(key => typeof (content.contracts as any)?.[key] === 'string' &&
         (content.contracts as any)[key].trim().length > 0))
   );
@@ -866,26 +866,25 @@ const CMSManagement: React.FC = () => {
 
   // The confirmed document is copied once. Subsequent live updates must not
   // silently overwrite in-progress edits in this management screen.
-  const latestCMSHiringRef = React.useRef<string | undefined>(undefined);
+  const latestCMSContractsRef = React.useRef<any>(undefined);
   React.useEffect(() => {
     if (!synced || !content) return;
-    const previousServerHiring = latestCMSHiringRef.current;
-    const latestServerHiring = content.contracts?.hiring;
+    const previousServerContracts = latestCMSContractsRef.current;
     setLocalContent((current: any) => {
       if (!current) return content;
-      // When the stock template migrates on the server, update only an
-      // unchanged local hiring editor. Never discard an admin's unsaved edits.
-      if (previousServerHiring !== undefined &&
-          current.contracts?.hiring === previousServerHiring &&
-          latestServerHiring && latestServerHiring !== previousServerHiring) {
-        return {
-          ...current,
-          contracts: { ...current.contracts, hiring: latestServerHiring }
-        };
+      if (!previousServerContracts) return current;
+      const updates: Record<string, string> = {};
+      for (const key of ['hiring', 'internationalStudentHiring'] as const) {
+        const incoming = content.contracts?.[key];
+        if (incoming && incoming !== previousServerContracts[key] &&
+            (current.contracts?.[key] === previousServerContracts[key] ||
+             !current.contracts?.[key])) updates[key] = incoming;
       }
-      return current;
+      return Object.keys(updates).length
+        ? { ...current, contracts: { ...current.contracts, ...updates } }
+        : current;
     });
-    latestCMSHiringRef.current = latestServerHiring;
+    latestCMSContractsRef.current = content.contracts;
   }, [content, synced]);
 
   // Template hydration runs separately: a Firestore metadata update cannot
@@ -894,7 +893,7 @@ const CMSManagement: React.FC = () => {
   React.useEffect(() => {
     if (!synced || !content) return;
     let active = true;
-    if (['hiring', 'termination', 'changeOfPosition', 'nda']
+    if (['hiring', 'internationalStudentHiring', 'termination', 'changeOfPosition', 'nda']
       .every(key => typeof (content.contracts as any)?.[key] === 'string' &&
         (content.contracts as any)[key].trim().length > 0)) {
       setTemplatesReady(true);
@@ -909,6 +908,7 @@ const CMSManagement: React.FC = () => {
           ...current,
           contracts: {
             hiring: saved.hiring || DEFAULT_CONTRACTS.hiring,
+            internationalStudentHiring: saved.internationalStudentHiring || DEFAULT_CONTRACTS.internationalStudentHiring,
             termination: saved.termination || DEFAULT_CONTRACTS.termination,
             changeOfPosition: saved.changeOfPosition || DEFAULT_CONTRACTS.changeOfPosition,
             nda: saved.nda || DEFAULT_CONTRACTS.nda,
@@ -1404,7 +1404,7 @@ const CMSManagement: React.FC = () => {
                     <button
                       type="button"
                       onClick={async () => {
-                        if (!window.confirm('Load the updated international hiring template? This will replace only the unsaved Hiring Contract editor text. Save a copy of any custom terms first; you must select Publish Changes to make the replacement permanent.')) return;
+                        if (!window.confirm('Restore the ORIGINAL standard Hiring Contract in this editor? This will replace unsaved edits in that field. You must Publish Changes to save it.')) return;
                         const { DEFAULT_CONTRACTS } = await import('../../data/defaultContracts');
                         setLocalContent((current: any) => ({
                           ...current,
@@ -1412,8 +1412,8 @@ const CMSManagement: React.FC = () => {
                         }));
                       }}
                       className="rounded-lg border border-accent/30 px-3 py-1.5 text-[9px] font-bold text-accent hover:bg-accent/10"
-                      title="Replace only the hiring editor with the current international student-compliance template"
-                    >Load Updated Template</button>
+                      title="Restore only the original standard employment agreement"
+                    >Restore Original</button>
                   <button 
                     onClick={() => setPreviewContract({ type: 'Hiring', template: localContent.contracts?.hiring || '' })}
                     className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-all text-[9px] font-bold uppercase tracking-widest"
@@ -1433,6 +1433,60 @@ const CMSManagement: React.FC = () => {
                       contracts: { ...localContent.contracts, hiring: val } 
                     })}
                     className="w-full bg-bg border border-border rounded-xl px-3 py-2 text-[10px] font-mono text-fg focus:outline-none focus:border-accent/50 transition-all leading-relaxed custom-scrollbar"
+                  />
+                </div>
+              </div>
+
+
+              {/* Independent International Student Hiring Contract. Never edits the standard Hiring Contract. */}
+              <div className="p-4 rounded-2xl bg-bg/50 border border-border space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-accent/10 border border-accent/20">
+                      <Globe className="w-4 h-4 text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">International Student Hiring Contract</h3>
+                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Separate Conditional Agreement • Authorization and Contractor Safeguards</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!window.confirm('Load the comprehensive International Student Hiring Contract in its own editor? This does NOT change the standard Hiring Contract. Save any customized international terms first.')) return;
+                        const { DEFAULT_CONTRACTS } = await import('../../data/defaultContracts');
+                        setLocalContent((current: any) => ({
+                          ...current,
+                          contracts: { ...current.contracts, internationalStudentHiring: DEFAULT_CONTRACTS.internationalStudentHiring }
+                        }));
+                      }}
+                      className="rounded-lg border border-accent/30 px-3 py-1.5 text-[9px] font-bold text-accent hover:bg-accent/10"
+                      title="Load the independent comprehensive international student template"
+                    >Load Comprehensive Template</button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewContract({ type: 'International Student Hiring', template: localContent.contracts?.internationalStudentHiring || '' })}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-colors text-[9px] font-bold uppercase tracking-widest"
+                    ><Eye className="w-3 h-3" /><span>Preview</span></button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted leading-relaxed">
+                  A standalone conditional offer and optional contractor agreement. It cannot authorize work under a student visa;
+                  all locally required immigration, labor, tax, and classification approvals must be documented before starting.
+                </p>
+                <div className="space-y-1">
+                  <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">
+                    International Student HTML Template (Double Curly Brace Variables)
+                  </label>
+                  <EditableTextarea
+                    rows={12}
+                    value={localContent.contracts?.internationalStudentHiring || ''}
+                    onCommit={(value) => setLocalContent((current: any) => ({
+                      ...current,
+                      contracts: { ...current.contracts, internationalStudentHiring: value }
+                    }))}
+                    className="w-full bg-bg border border-border rounded-xl px-3 py-2 text-[10px] font-mono text-fg focus:outline-none focus:border-accent/50 transition-colors leading-relaxed custom-scrollbar"
                   />
                 </div>
               </div>
