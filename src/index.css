@@ -295,7 +295,7 @@ html[data-density="comfortable"] .condensed-card {
   text-align: left;
 }
 .legal-document .legal-eyebrow, .legal-document .legal-version {
-  font-size: 10px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase;
+  font-size: 10px; letter-spacing: .1em; font-weight: 700;
   color: var(--doc-muted); margin: 0 0 10px;
 }
 .legal-document h1 {
