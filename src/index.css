@@ -148,13 +148,15 @@ html[data-density="comfortable"] .condensed-card {
   .payscale-number-controls { visibility: visible; opacity: 1; }
 }
 
-/* Public section cards are content-sized, not fixed-height placeholders.
-   Grid tracks align cards in each row without forcing wasted vertical space. */
+/* Public entities are compact, uniformly wide buttons/cards. The largest
+   label and image controls determine their content-driven height, not a large
+   fixed-height placeholder. A single width token keeps every section aligned. */
 @layer components {
   .public-section-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, min(100%, 18rem));
     gap: 0.75rem;
+    justify-content: center;
     align-items: stretch;
   }
   .public-section-card {
@@ -163,11 +165,12 @@ html[data-density="comfortable"] .condensed-card {
     height: auto;
     min-height: 0;
     min-width: 0;
+    max-width: 18rem;
   }
   @media (min-width: 768px) {
-    .public-section-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .public-section-grid { grid-template-columns: repeat(2, minmax(0, 18rem)); }
   }
   @media (min-width: 1024px) {
-    .public-section-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .public-section-grid { grid-template-columns: repeat(3, minmax(0, 18rem)); }
   }
 }

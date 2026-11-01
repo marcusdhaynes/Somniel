@@ -131,7 +131,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             href={app.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-7 min-h-7 flex-1 items-center justify-center gap-1 rounded-md bg-accent px-2 text-[10px] font-bold text-bg transition-opacity hover:opacity-85"
+            className="inline-flex h-7 min-h-7 w-fit items-center justify-center gap-1 rounded-md bg-accent px-3 text-[10px] font-bold text-bg transition-opacity hover:opacity-85"
           >
             Open App <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
