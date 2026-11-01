@@ -69,8 +69,30 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
         }).map(action => action.textContent?.trim() || action.getAttribute('aria-label') || 'action');
       });
       if (clippedActions.length) throw Error(page + ' at ' + viewport + 'px clips controls: ' + clippedActions.join(', '));
+      // Projects screenshots are intentionally NOT the small banner buttons.
+      // They must retain their original large, responsive 16:10 previews.
+      let thumbnailMeasurements = undefined;
+      if (page === 'projects') {
+        const previewCards = [...iframe.contentDocument.querySelectorAll('.project-preview-card')];
+        if (previewCards.length < 1) throw Error('Projects gallery has no large preview cards at ' + viewport + 'px');
+        const thumbnails = previewCards.map(card => {
+          const imageLink = card.querySelector('a[aria-label^="Open "]');
+          if (!imageLink) throw Error('Projects preview missing image link');
+          const outer = card.getBoundingClientRect();
+          const thumb = imageLink.getBoundingClientRect();
+          const ratio = thumb.width / thumb.height;
+          if (outer.height < 220 || thumb.height < 140 || Math.abs(ratio - 1.6) > 0.06) {
+            throw Error('Project thumbnail was squeezed into compact button layout at ' +
+              viewport + 'px: ' + JSON.stringify({ cardHeight: outer.height, imageHeight: thumb.height, ratio }));
+          }
+          return { cardHeight: Number(outer.height.toFixed(1)), width: Number(outer.width.toFixed(1)),
+            imageHeight: Number(thumb.height.toFixed(1)), ratio: Number(ratio.toFixed(2)) };
+        });
+        thumbnailMeasurements = { count: thumbnails.length, first: thumbnails[0] };
+      }
       results.push({ page, viewport, heroHeight: h.height, count: sizes.length,
-        distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3) });
+        distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3),
+        gallery: thumbnailMeasurements });
       iframe.remove();
     }
     }
@@ -140,7 +162,7 @@ try {
       (match?.[2] || 'no browser result') + '; Chrome status: ' + exit +
       '; diagnostics: ' + err.slice(-850));
   }
-  console.log('PASS: browser measured matched page heroes, 112px cards, and unclipped content at 1200/820/390/320px on Subsidiaries, Founders, and Projects.');
+  console.log('PASS: browser verified uniform public banners and restored large 16:10 Projects previews at desktop/tablet/phone sizes.');
   console.log(match[2].replaceAll('&quot;', '"'));
 } finally {
   await new Promise(resolve => server.close(resolve));
