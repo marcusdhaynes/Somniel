@@ -53,6 +53,7 @@ interface CMSContent {
   }>;
   contracts: {
     hiring: string;
+    internationalStudentHiring: string;
     changeOfPosition: string;
     termination: string;
     nda: string;
@@ -156,7 +157,7 @@ const DEFAULT_CONTENT: CMSContent = {
       description: "Enforces organizational discipline and standards. Investigates failures, manages corrective actions, and ensures adherence to core protocols."
     }
   ],
-  contracts: { hiring: '', termination: '', changeOfPosition: '', nda: '' }
+  contracts: { hiring: '', internationalStudentHiring: '', termination: '', changeOfPosition: '', nda: '' }
 };
 
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -194,23 +195,34 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           retryCount = 0;
           if (snapshot.exists()) {
             const data = snapshot.data();
-            // Only the exact unmodified stock template is upgraded in place.
-            // Never overwrite an administrator's custom hiring terms.
+            // The previous release mistakenly replaced the standard Hiring
+            // Contract with the international template. Restore it only when
+            // the saved value matches that release exactly. Keep all custom
+            // changes; put the international contract in its own CMS field.
             if (isAdmin && !hiringMigrationChecked && !snapshot.metadata.fromCache &&
-                !snapshot.metadata.hasPendingWrites && typeof data.contracts?.hiring === 'string') {
+                !snapshot.metadata.hasPendingWrites) {
               hiringMigrationChecked = true;
               void Promise.all([
+                import('../data/legacyInternationalHiringContract'),
                 import('../data/legacyHiringContract'),
                 import('../data/defaultContracts'),
-              ]).then(async ([{ LEGACY_STOCK_HIRING_TEMPLATE }, { DEFAULT_CONTRACTS }]) => {
-                if (!active || data.contracts.hiring.trim() !== LEGACY_STOCK_HIRING_TEMPLATE.trim()) return;
-                // Re-read inside a transaction to avoid overwriting concurrent edits.
+              ]).then(async ([{ LEGACY_INTERNATIONAL_HIRING_TEMPLATE },
+                              { LEGACY_STOCK_HIRING_TEMPLATE }, { DEFAULT_CONTRACTS }]) => {
+                if (!active) return;
                 await store.runTransaction(sdk.db, async transaction => {
                   const current = await transaction.get(cmsDoc);
-                  if (current.data()?.contracts?.hiring?.trim() !== LEGACY_STOCK_HIRING_TEMPLATE.trim()) return;
-                  transaction.update(cmsDoc, { 'contracts.hiring': DEFAULT_CONTRACTS.hiring });
+                  const contracts = current.data()?.contracts || {};
+                  const updates: Record<string, string> = {};
+                  if (typeof contracts.hiring === 'string' &&
+                      contracts.hiring.trim() === LEGACY_INTERNATIONAL_HIRING_TEMPLATE.trim()) {
+                    updates['contracts.hiring'] = LEGACY_STOCK_HIRING_TEMPLATE;
+                  }
+                  if (!contracts.internationalStudentHiring?.trim()) {
+                    updates['contracts.internationalStudentHiring'] = DEFAULT_CONTRACTS.internationalStudentHiring;
+                  }
+                  if (Object.keys(updates).length) transaction.update(cmsDoc, updates);
                 });
-              }).catch(error => console.warn('Automatic stock hiring template migration deferred:', error));
+              }).catch(error => console.warn('Contract separation migration deferred:', error));
             }
             setContent({
               ...DEFAULT_CONTENT,
