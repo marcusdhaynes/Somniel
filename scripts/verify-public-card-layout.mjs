@@ -6,7 +6,7 @@ import { join } from 'node:path';
 // (pre-compact-width-change) layout.
 const source = await readFile('src/index.css', 'utf8');
 const cssCheck = [
-  ['144px uniform banner height', /\.public-section-card\s*\{[^}]*height:\s*9rem\s*;/s],
+  ['112px uniform banner height', /\.public-section-card\s*\{[^}]*height:\s*7rem\s*;/s],
   ['previous 288px max width', /\.public-section-card\s*\{[^}]*max-width:\s*18rem\s*;/s],
   ['original button size', /\.public-section-action\s*\{[^}]*width:\s*9rem\s*;/s],
   ['no forced 208px width', /--public-tile-width/],
@@ -21,7 +21,7 @@ const assets = await readdir('dist/assets');
 const stylesheets = assets.filter(file => file.endsWith('.css'));
 if (!stylesheets.length) throw new Error('No production CSS was generated');
 const compiled = (await Promise.all(stylesheets.map(file => readFile(join('dist/assets',file),'utf8')))).join('\n');
-if (!/\.public-section-card\s*\{[^}]*height:\s*9rem/s.test(compiled) ||
+if (!/\.public-section-card\s*\{[^}]*height:\s*7rem/s.test(compiled) ||
     !compiled.includes('.public-section-action')) {
   throw new Error('Uniform compact banner height missing from compiled production CSS');
 }
@@ -34,4 +34,4 @@ for (const path of [
   const jsx = await readFile(path, 'utf8');
   if (!jsx.includes('public-section-card')) throw new Error('Unstyled banner: ' + path);
 }
-console.log('PASS: all public banners have a uniform 144px height; original widths and buttons restored.');
+console.log('PASS: all public banners have a uniform 112px height; original widths and buttons restored.');

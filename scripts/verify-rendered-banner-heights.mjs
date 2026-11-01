@@ -34,7 +34,7 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
         computedHeight: getComputedStyle(card).height,
         width: Number(card.getBoundingClientRect().width.toFixed(2)),
       }));
-      if (sizes.some(card => Math.abs(card.height - 144) > 0.5)) {
+      if (sizes.some(card => Math.abs(card.height - 112) > 0.5)) {
         throw Error(page + ' mismatched height: ' + JSON.stringify(sizes));
       }
       results.push({ page, count: sizes.length, distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3) });
@@ -106,7 +106,7 @@ try {
       (match?.[2] || 'no browser result') + '; Chrome status: ' + exit +
       '; diagnostics: ' + err.slice(-850));
   }
-  console.log('PASS: browser measured identical 144px outer card heights on Subsidiaries, Founders, and Projects.');
+  console.log('PASS: browser measured identical 112px outer card heights on Subsidiaries, Founders, and Projects.');
   console.log(match[2].replaceAll('&quot;', '"'));
 } finally {
   await new Promise(resolve => server.close(resolve));

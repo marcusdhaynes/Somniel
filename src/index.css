@@ -148,7 +148,7 @@ html[data-density="comfortable"] .condensed-card {
   .payscale-number-controls { visibility: visible; opacity: 1; }
 }
 
-/* Uniform compact banner height across all public sections. Preserve the
+/* Minimal, visibly compact uniform banner height across all public sections. Preserve the
    original responsive card WIDTHS and button sizing; only align heights. */
 @layer components {
   .public-section-grid {
@@ -161,9 +161,9 @@ html[data-density="comfortable"] .condensed-card {
   .public-section-card {
     box-sizing: border-box;
     width: 100%;
-    height: 9rem;
-    min-height: 9rem;
-    max-height: 9rem;
+    height: 7rem;
+    min-height: 7rem;
+    max-height: 7rem;
     min-width: 0;
     max-width: 18rem;
     overflow: hidden;
@@ -172,7 +172,7 @@ html[data-density="comfortable"] .condensed-card {
     display: inline-flex;
     width: 9rem;
     max-width: 100%;
-    height: 1.75rem;
+    height: 1.5rem;
     flex: none;
     align-items: center;
     justify-content: center;

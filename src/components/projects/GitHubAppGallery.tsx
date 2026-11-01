@@ -90,13 +90,13 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
-    <article style={{ height: 144, minHeight: 144, maxHeight: 144 }} className="public-section-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg">
+    <article style={{ height: 112, minHeight: 112, maxHeight: 112 }} className="public-section-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg">
       <a
         href={app.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={'Open ' + app.name + ' live site'}
-        className="relative block h-10 shrink-0 overflow-hidden bg-subtle"
+        className="relative block h-7 shrink-0 overflow-hidden bg-subtle"
       >
         {failed ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
@@ -123,10 +123,10 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
           Homepage preview
         </span>
       </a>
-      <div className="flex min-h-0 flex-col p-2">
+      <div className="flex min-h-0 flex-col p-1.5">
         <h3 className="truncate font-serif text-sm font-semibold tracking-tight text-fg">{app.name}</h3>
-        <p className="mt-0.5 min-h-0 line-clamp-2 overflow-hidden text-[10px] leading-4 text-muted">{app.description}</p>
-        <div className="mt-1 flex items-center gap-1.5">
+        <p className="mt-0.5 min-h-0 truncate text-[10px] leading-4 text-muted">{app.description}</p>
+        <div className="mt-0.5 flex items-center gap-1.5">
           <a
             href={app.url}
             target="_blank"
@@ -141,7 +141,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             rel="noopener noreferrer"
             title={'View ' + app.name + ' on GitHub'}
             aria-label={'View ' + app.name + ' repository on GitHub'}
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
           >
             <Github className="h-4 w-4" aria-hidden="true" />
           </a>
@@ -150,7 +150,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             onClick={() => { setFailed(false); setRefresh(Date.now()); }}
             title={'Refresh ' + app.name + ' screenshot'}
             aria-label={'Refresh ' + app.name + ' live homepage screenshot'}
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
             style={staticSource ? { display: 'none' } : undefined}
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />
