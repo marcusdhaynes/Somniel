@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { LogIn, LogOut, LayoutDashboard, ShieldCheck, Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { prefetchRoute } from '../../lib/routePrefetch';
 
 import { HeaderActions } from './HeaderActions';
 
@@ -58,6 +59,9 @@ export const Navbar: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
+                onPointerEnter={() => prefetchRoute(item.path)}
+                onFocus={() => prefetchRoute(item.path)}
+                onTouchStart={() => prefetchRoute(item.path)}
                 className={cn(
                   "text-[6px] lg:text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-accent relative py-0.25",
                   location.pathname === item.path ? "text-accent" : "text-muted/60"
@@ -126,6 +130,9 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
+                  onPointerEnter={() => prefetchRoute(item.path)}
+                  onFocus={() => prefetchRoute(item.path)}
+                  onTouchStart={() => prefetchRoute(item.path)}
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     "block px-3 py-2 rounded-xl text-[6px] font-bold uppercase tracking-[0.3em] transition-all",

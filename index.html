@@ -3,6 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B0E14" />
+    <!-- Set theme before paint to prevent the light/dark flash on cold loads. -->
+    <script>
+      try {
+        const saved = localStorage.getItem('theme');
+        const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.add(dark ? 'dark' : 'light');
+        document.querySelector('meta[name="theme-color"]').content = dark ? '#0B0E14' : '#F3F2EE';
+      } catch (_) {}
+    </script>
+    <style>
+      html, body, #root { min-height: 100%; margin: 0; }
+      html { background: #F3F2EE; color: #1A1A1A; }
+      html.dark { background: #0B0E14; color: #FFFFFF; }
+      body { background: inherit; color: inherit; }
+    </style>
+    <!-- Discover font DNS/TLS and stylesheet ahead of the app CSS waterfall. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" />
     <title>Somniel Holdings LLC</title>
     <meta name="description" content="Enterprise-grade holdings company platform featuring public corporate site, user dashboards, and comprehensive administrative backend with payroll, employee management, and CMS." />
     <meta property="og:title" content="Somniel Holdings LLC" />

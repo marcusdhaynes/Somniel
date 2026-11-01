@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { prefetchOnIdle } from './lib/routePrefetch';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
@@ -38,39 +39,12 @@ const RouteWarmup: React.FC = () => {
   const { user, isAdmin, loading } = useAuth();
   React.useEffect(() => {
     if (loading) return;
-    // Browser-cache common route chunks when idle, without holding up
-    // paint or downloading heavyweight admin editors on public pages.
-    const warm = () => {
-      void import('./pages/public/Home');
-      void import('./pages/public/Projects');
-      void import('./pages/public/Subsidiaries');
-      void import('./pages/public/Founders');
-      void import('./pages/public/Login');
-      if (user) {
-        void import('./components/layout/DashboardLayout');
-        void import('./pages/dashboard/UserDashboard');
-        void import('./pages/dashboard/FileExplorer');
-        if (isAdmin) {
-          void import('./components/layout/AdminWorkspace');
-          void import('./pages/admin/AdminOverview');
-          void import('./pages/admin/AdminSettings');
-          // Warm remaining console screens in the background after auth.
-          // Navigation stays instantaneous once the chunks are cached.
-          void import('./pages/admin/EmployeeManagement');
-          void import('./pages/admin/PayrollManagement');
-          void import('./pages/admin/PayScale');
-          void import('./pages/admin/CMSManagement');
-          void import('./pages/admin/Roadmap');
-        }
-      }
-    };
-    const idleWindow = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
-    if (idleWindow.requestIdleCallback) {
-      const id = idleWindow.requestIdleCallback(warm, { timeout: 2500 });
-      return () => idleWindow.cancelIdleCallback?.(id);
-    }
-    const id = window.setTimeout(warm, 500);
-    return () => window.clearTimeout(id);
+    // Prioritize rendering. Only warm the next two small routes after paint;
+    // heavyweight admin editors load on pointer/focus/touch intent instead.
+    const destinations = user
+      ? (isAdmin ? ['/admin', '/admin/settings'] : ['/dashboard', '/dashboard/settings'])
+      : ['/projects', '/subsidiaries'];
+    return prefetchOnIdle(destinations);
   }, [user, isAdmin, loading]);
   return null;
 };

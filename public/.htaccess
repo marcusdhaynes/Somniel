@@ -1,8 +1,13 @@
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+# Only Vite-generated fingerprinted assets are immutable.
+# Never cache HTML, auth callbacks, API responses, or user data here.
+<IfModule mod_headers.c>
+  <FilesMatch "[-.][A-Za-z0-9_-]{8,}\.(js|css|woff2?|svg|webp|png|jpe?g|avif)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html?)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
 </IfModule>

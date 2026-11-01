@@ -54,7 +54,7 @@ const Subsidiaries: React.FC = () => {
             >
               <div className="flex items-start space-x-6">
                 <div className="w-16 h-16 bg-bg rounded-2xl flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shadow-2xl group-hover:shadow-accent/10 shrink-0">
-                  <img loading="lazy" decoding="async" src={sub.logo} alt={sub.name} className="w-full h-full object-cover transform group-hover:scale-125 transition-transform duration-1000" />
+                  <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={sub.logo} alt={sub.name} className="w-full h-full object-cover transform group-hover:scale-125 transition-transform duration-1000" />
                 </div>
                 
                 <div className="flex-1 flex flex-col min-h-[4rem]">

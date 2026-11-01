@@ -54,7 +54,7 @@ const Founders: React.FC = () => {
             >
               <div className="flex items-start space-x-6">
                 <div className="w-24 h-32 rounded-2xl bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
-                  <img loading="lazy" decoding="async" src={founder.photo} alt={founder.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110" />
+                  <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={founder.photo} alt={founder.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110" />
                 </div>
                 
                 <div className="flex-1 flex flex-col min-h-[8rem]">
