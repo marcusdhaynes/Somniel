@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify PayScale component references
+        run: node scripts/verify-payscale-components.mjs
+
       - name: Build production bundle
         run: npm run build
         env:

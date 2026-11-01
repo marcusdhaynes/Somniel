@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --no-audit --no-fund
+      - run: node scripts/verify-payscale-components.mjs
       - run: npm run build:web
       - run: node scripts/verify-site-build.mjs portable
 
@@ -35,6 +36,7 @@ jobs:
         with:
           node-version: '24'
       - run: npm install --no-audit --no-fund
+      - run: node scripts/verify-payscale-components.mjs
       - run: npm run build:web
         env:
           GITHUB_PAGES: 'true'
