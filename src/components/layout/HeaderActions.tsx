@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Sun, Moon, LayoutDashboard, ShieldCheck, LogOut, LogIn, Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 export const HeaderActions: React.FC = () => {
@@ -79,14 +78,8 @@ export const HeaderActions: React.FC = () => {
       </button>
 
       {/* Dropdown Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 lg:mt-3 w-32 lg:w-52 bg-surface/80 backdrop-blur-xl border border-border rounded-xl shadow-2xl z-50 overflow-hidden"
+      {isMenuOpen && (
+          <div className="absolute top-full right-0 mt-2 lg:mt-3 w-32 lg:w-52 bg-surface/80 backdrop-blur-xl border border-border rounded-xl shadow-2xl z-50 overflow-hidden"
           >
             <div className="p-1.5 lg:p-2 flex flex-col gap-1 lg:gap-1.5">
               {user ? (
@@ -114,9 +107,8 @@ export const HeaderActions: React.FC = () => {
                 </Link>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 };

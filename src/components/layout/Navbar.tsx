@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { LogIn, LogOut, LayoutDashboard, ShieldCheck, Menu, X, Sun, Moon } from 'lucide-react';
@@ -38,12 +37,10 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between h-full items-center">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-1.5 lg:space-x-2.5 group">
-              <motion.div 
-                whileHover={{ rotate: 90 }}
-                className="w-4 h-4 lg:w-[1.6rem] lg:h-[1.6rem] bg-accent rounded-full flex items-center justify-center font-serif italic font-bold text-bg group-hover:scale-110 transition-transform text-[8px] lg:text-[13px] shadow-lg shadow-accent/20"
+              <div className="w-4 h-4 lg:w-[1.6rem] lg:h-[1.6rem] bg-accent rounded-full flex items-center justify-center font-serif italic font-bold text-bg group-hover:scale-110 group-hover:rotate-90 transition-transform text-[8px] lg:text-[13px] shadow-lg shadow-accent/20"
               >
                 S
-              </motion.div>
+              </div>
               <span className="text-xs lg:text-[1rem] font-bold tracking-[-0.05em] text-fg uppercase">Somniel</span>
             </Link>
           </div>
@@ -69,11 +66,7 @@ export const Navbar: React.FC = () => {
               >
                 {item.name}
                 {location.pathname === item.path && (
-                  <motion.div
-                    layoutId="nav-underline"
-                    className="absolute -bottom-0.5 lg:-bottom-1 left-0 right-0 h-[1.5px] lg:h-[2px] bg-accent rounded-full"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
+                  <div className="absolute -bottom-0.5 lg:-bottom-1 left-0 right-0 h-[1.5px] lg:h-[2px] bg-accent rounded-full" />
                 )}
               </Link>
             ))}
@@ -117,13 +110,9 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Nav */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-bg/95 backdrop-blur-2xl border-b border-white/5 overflow-hidden absolute top-16 left-0 right-0"
+      {isOpen && (
+          <div
+            className="md:hidden bg-bg/95 backdrop-blur-2xl border-b border-white/5 overflow-hidden absolute top-6 lg:top-[2.4rem] left-0 right-0"
           >
             <div className="px-3 py-5 space-y-3">
               {navItems.map((item) => (
@@ -164,9 +153,8 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </nav>
   );
 };

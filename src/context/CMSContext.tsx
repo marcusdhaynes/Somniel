@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 interface CMSContent {
   hero: {
@@ -363,40 +361,58 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const cmsDoc = doc(db, 'config', 'cms');
-    const unsubscribe = onSnapshot(cmsDoc, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        // Deep merge or at least ensure top-level keys from DEFAULT_CONTENT are present
-        setContent({
-          ...DEFAULT_CONTENT,
-          ...data,
-          // Ensure nested objects like training are also merged if they exist in data
-          training: data.training ? { ...DEFAULT_CONTENT.training, ...data.training } : DEFAULT_CONTENT.training,
-          contracts: data.contracts ? { ...DEFAULT_CONTENT.contracts, ...data.contracts } : DEFAULT_CONTENT.contracts,
-        } as CMSContent);
-      } else {
-        // Initialize with default content
-        setDoc(cmsDoc, DEFAULT_CONTENT);
-        setContent(DEFAULT_CONTENT);
-      }
-      setLoading(false);
-    }, (error) => {
-      try {
-        handleFirestoreError(error, OperationType.GET, 'config/cms');
-      } catch (e) {
-        console.error("CMS load error:", e);
-      }
-      setContent(DEFAULT_CONTENT);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    let active = true;
+    let unsubscribe: () => void = () => {};
+    // Public pages paint with defaults immediately while Firebase initializes
+    // in a separate JS chunk. Real CMS updates still arrive live afterward.
+    void Promise.all([import('../firebase'), import('firebase/firestore')])
+      .then(([sdk, store]) => {
+        if (!active) return;
+        const cmsDoc = store.doc(sdk.db, 'config', 'cms');
+        unsubscribe = store.onSnapshot(cmsDoc, snapshot => {
+          if (!active) return;
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setContent({
+              ...DEFAULT_CONTENT,
+              ...data,
+              training: data.training
+                ? { ...DEFAULT_CONTENT.training, ...data.training }
+                : DEFAULT_CONTENT.training,
+              contracts: data.contracts
+                ? { ...DEFAULT_CONTENT.contracts, ...data.contracts }
+                : DEFAULT_CONTENT.contracts,
+            } as CMSContent);
+          } else {
+            // A public session may be read-only. Failure to initialize the
+            // default document is non-fatal; public pages keep their fallback.
+            void store.setDoc(cmsDoc, DEFAULT_CONTENT).catch(() => {});
+          }
+          setLoading(false);
+        }, error => {
+          if (!active) return;
+          console.error('CMS synchronization unavailable:', error);
+          // Do not overwrite already displayed or previously synced content.
+          setLoading(false);
+        });
+      }).catch(error => {
+        if (!active) return;
+        console.error('CMS initialization failed:', error);
+        setLoading(false);
+      });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   const updateContent = async (newContent: CMSContent) => {
-    const cmsDoc = doc(db, 'config', 'cms');
-    await setDoc(cmsDoc, newContent);
+    // Save remains an awaited, authenticated Firestore operation.
+    const [{ db }, { doc, setDoc }] = await Promise.all([
+      import('../firebase'),
+      import('firebase/firestore'),
+    ]);
+    await setDoc(doc(db, 'config', 'cms'), newContent);
   };
 
   return (
