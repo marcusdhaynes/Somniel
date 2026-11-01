@@ -854,6 +854,7 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
 const CMSManagement: React.FC = () => {
   const { content, loading, synced, updateContent } = useCMS();
   const [localContent, setLocalContent] = React.useState<any>(null);
+  const [templatesReady, setTemplatesReady] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'hero' | 'subsidiaries' | 'founders' | 'projects' | 'benefits' | 'training' | 'performanceReport' | 'positions' | 'ranks' | 'contracts' | 'nda'>('hero');
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 
@@ -864,8 +865,17 @@ const CMSManagement: React.FC = () => {
     let active = true;
     // Make the editor usable immediately; templates hydrate in parallel.
     setLocalContent(content);
+    // Most existing CMS documents already store all templates, so don't
+    // fetch a second chunk unnecessarily.
+    if (['hiring', 'termination', 'changeOfPosition', 'nda']
+      .every(key => typeof (content.contracts as any)?.[key] === 'string' &&
+        (content.contracts as any)[key].trim().length > 0)) {
+      setTemplatesReady(true);
+      return;
+    }
     void import('../../data/defaultContracts').then(({ DEFAULT_CONTRACTS }) => {
       if (!active) return;
+      setTemplatesReady(true);
       setLocalContent((current: any) => {
         if (!current) return current;
         const saved = current.contracts || {};
@@ -883,7 +893,7 @@ const CMSManagement: React.FC = () => {
     return () => { active = false; };
   }, [content, synced]);
   const handleSave = async () => {
-    if (!localContent) return;
+    if (!localContent || !synced || !templatesReady) return;
     try {
       await updateContent(localContent);
       alert('CMS content updated successfully.');
@@ -931,7 +941,9 @@ const CMSManagement: React.FC = () => {
         </div>
         <button
           onClick={handleSave}
-          className="btn-vibrant flex items-center space-x-1.5 px-2 py-1 rounded-lg font-bold text-[7px] uppercase tracking-[0.2em] shadow-lg shadow-accent/10"
+          disabled={!synced || !templatesReady}
+          title={!templatesReady ? 'Preparing complete legal templates before publishing' : 'Publish changes'}
+          className="btn-vibrant disabled:opacity-50 flex items-center space-x-1.5 px-2 py-1 rounded-lg font-bold text-[7px] uppercase tracking-[0.2em] shadow-lg shadow-accent/10"
         >
           <Save className="w-2.5 h-2.5" />
           <span>Publish Changes</span>
