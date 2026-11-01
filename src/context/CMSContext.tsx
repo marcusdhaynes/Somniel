@@ -217,7 +217,20 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                       contracts.hiring.trim() === LEGACY_INTERNATIONAL_HIRING_TEMPLATE.trim()) {
                     updates['contracts.hiring'] = LEGACY_STOCK_HIRING_TEMPLATE;
                   }
-                  if (!contracts.internationalStudentHiring?.trim()) {
+                  const matchesPriorStudentDefault = (candidate: unknown) => {
+                    if (typeof candidate !== 'string') return false;
+                    let value = candidate.trim();
+                    if (!value) return false;
+                    let hash = 2166136261;
+                    for (let i = 0; i < value.length; i++) {
+                      hash ^= value.charCodeAt(i);
+                      hash = Math.imul(hash, 16777619);
+                    }
+                    return ['be8cfe2e', '6e0fb208'].includes((hash >>> 0).toString(16).padStart(8, '0'));
+                  };
+                  const savedStudent = contracts.internationalStudentHiring;
+                  if (!savedStudent?.trim() || matchesPriorStudentDefault(savedStudent)) {
+                    // Only upgrade recognized stock versions. Never overwrite a custom contract.
                     updates['contracts.internationalStudentHiring'] = DEFAULT_CONTRACTS.internationalStudentHiring;
                   }
                   if (Object.keys(updates).length) transaction.update(cmsDoc, updates);
