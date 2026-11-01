@@ -52,12 +52,12 @@ const Subsidiaries: React.FC = () => {
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-3 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
-              <div className="flex h-full min-h-0 items-start gap-2.5">
+              <div className="flex min-h-0 items-start gap-2.5">
                 <div className="w-12 h-12 bg-bg rounded-xl flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shadow-2xl group-hover:shadow-accent/10 shrink-0">
                   <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={sub.logo} alt={sub.name} className="w-full h-full object-cover transform group-hover:scale-125 transition-transform duration-1000" />
                 </div>
                 
-                <div className="flex-1 min-w-0 flex flex-col h-full">
+                <div className="flex-1 min-w-0 flex flex-col">
                   <div className="flex justify-between items-start mb-1.5">
                     <h3 title={sub.name} className="line-clamp-2 break-words text-sm sm:text-base font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors italic leading-tight">{sub.name}</h3>
                     <ExternalLink className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-x-2 group-hover:translate-x-0" />
@@ -67,7 +67,7 @@ const Subsidiaries: React.FC = () => {
                     {sub.description}
                   </p>
                   
-                  <div className="mt-auto flex justify-end">
+                  <div className="mt-1 flex justify-end">
                     <a
                       href={sub.website}
                       className="inline-flex items-center space-x-2 text-accent font-bold hover:text-accent/80 transition-all text-[8px] uppercase tracking-[0.3em] group/link"

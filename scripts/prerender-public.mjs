@@ -30,7 +30,7 @@ const style = '<style id="somniel-first-paint">' +
   '#somniel-static-shell p{font-size:clamp(13px,1.3vw,18px);line-height:1.65;color:var(--muted,#777);max-width:680px;margin:0 auto 22px}' +
   '#somniel-static-shell .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.22em;color:var(--accent,#e8c48c)}' +
   '#somniel-static-shell .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin:30px auto 0;text-align:left}' +
-  '#somniel-static-shell .tile{height:10rem;box-sizing:border-box;overflow:hidden}' +
+  '#somniel-static-shell .tile{height:auto;min-height:0;box-sizing:border-box;overflow:hidden}' +
   '#somniel-static-shell .tile{padding:12px;border-radius:12px;border:1px solid var(--border,#ddd);background:var(--surface,#fff);min-width:0}' +
   '#somniel-static-shell .tile h2{font-size:17px;margin:0 0 10px;font-family:Georgia,serif}' +
   '#somniel-static-shell .tile p{font-size:12px;margin:0;line-height:1.5}' +

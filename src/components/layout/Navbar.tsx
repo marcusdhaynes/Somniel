@@ -20,15 +20,6 @@ export const Navbar: React.FC = () => {
     { name: 'Projects', path: '/projects' },
   ];
 
-  const getPageTitle = () => {
-    const path = location.pathname.toLowerCase();
-    if (path === '/') return '';
-    if (path.includes('subsidiaries')) return 'Subsidiaries';
-    if (path.includes('founders')) return 'Founders';
-    if (path.includes('projects')) return 'Projects';
-    if (path.includes('login')) return 'Login';
-    return '';
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-bg/60 backdrop-blur-xl border-b border-white/5 h-6 lg:h-[2.4rem]">
@@ -42,11 +33,6 @@ export const Navbar: React.FC = () => {
               </div>
               <span className="text-xs lg:text-[1rem] font-bold tracking-[-0.05em] text-fg uppercase">Somniel</span>
             </Link>
-          </div>
-
-          {/* Centered Page Title */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
-            <h2 className="font-serif font-bold text-[8px] lg:text-xs text-fg leading-none uppercase tracking-tight">{getPageTitle()}</h2>
           </div>
 
           {/* Desktop Nav */}
