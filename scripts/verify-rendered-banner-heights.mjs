@@ -11,7 +11,7 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
 <script>
 (async () => {
   const pages = ['subsidiaries', 'founders', 'projects'];
-  const viewportWidths = [1200, 390];
+  const viewportWidths = [1200, 820, 390, 320];
   const results = [];
   const timeout = 16000;
   try {
@@ -32,6 +32,27 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
       }
       if (!cards.length) throw Error('No React-rendered cards at /' + page);
       await iframe.contentDocument.fonts.ready;
+      // Verify the actual large page banner too. Prior tests only checked
+      // small content cards and completely missed mismatched page headers.
+      const hero = iframe.contentDocument.querySelector('.public-section-hero');
+      const heading = hero?.querySelector('.public-section-heading');
+      const intro = hero?.querySelector('.public-section-intro');
+      if (!hero || !heading || !intro) throw Error(page + ' missing shared hero layout');
+      const h = hero.getBoundingClientRect();
+      const headingBox = heading.getBoundingClientRect();
+      const introBox = intro.getBoundingClientRect();
+      const expectedHero = viewport <= 640 ? 204 : 224;
+      if (Math.abs(h.height - expectedHero) > 0.5) {
+        throw Error(page + ' at ' + viewport + 'px: hero is ' + h.height +
+          'px, expected ' + expectedHero + 'px');
+      }
+      for (const [name, rect] of [['heading', headingBox], ['intro', introBox]]) {
+        if (rect.top < h.top - 1 || rect.bottom > h.bottom + 1 ||
+            rect.left < h.left - 1 || rect.right > h.right + 1) {
+          throw Error(page + ' at ' + viewport + 'px: clipped hero ' + name +
+            ' (' + JSON.stringify(rect.toJSON()) + ')');
+        }
+      }
       const sizes = cards.map(card => ({
         height: Number(card.getBoundingClientRect().height.toFixed(2)),
         computedHeight: getComputedStyle(card).height,
@@ -48,7 +69,8 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
         }).map(action => action.textContent?.trim() || action.getAttribute('aria-label') || 'action');
       });
       if (clippedActions.length) throw Error(page + ' at ' + viewport + 'px clips controls: ' + clippedActions.join(', '));
-      results.push({ page, viewport, count: sizes.length, distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3) });
+      results.push({ page, viewport, heroHeight: h.height, count: sizes.length,
+        distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3) });
       iframe.remove();
     }
     }
@@ -103,7 +125,7 @@ try {
   const chrome = spawn(browser, [
     '--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--no-first-run', '--no-default-browser-check',
-    '--virtual-time-budget=90000', '--dump-dom',
+    '--virtual-time-budget=110000', '--dump-dom',
     'http://127.0.0.1:' + port + '/' + marker,
   ], { stdio: ['ignore','pipe','pipe'] });
   chrome.stdout.on('data', b => { if (out.length < 6000000) out += String(b); });
@@ -118,7 +140,7 @@ try {
       (match?.[2] || 'no browser result') + '; Chrome status: ' + exit +
       '; diagnostics: ' + err.slice(-850));
   }
-  console.log('PASS: browser measured 112px cards and unclipped controls at 1200px and 390px on Subsidiaries, Founders, and Projects.');
+  console.log('PASS: browser measured matched page heroes, 112px cards, and unclipped content at 1200/820/390/320px on Subsidiaries, Founders, and Projects.');
   console.log(match[2].replaceAll('&quot;', '"'));
 } finally {
   await new Promise(resolve => server.close(resolve));
