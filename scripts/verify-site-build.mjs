@@ -2,7 +2,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const mode = process.argv[2];
-const expectedBase = mode === 'pages' ? '/Somniel/' : mode === 'dreamhost' ? '/' : null;
+const expectedBase = mode === 'pages' ? '/Somniel/' : mode === 'dreamhost' ? '/' : mode === 'portable' ? './' : null;
 if (!expectedBase) throw new Error('Specify pages or dreamhost');
 const dir = 'dist';
 const html = await readFile(join(dir, 'index.html'), 'utf8');

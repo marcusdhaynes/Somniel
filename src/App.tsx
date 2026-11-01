@@ -1,9 +1,14 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { prefetchOnIdle } from './lib/routePrefetch';
+
+// Public websites use readable history URLs; Tauri desktop/mobile builds
+// use hash routing so their internal WebView never requests missing deep files.
+const Router = import.meta.env.PROD && import.meta.env.BASE_URL === './'
+  ? HashRouter : BrowserRouter;
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';

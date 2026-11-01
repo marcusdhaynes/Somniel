@@ -11,6 +11,19 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
+  # Keep the Tauri desktop/mobile frontend build using relative asset URLs.
+  # This tests the portable mode without altering the GitHub Pages deployment.
+  verify-portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build:web
+      - run: node scripts/verify-site-build.mjs portable
+
   deploy:
     runs-on: ubuntu-latest
     environment:
