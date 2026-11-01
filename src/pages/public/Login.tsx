@@ -7,6 +7,8 @@ import { ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
 const Login: React.FC = () => {
   const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
+  const [signingIn, setSigningIn] = React.useState(false);
+  const [loginError, setLoginError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (user) {
@@ -15,10 +17,32 @@ const Login: React.FC = () => {
   }, [user, navigate]);
 
   const handleLogin = async () => {
+    if (signingIn) return;
+    setLoginError(null);
+    setSigningIn(true);
     try {
+      // Keep the popup tied directly to the user click (important on Safari).
       await signIn();
     } catch (error) {
-      console.error('Login failed:', error);
+      const code = error && typeof error === 'object' && 'code' in error
+        ? String(error.code)
+        : '';
+      const hostname = window.location.hostname;
+      const messages: Record<string, string> = {
+        'auth/unauthorized-domain': `Google sign-in is not authorized for ${hostname}. In Firebase Authentication → Settings → Authorized domains, add this hostname and try again.`,
+        'auth/operation-not-allowed': 'Google sign-in is disabled for this Firebase project. Enable Google under Authentication → Sign-in method.',
+        'auth/popup-blocked': 'Your browser blocked the Google sign-in window. Allow pop-ups for this site, then try again.',
+        'auth/popup-closed-by-user': 'Sign-in was cancelled. Select Continue with Google to try again.',
+        'auth/cancelled-popup-request': 'A previous Google sign-in was interrupted. Try again.',
+        'auth/network-request-failed': 'The Google sign-in request could not reach Firebase. Check your connection and try again.',
+        'auth/invalid-api-key': 'The Firebase API configuration is invalid. The site administrator must update Firebase settings.',
+        'auth/configuration-not-found': 'Google authentication has not been configured in Firebase.',
+        'auth/internal-error': 'Google sign-in could not complete. Check the Firebase Authentication provider and authorized domains.',
+      };
+      setLoginError(messages[code] || `Google sign-in failed${code ? ` (${code})` : ''}. Please try again.`);
+      console.error('Google sign-in failed:', error);
+    } finally {
+      setSigningIn(false);
     }
   };
 
@@ -74,16 +98,23 @@ const Login: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
             onClick={handleLogin}
-            className="w-full group flex items-center justify-between bg-fg hover:bg-fg/90 text-bg px-10 py-6 rounded-[2rem] font-bold transition-all duration-500 transform hover:scale-[1.02] active:scale-95 text-sm shadow-2xl shadow-fg/20"
+            disabled={signingIn}
+            aria-busy={signingIn}
+            className="w-full group flex items-center justify-between bg-fg hover:bg-fg/90 text-bg px-10 py-6 rounded-[2rem] font-bold transition-all duration-500 transform hover:scale-[1.02] active:scale-95 text-sm shadow-2xl shadow-fg/20 disabled:cursor-wait disabled:opacity-60"
           >
             <div className="flex items-center space-x-5">
               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-inner">
                 <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
               </div>
-              <span className="tracking-[0.1em] uppercase text-xs">Continue with Google</span>
+              <span className="tracking-[0.1em] uppercase text-xs">{signingIn ? 'Connecting to Google...' : 'Continue with Google'}</span>
             </div>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
           </motion.button>
+          {loginError && (
+            <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm leading-relaxed text-red-400">
+              {loginError}
+            </div>
+          )}
 
           <motion.div 
             initial={{ opacity: 0 }}

@@ -18,3 +18,27 @@ View your app in AI Studio: https://ai.studio/apps/f05238cd-8ec5-4740-b243-5ab5b
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+
+## Google sign-in configuration
+
+Somniel signs in using Firebase Authentication with a Google popup. The
+web app currently uses the Firebase project configured in
+`firebase-applet-config.json`. Verify that this project is the intended
+Somniel backend before changing its project ID or API keys.
+
+In the **Firebase Console → Authentication**:
+
+1. Under **Sign-in method**, enable the **Google** provider.
+2. Under **Settings → Authorized domains**, add each live hostname where
+   visitors sign in: `marcusdhaynes.github.io`, `somniel.com`, and
+   `www.somniel.com` if the www hostname is actually served. Do not
+   enter schemes, paths, or port numbers.
+3. Check the site's Firebase configuration matches that Firebase project.
+4. Test sign-in from the real deployed domain (and allow popup windows).
+
+The initial user document is always saved with role `user`, which matches
+the checked-in Firestore rules. The verified owner receives admin access
+through the verified Firebase email claim; this matches the server-side
+Firestore `isAdmin` rule. Do not grant elevated rights from an unverified
+email address or client-provided role.

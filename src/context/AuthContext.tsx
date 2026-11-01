@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { auth, db, signInWithGoogle, logout } from '../firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, setDoc, onSnapshot, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 
 interface UserProfile {
   uid: string;
@@ -21,6 +21,18 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const OWNER_EMAIL = 'marcusdhaynes@gmail.com';
+
+// User creation must comply with firestore.rules: a new profile can only
+// create itself with role === 'user'. Owner privileges are derived separately
+// from Firebase's verified email claim, as the Firestore admin rules already do.
+const initialProfile = (user: FirebaseUser): UserProfile => ({
+  uid: user.uid,
+  email: user.email || '',
+  displayName: user.displayName || user.email?.split('@')[0] || 'User',
+  role: 'user',
+  createdAt: Timestamp.now(),
+});
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -28,62 +40,85 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let active = true;
+    let authGeneration = 0;
+
+    const unsubscribe = onAuthStateChanged(auth, firebaseUser => {
+      const currentGeneration = ++authGeneration;
       setUser(firebaseUser);
-      if (firebaseUser) {
+
+      if (!firebaseUser) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      // Authentication is complete as soon as Firebase confirms the user.
+      // Do not make navigation depend on a separate Firestore request.
+      const fallback = initialProfile(firebaseUser);
+      setProfile(fallback);
+      setLoading(false);
+
+      void (async () => {
         try {
-          // Fetch or create profile
-          const userDoc = doc(db, 'users', firebaseUser.uid);
-          const docSnap = await getDoc(userDoc);
-          
-          if (docSnap.exists()) {
-            setProfile(docSnap.data() as UserProfile);
-          } else {
-            // Create new profile
-            const newProfile: UserProfile = {
+          const userRef = doc(db, 'users', firebaseUser.uid);
+          const existing = await getDoc(userRef);
+          if (!existing.exists()) {
+            // First-time users, including the verified owner, must be created
+            // with the regular role or Firestore denies the write.
+            await setDoc(userRef, fallback);
+          }
+          if (!active || currentGeneration !== authGeneration) return;
+          if (existing.exists()) {
+            const data = existing.data() as Partial<UserProfile>;
+            setProfile({
+              ...fallback,
+              ...data,
               uid: firebaseUser.uid,
               email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || '',
-              role: firebaseUser.email === 'marcusdhaynes@gmail.com' ? 'admin' : 'user',
-              createdAt: Timestamp.now(),
-            };
-            await setDoc(userDoc, newProfile);
-            setProfile(newProfile);
+              displayName: data.displayName || fallback.displayName,
+              role: data.role === 'admin' ? 'admin' : 'user',
+            });
           }
         } catch (error) {
-          console.error("Error fetching/creating user profile:", error);
-          // We don't use handleFirestoreError here because it might throw and break the auth flow
-          // But we should at least log it.
+          // Firestore outages/permissions should not undo valid Google
+          // authentication or leave the personal dashboard blank.
+          console.error('Unable to synchronize Google user profile:', error);
         }
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
+      })();
+    }, error => {
+      console.error('Firebase authentication state could not initialize:', error);
+      if (active) setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      active = false;
+      authGeneration++;
+      unsubscribe();
+    };
   }, []);
 
-  const signIn = async () => {
+  const signIn = useCallback(async () => {
     await signInWithGoogle();
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await logout();
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      profile,
-      loading,
-      isAdmin: profile?.role === 'admin',
-      signIn,
-      signOut
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const isAdmin = profile?.role === 'admin' ||
+    (user?.email?.toLowerCase() === OWNER_EMAIL && user.emailVerified);
+
+  const value = useMemo(() => ({
+    user,
+    profile,
+    loading,
+    isAdmin: Boolean(isAdmin),
+    signIn,
+    signOut,
+  }), [user, profile, loading, isAdmin, signIn, signOut]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
