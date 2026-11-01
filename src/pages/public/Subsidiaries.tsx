@@ -50,20 +50,20 @@ const Subsidiaries: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
 
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
-              className="public-section-card group relative overflow-hidden rounded-3xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-4 sm:p-6 backdrop-blur-2xl shadow-2xl shadow-black/20"
+              className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-3 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
-              <div className="flex h-full min-h-0 items-start gap-4 sm:gap-6">
-                <div className="w-16 h-16 bg-bg rounded-2xl flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shadow-2xl group-hover:shadow-accent/10 shrink-0">
+              <div className="flex h-full min-h-0 items-start gap-2.5">
+                <div className="w-12 h-12 bg-bg rounded-xl flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shadow-2xl group-hover:shadow-accent/10 shrink-0">
                   <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={sub.logo} alt={sub.name} className="w-full h-full object-cover transform group-hover:scale-125 transition-transform duration-1000" />
                 </div>
                 
                 <div className="flex-1 min-w-0 flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 title={sub.name} className="line-clamp-2 break-words text-lg sm:text-xl font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors italic leading-tight">{sub.name}</h3>
+                  <div className="flex justify-between items-start mb-1.5">
+                    <h3 title={sub.name} className="line-clamp-2 break-words text-sm sm:text-base font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors italic leading-tight">{sub.name}</h3>
                     <ExternalLink className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-x-2 group-hover:translate-x-0" />
                   </div>
                   
-                  <p className="text-muted text-xs leading-relaxed mb-4 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3">
+                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3">
                     {sub.description}
                   </p>
                   

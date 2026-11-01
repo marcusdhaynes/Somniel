@@ -96,7 +96,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={'Open ' + app.name + ' live site'}
-        className="relative block h-36 shrink-0 overflow-hidden bg-subtle"
+        className="relative block h-20 shrink-0 overflow-hidden bg-subtle"
       >
         {failed ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
@@ -123,15 +123,15 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
           Homepage preview
         </span>
       </a>
-      <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4">
-        <h3 className="truncate font-serif text-base sm:text-lg font-semibold tracking-tight text-fg">{app.name}</h3>
-        <p className="mt-1 min-h-0 flex-1 line-clamp-2 overflow-hidden text-xs leading-relaxed text-muted">{app.description}</p>
-        <div className="mt-2 flex items-center gap-2">
+      <div className="flex min-h-0 flex-1 flex-col p-2">
+        <h3 className="truncate font-serif text-sm font-semibold tracking-tight text-fg">{app.name}</h3>
+        <p className="mt-0.5 min-h-0 flex-1 line-clamp-2 overflow-hidden text-[10px] leading-4 text-muted">{app.description}</p>
+        <div className="mt-1 flex items-center gap-1.5">
           <a
             href={app.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-bold text-bg transition-opacity hover:opacity-85"
+            className="inline-flex h-7 min-h-7 flex-1 items-center justify-center gap-1 rounded-md bg-accent px-2 text-[10px] font-bold text-bg transition-opacity hover:opacity-85"
           >
             Open App <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
@@ -141,7 +141,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             rel="noopener noreferrer"
             title={'View ' + app.name + ' on GitHub'}
             aria-label={'View ' + app.name + ' repository on GitHub'}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
           >
             <Github className="h-4 w-4" aria-hidden="true" />
           </a>
@@ -150,7 +150,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
             onClick={() => { setFailed(false); setRefresh(Date.now()); }}
             title={'Refresh ' + app.name + ' screenshot'}
             aria-label={'Refresh ' + app.name + ' live homepage screenshot'}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-fg transition-colors hover:border-accent hover:text-accent"
             style={staticSource ? { display: 'none' } : undefined}
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />

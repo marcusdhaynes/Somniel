@@ -57,17 +57,17 @@ const Projects: React.FC = () => {
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="public-section-card group relative flex flex-col"
             >
-              <div className="relative h-full overflow-hidden rounded-3xl bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-[border-color,box-shadow] duration-200 p-4 sm:p-6 backdrop-blur-2xl group-hover:shadow-2xl group-hover:shadow-accent/5">
+              <div className="relative h-full overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-[border-color,box-shadow] duration-200 p-3 backdrop-blur-2xl group-hover:shadow-2xl group-hover:shadow-accent/5">
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent/5 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
-                <div className="flex items-start gap-4 sm:gap-6 relative z-10 h-full min-h-0">
-                  <div className="p-3 rounded-xl bg-white/5 text-accent group-hover:bg-accent group-hover:text-bg transition-all duration-700 shadow-sm group-hover:shadow-2xl group-hover:shadow-accent/30 shrink-0">
-                    <Zap className="w-5 h-5" />
+                <div className="flex items-start gap-2.5 relative z-10 h-full min-h-0">
+                  <div className="p-2 rounded-lg bg-white/5 text-accent group-hover:bg-accent group-hover:text-bg transition-all duration-700 shadow-sm group-hover:shadow-2xl group-hover:shadow-accent/30 shrink-0">
+                    <Zap className="w-4 h-4" />
                   </div>
                   
                   <div className="flex-1 min-w-0 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 title={project.name} className="line-clamp-2 break-words text-lg sm:text-xl font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors duration-200 italic leading-tight">
+                    <div className="flex justify-between items-start mb-1.5">
+                      <h3 title={project.name} className="line-clamp-2 break-words text-sm sm:text-base font-serif font-bold text-fg tracking-tight group-hover:text-accent transition-colors duration-200 italic leading-tight">
                         {project.name}
                       </h3>
                       <span className="px-2 py-0.5 text-[7px] font-bold uppercase tracking-[0.2em] bg-white/5 text-accent border border-white/10 rounded-full">
@@ -75,7 +75,7 @@ const Projects: React.FC = () => {
                       </span>
                     </div>
                     
-                    <p className="text-muted/60 text-xs leading-relaxed mb-4 font-medium line-clamp-2">
+                    <p className="text-muted/60 text-[10px] leading-4 mb-2 font-medium line-clamp-2">
                       {project.description}
                     </p>
                     
