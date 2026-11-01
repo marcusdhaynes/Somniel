@@ -51,13 +51,14 @@ const Projects: React.FC = () => {
           {content.projects.map((project, i) => (
             <motion.div
               key={project.id}
+              style={{ height: 144, minHeight: 144, maxHeight: 144 }}
               initial={false}
               animate={{ opacity: 1, y: 0 }}
 
               transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="public-section-card group relative flex flex-col"
             >
-              <div className="relative flex-1 overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-[border-color,box-shadow] duration-200 p-3 backdrop-blur-2xl group-hover:shadow-2xl group-hover:shadow-accent/5">
+              <div className="relative h-full overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-[border-color,box-shadow] duration-200 p-3 backdrop-blur-2xl group-hover:shadow-2xl group-hover:shadow-accent/5">
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent/5 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 <div className="flex items-start gap-2.5 relative z-10 min-h-0">

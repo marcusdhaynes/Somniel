@@ -46,6 +46,7 @@ const Founders: React.FC = () => {
           {content.founders.map((founder, i) => (
             <motion.div
               key={founder.id}
+              style={{ height: 144, minHeight: 144, maxHeight: 144 }}
               initial={false}
               animate={{ opacity: 1, y: 0 }}
 
@@ -53,7 +54,7 @@ const Founders: React.FC = () => {
               className="public-section-card group relative overflow-hidden rounded-2xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-colors p-3 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
               <div className="flex min-h-0 items-start gap-2.5">
-                <div className="w-14 h-20 sm:w-14 sm:h-20 rounded-xl bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
+                <div className="w-12 h-16 sm:w-12 sm:h-16 rounded-xl bg-bg overflow-hidden border border-white/10 group-hover:border-accent/30 transition-all duration-700 shrink-0 relative shadow-2xl group-hover:shadow-accent/10">
                   <img width={200} height={200} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding="async" src={founder.photo} alt={founder.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110" />
                 </div>
                 
@@ -63,7 +64,7 @@ const Founders: React.FC = () => {
                     <p className="text-accent font-bold uppercase text-[8px] tracking-[0.4em] mt-1 opacity-80">{founder.role}</p>
                   </div>
                   
-                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3">
+                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2">
                     {founder.bio}
                   </p>
                   

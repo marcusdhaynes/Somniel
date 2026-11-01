@@ -46,6 +46,7 @@ const Subsidiaries: React.FC = () => {
           {content.subsidiaries.map((sub, i) => (
             <motion.div
               key={sub.id}
+              style={{ height: 144, minHeight: 144, maxHeight: 144 }}
               initial={false}
               animate={{ opacity: 1, y: 0 }}
 
@@ -63,7 +64,7 @@ const Subsidiaries: React.FC = () => {
                     <ExternalLink className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-x-2 group-hover:translate-x-0" />
                   </div>
                   
-                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3">
+                  <p className="text-muted text-[10px] leading-4 mb-2 font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2">
                     {sub.description}
                   </p>
                   

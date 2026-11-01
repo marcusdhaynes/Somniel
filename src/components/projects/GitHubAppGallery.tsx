@@ -90,7 +90,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
-    <article className="public-section-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg">
+    <article style={{ height: 144, minHeight: 144, maxHeight: 144 }} className="public-section-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface/70 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg">
       <a
         href={app.url}
         target="_blank"
