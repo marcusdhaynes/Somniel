@@ -29,9 +29,16 @@ for (const path of [
   'src/pages/public/Subsidiaries.tsx',
   'src/pages/public/Founders.tsx',
   'src/pages/public/Projects.tsx',
-  'src/components/projects/GitHubAppGallery.tsx',
 ]) {
   const jsx = await readFile(path, 'utf8');
   if (!jsx.includes('public-section-card')) throw new Error('Unstyled banner: ' + path);
 }
-console.log('PASS: all public banners have a uniform 112px height; original widths and buttons restored.');
+const gallery = await readFile('src/components/projects/GitHubAppGallery.tsx', 'utf8');
+if (!gallery.includes('project-preview-card') ||
+    !gallery.includes('aspect-[16/10]') ||
+    !gallery.includes('grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3') ||
+    gallery.includes('style={{ height: 112') ||
+    gallery.includes('public-section-card')) {
+  throw new Error('Large 16:10 app thumbnails must remain independent from uniform-size content banners');
+}
+console.log('PASS: ordinary content banners remain 112px; Projects previews retain their original large 16:10 gallery.');
