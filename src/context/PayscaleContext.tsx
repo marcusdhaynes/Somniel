@@ -26,6 +26,8 @@ export interface PayscaleConfig {
 interface PayscaleContextType {
   config: PayscaleConfig | null;
   loading: boolean;
+  /** True after this session has received a server-confirmed configuration. */
+  synced: boolean;
   calculatePay: (employee: any) => number;
   updateConfig: (newConfig: PayscaleConfig) => Promise<void>;
 }
@@ -74,18 +76,29 @@ export const PayscaleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { isAdmin, loading: authLoading } = useAuth();
   const [config, setConfig] = useState<PayscaleConfig | null>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
+  const [synced, setSynced] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
 
     if (!isAdmin) {
       setConfig(DEFAULT_CONFIG);
+      setSynced(false);
       setLoading(false);
       return;
     }
 
+    setSynced(false);
+    setLoading(true);
     const configDoc = doc(db, 'config', 'payscale');
-    const unsubscribe = onSnapshot(configDoc, (docSnap) => {
+    let active = true;
+    let unsubscribe: () => void = () => {};
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let attempts = 0;
+    const connect = () => {
+      unsubscribe = onSnapshot(configDoc, { includeMetadataChanges: true }, (docSnap) => {
+      if (!active) return;
+      attempts = 0;
       if (docSnap.exists()) {
         const data = docSnap.data();
         const migratedData = { ...data } as any;
@@ -118,16 +131,29 @@ export const PayscaleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
         setConfig(DEFAULT_CONFIG);
       }
+      if (!docSnap.metadata.fromCache) setSynced(true);
       setLoading(false);
     }, (error) => {
+      if (!active) return;
       console.warn('Pay scale sync interrupted, retaining last known configuration:', error);
-      // Never overwrite a previously loaded configuration with invented
-      // defaults just because an existing live subscription loses connection.
+      // Preserve the last known configuration without allowing unsafe saves.
       setConfig(previous => previous ?? DEFAULT_CONFIG);
+      setSynced(false);
       setLoading(false);
+      const code = String(error?.code || '').split('/').pop();
+      if (['unavailable', 'deadline-exceeded', 'cancelled', 'internal', 'unknown', 'resource-exhausted'].includes(code || '')) {
+        retryTimer = setTimeout(() => { if (active) connect(); },
+          Math.min(30000, 1500 * (2 ** Math.min(attempts++, 5))));
+      }
     });
+    };
+    connect();
 
-    return () => unsubscribe();
+    return () => {
+      active = false;
+      if (retryTimer) clearTimeout(retryTimer);
+      unsubscribe();
+    };
   }, [isAdmin, authLoading]);
 
   const calculatePay = (employee: any) => {
@@ -180,6 +206,7 @@ export const PayscaleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateConfig = async (newConfig: PayscaleConfig) => {
+    if (!synced) throw new Error('Pay scale configuration has not finished synchronizing.');
     const configDoc = doc(db, 'config', 'payscale');
     try {
       await setDoc(configDoc, newConfig);
@@ -189,7 +216,7 @@ export const PayscaleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <PayscaleContext.Provider value={{ config, loading, calculatePay, updateConfig }}>
+    <PayscaleContext.Provider value={{ config, loading, synced, calculatePay, updateConfig }}>
       {children}
     </PayscaleContext.Provider>
   );

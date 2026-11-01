@@ -96,7 +96,7 @@ const MultiplierItem = ({ category, id, name, value, onUpdateName, onUpdateValue
 };
 
 const PayrollConfig: React.FC = () => {
-  const { config, loading, updateConfig } = usePayscale();
+  const { config, loading, synced, updateConfig } = usePayscale();
   const { content } = useCMS();
   const [localConfig, setLocalConfig] = useState<PayscaleConfig | null>(() => config ? JSON.parse(JSON.stringify(config)) : null);
   const [isDirty, setIsDirty] = useState(false);
@@ -142,7 +142,7 @@ const PayrollConfig: React.FC = () => {
     }
   }, [content?.positions, localConfig, isDirty]);
 
-  if (loading || !localConfig) {
+  if (loading || !synced || !localConfig) {
     return (
       <section className="space-y-2 pt-5" role="status" aria-busy="true">
         <h1 className="font-serif text-lg font-bold text-fg">Pay Scale Configuration</h1>
@@ -152,6 +152,7 @@ const PayrollConfig: React.FC = () => {
   }
 
   const handleSave = async () => {
+    if (!synced) return;
     try {
       await updateConfig(localConfig);
       setIsDirty(false);
