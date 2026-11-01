@@ -586,11 +586,12 @@ const EmployeeManagement: React.FC = () => {
             />
           </div>
 
-          {/* Employee Table */}
-          <div className="bg-surface/30 rounded-lg border border-border overflow-hidden backdrop-blur-md shadow-md min-h-[18rem]">
-            <div className="overflow-auto min-h-[18rem] max-h-[70vh]">
-              <table className="w-full text-left border-collapse">
-                <thead>
+          {/* Each employee has its own content-width card with the same height.
+              The directory grows only with the actual number of employees. */}
+          <div className="w-full">
+            <div className="max-h-[70vh] overflow-auto">
+              <table className="block w-full text-left">
+                <thead className="sr-only">
                   <tr className="border-b border-border text-[6px] font-bold uppercase tracking-[0.2em] text-muted/60 bg-surface/50">
                     <th className="px-1.5 py-1 text-center">Name</th>
                     <th className="px-1.5 py-1 text-center">Contact</th>
@@ -601,10 +602,9 @@ const EmployeeManagement: React.FC = () => {
                     <th className="px-1.5 py-1 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/50">
+                <tbody className="flex flex-wrap content-start items-start gap-2 p-0.5">
                   {filteredEmployees.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-1.5 py-3 text-center">
+                    <tr className="block w-full"><td colSpan={7} className="block w-full px-1.5 py-3 text-center">
                         <div className="flex flex-col items-center space-y-1">
                           <div className="w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center shadow-inner">
                             <Search className="w-3 h-3 text-muted/20" />
@@ -615,8 +615,11 @@ const EmployeeManagement: React.FC = () => {
                     </tr>
                   ) : (
                     visibleEmployees.map((emp) => (
-                      <tr key={emp.id} className={cn("group hover:bg-accent/[0.03] transition-all", emp.terminated && "opacity-40 grayscale")}>
-                        <td className="px-1.5 py-1 text-center align-middle">
+                      <tr key={emp.id} aria-label={emp.name} className={cn(
+                        "group inline-flex h-14 w-max max-w-full shrink-0 items-center rounded-lg border border-border bg-surface px-1 shadow-sm hover:border-accent/40 hover:bg-accent/[0.03]",
+                        emp.terminated && "opacity-40 grayscale"
+                      )}>
+                        <td className="block min-w-0 px-1 py-0 text-center align-middle">
                           <div className="flex items-center justify-center gap-1.5">
                             <div className="relative group/dot cursor-pointer" title="Click to change color">
                               <div 
@@ -655,15 +658,15 @@ const EmployeeManagement: React.FC = () => {
                                 <Palette className="w-1.5 h-1.5 text-accent" />
                               </div>
                             </div>
-                            <p className="text-[5px] md:text-[7.5px] font-bold text-fg leading-tight group-hover:text-accent transition-colors whitespace-nowrap">{emp.name}</p>
+                            <p className="max-w-[9rem] truncate text-[7px] md:text-[8px] font-bold text-fg leading-tight group-hover:text-accent transition-colors" title={emp.name}>{emp.name}</p>
                           </div>
                         </td>
-                        <td className="px-1.5 py-1 text-center align-middle relative">
+                        <td className="block min-w-0 px-1 py-0 text-center align-middle relative">
                           <div className="flex items-center justify-center gap-1">
                             {/* Desktop View: Text */}
                             <div className="hidden xl:flex flex-col items-center gap-0.5">
-                              <p className="text-[6px] font-bold text-fg/70 lowercase tracking-tighter">{emp.email || 'no email'}</p>
-                              <p className="text-[6px] font-bold text-accent/70 tracking-tighter">{emp.phone || 'no phone'}</p>
+                              <p className="max-w-[11rem] truncate text-[6px] font-bold text-fg/70 lowercase tracking-tighter" title={emp.email || 'no email'}>{emp.email || 'no email'}</p>
+                              <p className="whitespace-nowrap text-[6px] font-bold text-accent/70 tracking-tighter">{emp.phone || 'no phone'}</p>
                             </div>
                             
                             {/* Mobile/Tablet View: Icons */}
@@ -725,12 +728,12 @@ const EmployeeManagement: React.FC = () => {
                             </AnimatePresence>
                           </div>
                         </td>
-                        <td className="px-1.5 py-1 text-center align-middle">
+                        <td className="block min-w-0 px-1 py-0 text-center align-middle">
                           <div className="inline-flex px-1 py-0.5 rounded bg-surface border border-border shadow-sm">
-                            <p className="text-[6px] font-bold text-fg/80 uppercase tracking-[0.1em]">{emp.position}</p>
+                            <p className="max-w-[9rem] truncate text-[6px] font-bold text-fg/80 uppercase tracking-[0.1em]" title={emp.position}>{emp.position}</p>
                           </div>
                         </td>
-                        <td className="px-1.5 py-1 text-center align-middle">
+                        <td className="block min-w-0 px-1 py-0 text-center align-middle">
                           <div className="flex flex-col items-center gap-0.5">
                             <div className="inline-flex px-1 py-0.5 rounded bg-surface border border-border shadow-sm">
                               <p className="text-[6px] font-bold text-fg/80 uppercase tracking-[0.1em]">{emp.rank}</p>
@@ -748,7 +751,7 @@ const EmployeeManagement: React.FC = () => {
                             })()}
                           </div>
                         </td>
-                        <td className="px-1.5 py-1 text-center align-middle">
+                        <td className="block min-w-0 px-1 py-0 text-center align-middle">
                           {emp.performanceReports && emp.performanceReports.length > 0 ? (
                             <div className="inline-block px-1 py-0.5 rounded bg-accent/10 text-accent text-[7px] font-bold border border-accent/20">
                               {emp.performanceReports[0].totalScore}/7
@@ -757,11 +760,11 @@ const EmployeeManagement: React.FC = () => {
                             <span className="text-[6px] text-muted uppercase tracking-widest font-bold">N/A</span>
                           )}
                         </td>
-                        <td className="px-1.5 py-1 text-center align-middle text-[9px] font-bold text-fg font-mono tracking-tight">
+                        <td className="block shrink-0 whitespace-nowrap px-1 py-0 text-center align-middle text-[9px] font-bold text-fg font-mono tracking-tight">
                           {formatCurrency(emp.baseSalary)}
                         </td>
-                        <td className="px-1.5 py-1 text-center align-middle">
-                          <div className="flex flex-col items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                        <td className="block min-w-0 px-1 py-0 text-center align-middle">
+                          <div className="flex flex-col items-center justify-center gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                             {/* Docs Row */}
                             <div className="flex items-center justify-center gap-0.5">
                               <button 
