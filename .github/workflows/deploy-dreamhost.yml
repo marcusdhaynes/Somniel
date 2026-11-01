@@ -24,6 +24,9 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
+      - name: Record production transfer sizes
+        run: node scripts/report-bundle.mjs
+
       # NOTE (Oct 31, 2026): deploys with rsync over SSH using a dedicated
       # deploy key (DREAMHOST_SSH_KEY secret). Password-based SSH hung on
       # DreamHost's side, and FTP-Deploy-Action never supported SFTP.

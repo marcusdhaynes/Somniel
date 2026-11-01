@@ -25,6 +25,7 @@ jobs:
       - run: npm run build:web
         env:
           GITHUB_PAGES: 'true'
+      - run: node scripts/report-bundle.mjs
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

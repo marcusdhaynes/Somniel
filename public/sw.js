@@ -18,7 +18,8 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET' || req.mode === 'navigate' || req.cache === 'no-store') return;
   const url = new URL(req.url);
   const scope = new URL(self.registration.scope);
-  if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname + 'assets/')) return;
+  const assetPrefix = scope.pathname.replace(/\/?$/, '/') + 'assets/';
+  if (url.origin !== scope.origin || !url.pathname.startsWith(assetPrefix)) return;
   if (url.search || !/[-.][a-zA-Z0-9_-]{8,}\.(?:js|css|woff2?|svg|webp|png|jpe?g|avif)$/.test(url.pathname)) return;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
