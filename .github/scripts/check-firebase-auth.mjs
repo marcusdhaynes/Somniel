@@ -26,8 +26,8 @@ if (response) {
     process.exitCode = 1;
   } else {
     const domains = Array.isArray(data.authorizedDomains) ? data.authorizedDomains : [];
-    console.log('Firebase project ID returned by the service:', data.projectId || '(not provided)');
-    console.log('Authorized domains:', domains.join(', ') || '(none reported)');
+    console.log('Firebase project identifier returned:', data.projectId || '(not provided)');
+    for (const domain of expected) console.log(`${domain}: ${domains.includes(domain) ? 'authorized' : 'NOT AUTHORIZED'}`);
     const missing = expected.filter(domain => !domains.includes(domain));
     if (missing.length) {
       console.error('Missing authorized domains:', missing.join(', '));
@@ -36,9 +36,15 @@ if (response) {
     } else {
       console.log('Required production domains are authorized.');
     }
-    if (data.projectId && data.projectId !== config.projectId) {
-      console.error('Project ID mismatch: check firebase-applet-config.json');
-      process.exitCode = 1;
+    // The public API may return the numeric Google project identifier
+    // rather than the Firebase project slug; both forms are legitimate.
+    if (data.projectId) {
+      const actual = String(data.projectId);
+      const expectedId = /^\d+$/.test(actual) ? String(config.messagingSenderId) : config.projectId;
+      if (actual !== expectedId) {
+        console.error('Project identity mismatch: check firebase-applet-config.json');
+        process.exitCode = 1;
+      }
     }
   }
 }
