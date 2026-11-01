@@ -83,12 +83,20 @@ const AppCard: React.FC<{ app: App; capturedPath?: string }> = ({ app, capturedP
   const [refresh, setRefresh] = useState(0);
   const [capturedFailed, setCapturedFailed] = useState(false);
   const [imageReady, setImageReady] = useState(false);
+  const knownStarter = STARTER_APPS.some(starter => starter.repo.toLowerCase() === app.repo.toLowerCase());
+  useEffect(() => {
+    if (capturedPath) { setFailed(false); setCapturedFailed(false); setImageReady(false); }
+  }, [capturedPath]);
   // Curated static thumbnails (dark mode, key visuals) take precedence over
   // the live thum.io screenshot, which cannot do dark mode and often captures
   // loading states.
   const staticSource = app.thumbnail ? import.meta.env.BASE_URL + app.thumbnail : null;
   const capturedSource = capturedPath && !capturedFailed && refresh === 0
     ? import.meta.env.BASE_URL + capturedPath : null;
+  const hasTrustedThumbnail = !!capturedSource || !!staticSource;
+  // For a curated app that could not be captured, never show a blank
+  // third-party screenshot. Display a clear linked preview-unavailable state.
+  const showNamedFallback = knownStarter && !hasTrustedThumbnail && refresh === 0;
   const source = capturedSource ?? staticSource ?? previewUrl(app.url, refresh);
   const responsiveSources = capturedSource || staticSource ? undefined :
     `${previewUrl(app.url, refresh, 320)} 320w, ${previewUrl(app.url, refresh, 480)} 480w, ${previewUrl(app.url, refresh, 720)} 720w`;
@@ -103,11 +111,11 @@ const AppCard: React.FC<{ app: App; capturedPath?: string }> = ({ app, capturedP
         aria-label={'Open ' + app.name + ' live site'}
         className="relative block aspect-[16/10] overflow-hidden bg-subtle"
       >
-        {failed ? (
+        {failed || showNamedFallback ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
             <ImageOff className="h-8 w-8 opacity-60" aria-hidden="true" />
-            <span className="px-4 text-center text-xs">Live preview unavailable</span>
-            <span className="text-[10px]">Open the app to view its homepage</span>
+            <span className="px-4 text-center text-xs">{app.name} preview unavailable</span>
+            <span className="text-[10px]">Open the live application to view its content</span>
           </div>
         ) : (
           <>
