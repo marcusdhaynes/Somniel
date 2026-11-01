@@ -4,6 +4,7 @@ import { usePayscale, PayscaleConfig } from '../../context/PayscaleContext';
 import { useCMS } from '../../context/CMSContext';
 import { DollarSign, Save, RefreshCcw, Plus, Trash2, TrendingUp, ShieldCheck, GripVertical, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn, formatCurrency } from '../../lib/utils';
+import { EditableInput } from '../../components/EditableInput';
 import { Link } from 'react-router-dom';
 
 // Use our own independent step buttons instead of the browser's combined
