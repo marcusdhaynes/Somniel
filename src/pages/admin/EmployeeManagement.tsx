@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useDeferredValue, useMemo } from 'react';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { db, handleFirestoreError, OperationType, logActivity } from '../../firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
@@ -80,6 +80,9 @@ const EmployeeManagement: React.FC = () => {
   const [applicants, setApplicants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearch = useDeferredValue(searchQuery);
+  const [employeePage, setEmployeePage] = useState(0);
+  const EMPLOYEES_PER_PAGE = 40;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
@@ -170,6 +173,14 @@ const EmployeeManagement: React.FC = () => {
       }
     });
 
+    return () => unsubEmployees();
+  }, []);
+
+  // Recruitment queries stay disconnected until the Recruitment tab is open.
+  // This avoids transferring applicant PII and job documents on every visit to
+  // the employee directory while keeping recruitment updates real-time.
+  useEffect(() => {
+    if (activeTab !== 'recruitment') return;
     const unsubJobs = onSnapshot(collection(db, 'job_postings'), (snapshot) => {
       setJobPostings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => {
@@ -193,11 +204,10 @@ const EmployeeManagement: React.FC = () => {
     });
 
     return () => {
-      unsubEmployees();
       unsubJobs();
       unsubApplicants();
     };
-  }, []);
+  }, [activeTab]);
 
   const handleSaveJob = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -484,7 +494,15 @@ const EmployeeManagement: React.FC = () => {
     }
   };
 
-  const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredEmployees = useMemo(
+    () => employees.filter(e => (e.name || '').toLowerCase().includes(deferredSearch.toLowerCase())),
+    [employees, deferredSearch]
+  );
+  const pageCount = Math.max(1, Math.ceil(filteredEmployees.length / EMPLOYEES_PER_PAGE));
+  const safePage = Math.min(employeePage, pageCount - 1);
+  const visibleEmployees = filteredEmployees.slice(
+    safePage * EMPLOYEES_PER_PAGE, (safePage + 1) * EMPLOYEES_PER_PAGE
+  );
 
   return (
     <div className="space-y-1.5 pb-1" aria-busy={loading}>
@@ -559,7 +577,7 @@ const EmployeeManagement: React.FC = () => {
               type="text"
               placeholder="SEARCH DIRECTORY..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setEmployeePage(0); }}
               className="w-full bg-surface border border-border rounded-lg py-0.5 pl-7 pr-1.5 text-[8px] text-fg focus:outline-none focus:border-accent/50 transition-all placeholder:text-muted/40 font-bold uppercase tracking-widest shadow-sm"
             />
           </div>
@@ -592,7 +610,7 @@ const EmployeeManagement: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredEmployees.map((emp) => (
+                    visibleEmployees.map((emp) => (
                       <tr key={emp.id} className={cn("group hover:bg-accent/[0.03] transition-all", emp.terminated && "opacity-40 grayscale")}>
                         <td className="px-1.5 py-1 text-center align-middle">
                           <div className="flex items-center justify-center gap-1.5">
@@ -797,6 +815,15 @@ const EmployeeManagement: React.FC = () => {
               </table>
             </div>
           </div>
+          {pageCount > 1 && (
+            <nav aria-label="Employee directory pagination" className="flex items-center justify-end gap-3 py-2 text-xs text-muted">
+              <span>{safePage + 1} / {pageCount} · {filteredEmployees.length} employees</span>
+              <button type="button" disabled={safePage === 0} onClick={() => setEmployeePage(p => Math.max(0, p - 1))}
+                className="rounded-md border border-border px-3 py-1.5 disabled:opacity-40 hover:text-accent">Previous</button>
+              <button type="button" disabled={safePage >= pageCount - 1} onClick={() => setEmployeePage(p => Math.min(pageCount - 1, p + 1))}
+                className="rounded-md border border-border px-3 py-1.5 disabled:opacity-40 hover:text-accent">Next</button>
+            </nav>
+          )}
         </>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">

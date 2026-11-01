@@ -71,11 +71,11 @@ function saveCachedApps(apps: App[]): void {
   }
 }
 
-function previewUrl(siteUrl: string, refresh: number): string {
+function previewUrl(siteUrl: string, refresh: number, width = 480): string {
   // A new snapshot is requested from the live public homepage when needed.
   // Thumbnails are cached for at most an hour and only fetched near viewport.
   const target = refresh === 0 ? siteUrl : siteUrl + (siteUrl.includes('?') ? '&' : '?') + 'previewRefresh=' + refresh;
-  return 'https://image.thum.io/get/width/720/crop/700/maxAge/1/noanimate/' + target;
+  return `https://image.thum.io/get/width/${width}/crop/${Math.round(width * 0.625)}/maxAge/1/noanimate/` + target;
 }
 
 const AppCard: React.FC<{ app: App }> = ({ app }) => {
@@ -86,6 +86,7 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
   // loading states.
   const staticSource = app.thumbnail ? import.meta.env.BASE_URL + app.thumbnail : null;
   const source = staticSource ?? previewUrl(app.url, refresh);
+  const responsiveSources = staticSource ? undefined : `${previewUrl(app.url, refresh, 320)} 320w, ${previewUrl(app.url, refresh, 480)} 480w, ${previewUrl(app.url, refresh, 720)} 720w`;
   const codeUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
 
   return (
@@ -106,11 +107,14 @@ const AppCard: React.FC<{ app: App }> = ({ app }) => {
         ) : (
           <img
             src={source}
+            srcSet={responsiveSources}
+            sizes="(max-width: 640px) calc(100vw - 3rem), (max-width: 1280px) 45vw, 31vw"
             alt={'Live homepage screenshot of ' + app.name}
             className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
-            width="720"
-            height="420"
+            width="480"
+            height="300"
             loading="lazy"
+            fetchPriority="low"
             decoding="async"
             onError={() => setFailed(true)}
           />
