@@ -1336,7 +1336,7 @@ const EmployeeManagement: React.FC = () => {
               <div className="px-3 sm:px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between gap-2 shrink-0">
                 <div className="space-y-0.5">
                   <h2 className="text-[11px] font-bold text-zinc-950 tracking-wide leading-tight">{selectedContract.title}</h2>
-                  <p className="text-[7px] text-zinc-500 font-bold uppercase tracking-[0.1em]">Legal Document Preview</p>
+                  <p className="text-[7px] text-zinc-500 font-bold normal-case tracking-[0.1em]">Legal Document Preview</p>
                 </div>
                 <div className="flex items-center gap-1.5 flex-wrap justify-end">
                   <button 
@@ -1345,7 +1345,7 @@ const EmployeeManagement: React.FC = () => {
                         printContractPreview(selectedContractRef.current, selectedContract.title);
                       }
                     }} 
-                    className="flex items-center gap-1.5 bg-zinc-950 text-white px-2.5 sm:px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-[0.1em] hover:bg-zinc-800 transition-all shadow-lg shadow-black/10"
+                    className="flex items-center gap-1.5 bg-zinc-950 text-white px-2.5 sm:px-4 py-2 rounded-lg text-[10px] font-bold normal-case tracking-[0.1em] hover:bg-zinc-800 transition-all shadow-lg shadow-black/10"
                   >
                     <Printer className="w-3 h-3" />
                     <span>Print</span>
@@ -1376,7 +1376,7 @@ const EmployeeManagement: React.FC = () => {
               </div>
 
               <div className="px-3 sm:px-4 py-2 bg-zinc-50 border-t border-zinc-100 flex justify-center shrink-0">
-                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Confidential & Proprietary - Enterprise Governance System</p>
+                <p className="text-[7px] text-zinc-400 font-bold normal-case tracking-[0.2em]">Confidential & Proprietary - Enterprise Governance System</p>
               </div>
             </motion.div>
           </div>
