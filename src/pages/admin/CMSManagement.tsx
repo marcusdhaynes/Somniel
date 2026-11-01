@@ -1,3 +1,4 @@
+import { printContractPreview, saveContractPdf } from '../../lib/contractPreview';
 import React, { useState } from 'react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { useCMS } from '../../context/CMSContext';
@@ -642,50 +643,17 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
   if (!isOpen) return null;
 
   const handlePrint = () => {
-    if (!contentRef.current) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>${type} - Somniel Holdings LLC</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
-            body { margin: 0; padding: 20px; }
-            @media print {
-              @page { size: portrait; margin: 1cm; }
-              body { padding: 0; margin: 0; }
-              .no-print { display: none; }
-              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            }
-          </style>
-        </head>
-        <body>
-          ${contentRef.current.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+    if (contentRef.current) printContractPreview(contentRef.current, type + ' - Somniel Holdings LLC');
   };
 
   const handleSavePDF = async () => {
     if (!contentRef.current) return;
-    const { default: html2pdf } = await import('html2pdf.js');
-    const element = contentRef.current;
-    const opt = {
-      margin: 10,
-      filename: `${type.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
-    };
-    html2pdf().set(opt).from(element).save();
+    try {
+      await saveContractPdf(contentRef.current, type + ' - Somniel Holdings LLC');
+    } catch (error) {
+      console.error('PDF export failed:', error);
+      window.alert('Unable to export the document. Use Print to save a PDF instead.');
+    }
   };
 
   const mockData: Record<string, string> = {
@@ -790,14 +758,14 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-bg w-full max-w-4xl max-h-[90vh] rounded-3xl border border-border shadow-2xl overflow-hidden flex flex-col"
+        className="bg-bg w-full max-w-4xl h-[100dvh] max-h-[100dvh] sm:h-auto sm:max-h-[92dvh] rounded-none sm:rounded-3xl border border-border shadow-2xl overflow-hidden flex flex-col min-w-0"
       >
-        <div className="p-4 border-bottom border-border flex items-center justify-between bg-surface/50">
-          <div className="flex items-center space-x-3">
+        <div className="px-3 py-3 sm:p-4 border-b border-border flex flex-wrap gap-2 items-center justify-between bg-surface/90 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="p-2 rounded-xl bg-accent/10 border border-accent/20">
               <Eye className="w-4 h-4 text-accent" />
             </div>
@@ -806,7 +774,7 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
               <p className="text-[7px] font-bold uppercase tracking-[0.2em] text-muted">{type} Template</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <button 
               onClick={handlePrint}
               className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-surface border border-border text-muted hover:text-fg hover:border-accent/50 transition-all text-[9px] font-bold uppercase tracking-widest"
@@ -830,18 +798,18 @@ const ContractPreviewModal = ({ isOpen, onClose, template, type, data }: { isOpe
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-8 bg-surface/20 custom-scrollbar">
+        <div className="flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain px-0 py-0 sm:p-5 bg-surface/20 custom-scrollbar">
           <div 
             ref={contentRef}
-            className="prose prose-sm max-w-none"
+            className="contract-preview-sheet"
             dangerouslySetInnerHTML={{ __html: renderedContent }}
           />
         </div>
 
-        <div className="p-4 border-t border-border bg-surface/50 flex justify-end">
+        <div className="px-3 py-3 sm:p-4 border-t border-border bg-surface/90 flex justify-end shrink-0">
           <button 
             onClick={onClose}
-            className="btn-vibrant px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest"
+            className="btn-vibrant px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest"
           >
             Close Preview
           </button>
