@@ -2,10 +2,104 @@ import React, { useState, useEffect } from 'react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { usePayscale, PayscaleConfig } from '../../context/PayscaleContext';
 import { useCMS } from '../../context/CMSContext';
-import { DollarSign, Save, RefreshCcw, Plus, Trash2, TrendingUp, ShieldCheck, GripVertical, ExternalLink } from 'lucide-react';
+import { DollarSign, Save, RefreshCcw, Plus, Trash2, TrendingUp, ShieldCheck, GripVertical, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn, formatCurrency } from '../../lib/utils';
-import { EditableInput } from '../../components/EditableInput';
 import { Link } from 'react-router-dom';
+
+// Use our own independent step buttons instead of the browser's combined
+// number spinner. The buttons do not change the field's dimensions on hover.
+interface PayscaleNumberInputProps {
+  value: number;
+  onCommit: (nextValue: number) => void;
+  className: string;
+  step?: number;
+  label: string;
+}
+
+const PayscaleNumberInput: React.FC<PayscaleNumberInputProps> = ({
+  value, onCommit, className, step = 1, label,
+}) => {
+  const [draft, setDraft] = useState(String(value ?? ''));
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!editing) setDraft(String(value ?? ''));
+  }, [value, editing]);
+
+  const commit = (raw: string) => {
+    const parsed = Number(raw);
+    if (raw.trim() === '' || !Number.isFinite(parsed)) {
+      setDraft(String(value ?? ''));
+      setEditing(false);
+      return;
+    }
+    setDraft(String(parsed));
+    setEditing(false);
+    if (parsed !== Number(value)) onCommit(parsed);
+  };
+
+  const nudge = (direction: 1 | -1) => {
+    const current = Number(draft);
+    const base = draft.trim() && Number.isFinite(current) ? current : Number(value) || 0;
+    // Avoid floating-point leftovers for decimal configurations.
+    const next = Number((base + direction * step).toFixed(8));
+    setDraft(String(next));
+    setEditing(false);
+    if (next !== Number(value)) onCommit(next);
+  };
+
+  return (
+    <div className="group/pay-number relative w-full min-w-0">
+      <input
+        type="number"
+        inputMode="decimal"
+        step={step}
+        value={draft}
+        aria-label={label}
+        onChange={(event) => {
+          setEditing(true);
+          setDraft(event.target.value);
+        }}
+        onBlur={() => {
+          if (editing) commit(draft);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') event.currentTarget.blur();
+          if (event.key === 'Escape') {
+            setDraft(String(value ?? ''));
+            setEditing(false);
+            event.currentTarget.blur();
+          }
+        }}
+        className={cn(className, 'payscale-number-input pr-6')}
+      />
+      <div className="payscale-number-controls invisible absolute inset-y-0 right-0 flex w-5 flex-col items-center justify-center gap-px opacity-0 transition-opacity duration-100 group-hover/pay-number:visible group-hover/pay-number:opacity-100 group-focus-within/pay-number:visible group-focus-within/pay-number:opacity-100">
+        <button
+          type="button"
+          tabIndex={0}
+          aria-label={`Increase ${label}`}
+          title={`Increase ${label}`}
+          onPointerDown={(event) => event.preventDefault()}
+          onClick={() => nudge(1)}
+          className="flex h-3 min-h-3 w-4 items-center justify-center rounded-sm text-muted/70 hover:bg-accent/15 hover:text-accent focus-visible:bg-accent/15 focus-visible:text-accent focus-visible:outline-1 focus-visible:outline-accent/60"
+        >
+          <ChevronUp aria-hidden="true" className="h-2.5 w-2.5" />
+        </button>
+        <button
+          type="button"
+          tabIndex={0}
+          aria-label={`Decrease ${label}`}
+          title={`Decrease ${label}`}
+          onPointerDown={(event) => event.preventDefault()}
+          onClick={() => nudge(-1)}
+          className="flex h-3 min-h-3 w-4 items-center justify-center rounded-sm text-muted/70 hover:bg-accent/15 hover:text-accent focus-visible:bg-accent/15 focus-visible:text-accent focus-visible:outline-1 focus-visible:outline-accent/60"
+        >
+          <ChevronDown aria-hidden="true" className="h-2.5 w-2.5" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const MultiplierItem = ({ category, id, name, value, onUpdateName, onUpdateValue, onDelete, statusColor, color, onUpdateColor, readOnlyName }: any) => {
   const controls = useDragControls();
@@ -73,12 +167,12 @@ const MultiplierItem = ({ category, id, name, value, onUpdateName, onUpdateValue
       </div>
       <div className="flex items-center space-x-3">
         <div className="relative">
-          <EditableInput
-            type="number"
-            step="1"
-            value={value}
-            onCommit={(val) => onUpdateValue(category, name, Number(val))}
-            className="w-14 bg-bg border border-border rounded-md px-1.5 py-1 text-[11px] font-bold text-right focus:outline-none focus:border-accent/50 transition-all shadow-inner select-text cursor-text"
+          <PayscaleNumberInput
+            value={Number(value)}
+            step={1}
+            label={`${name} multiplier percentage`}
+            onCommit={(nextValue) => onUpdateValue(category, name, nextValue)}
+            className="w-14 bg-bg border border-border rounded-md px-1.5 py-1 text-[11px] font-bold text-right focus:outline-none focus:border-accent/50 transition-colors shadow-inner select-text cursor-text"
           />
           <div className="absolute -top-1.5 -right-1 bg-accent text-bg text-[6px] font-bold px-0.5 py-0 rounded shadow-sm select-none">%</div>
         </div>
@@ -285,11 +379,15 @@ const PayrollConfig: React.FC = () => {
               <label className="text-[7px] font-bold uppercase tracking-[0.2em] text-muted/80">Annual Base (USD)</label>
               <div className="relative">
                 <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted font-serif font-bold text-sm">$</span>
-                <EditableInput
-                  type="number"
+                <PayscaleNumberInput
                   value={localConfig.baseRate}
-                  onCommit={(val) => setLocalConfig({ ...localConfig, baseRate: Number(val) })}
-                  className="w-full bg-bg border border-border rounded-lg py-1.5 pl-6 pr-2.5 text-sm font-serif font-bold text-fg focus:outline-none focus:border-accent/50 transition-all shadow-inner tracking-tight"
+                  step={1}
+                  label="Annual base salary in USD"
+                  onCommit={(nextValue) => {
+                    setLocalConfig({ ...localConfig, baseRate: nextValue });
+                    setIsDirty(true);
+                  }}
+                  className="w-full bg-bg border border-border rounded-lg py-1.5 pl-6 text-sm font-serif font-bold text-fg focus:outline-none focus:border-accent/50 transition-colors shadow-inner tracking-tight"
                 />
               </div>
               <div className="p-3 rounded-lg bg-accent/5 border border-accent/10 mt-2">
@@ -321,12 +419,15 @@ const PayrollConfig: React.FC = () => {
                     <label className="text-[7px] font-bold uppercase tracking-[0.15em] text-muted">{item.label}</label>
                     <span className="text-[7px] font-mono text-accent">{(localConfig.factors as any)[item.key]}%</span>
                   </div>
-                  <EditableInput
-                    type="number"
-                    step="1"
-                    value={(localConfig.factors as any)[item.key]}
-                    onCommit={(val) => setLocalConfig({ ...localConfig, factors: { ...localConfig.factors, [item.key]: Number(val) } })}
-                    className="w-full bg-bg border border-border rounded-lg px-3 py-1.5 text-[10px] font-bold focus:outline-none focus:border-accent/50 transition-all shadow-sm"
+                  <PayscaleNumberInput
+                    value={Number((localConfig.factors as any)[item.key])}
+                    step={1}
+                    label={item.label}
+                    onCommit={(nextValue) => {
+                      setLocalConfig({ ...localConfig, factors: { ...localConfig.factors, [item.key]: nextValue } });
+                      setIsDirty(true);
+                    }}
+                    className="w-full bg-bg border border-border rounded-lg pl-3 py-1.5 text-[10px] font-bold focus:outline-none focus:border-accent/50 transition-colors shadow-sm"
                   />
                 </div>
               ))}

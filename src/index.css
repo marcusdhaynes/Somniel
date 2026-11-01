@@ -138,3 +138,12 @@ html[data-density="comfortable"] .condensed-card {
     scroll-behavior: auto !important;
   }
 }
+
+/* PayScale: hide platform-provided joined number spinners (Firefox, Chromium,
+   Safari). The separately clickable up/down arrows live at the right edge. */
+.payscale-number-input { appearance: textfield; -moz-appearance: textfield; }
+.payscale-number-input::-webkit-inner-spin-button,
+.payscale-number-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+@media (hover: none) {
+  .payscale-number-controls { visibility: visible; opacity: 1; }
+}
