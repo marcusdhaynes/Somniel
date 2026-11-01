@@ -1,12 +1,18 @@
-import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import React, { useLayoutEffect } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 
 const PublicLayout: React.FC = () => {
+  const location = useLocation();
+  useLayoutEffect(() => {
+    // New pages always begin at the same stable top position, not at the
+    // scroll depth inherited from the previous route.
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
   return (
     <div className="min-h-screen bg-bg text-fg selection:bg-accent/30 selection:text-accent">
       <Navbar />
-      <main className="">
+      <main className="min-h-[calc(100dvh-3rem)]">
         <div className="pt-8 lg:pt-12">
           <Outlet />
         </div>

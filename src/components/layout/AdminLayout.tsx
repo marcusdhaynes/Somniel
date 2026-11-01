@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 
@@ -6,6 +6,13 @@ import { HeaderActions } from './HeaderActions';
 
 const AdminLayout: React.FC = () => {
   const location = useLocation();
+  const contentRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    // Prevent route changes from inheriting a scrolled position on a
+    // differently sized page. Runs before paint with no scroll animation.
+    contentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
 
   const getPageTitle = () => {
     const path = location.pathname.toLowerCase();
@@ -35,7 +42,7 @@ const AdminLayout: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 px-1.5 pt-8 lg:pt-12 pb-1.5 overflow-y-auto min-h-0">
+        <div ref={contentRef} className="flex-1 px-1.5 pt-8 lg:pt-12 pb-1.5 overflow-y-auto min-h-0">
           <div className="condensed-container">
             <Outlet />
           </div>
