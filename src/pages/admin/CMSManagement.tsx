@@ -1447,7 +1447,7 @@ const CMSManagement: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-fg">International Student Hiring Contract</h3>
-                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Separate Conditional Agreement • Authorization and Contractor Safeguards</p>
+                      <p className="text-[8px] text-muted uppercase tracking-widest mt-0.5">Separate International Agreement • Engagement and Contractor Terms</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
