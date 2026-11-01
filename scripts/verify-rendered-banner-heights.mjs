@@ -11,13 +11,15 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
 <script>
 (async () => {
   const pages = ['subsidiaries', 'founders', 'projects'];
+  const viewportWidths = [1200, 390];
   const results = [];
   const timeout = 16000;
   try {
+    for (const viewport of viewportWidths) {
     for (const page of pages) {
       const iframe = document.createElement('iframe');
       iframe.src = '/' + page + '/';
-      iframe.style.cssText = 'position:absolute;top:10000px;left:0;width:1200px;height:1600px;opacity:0;pointer-events:none;border:0';
+      iframe.style.cssText = 'position:absolute;top:10000px;left:0;width:' + viewport + 'px;height:1600px;opacity:0;pointer-events:none;border:0';
       document.body.append(iframe);
       const start = Date.now();
       let cards = [];
@@ -29,6 +31,7 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       if (!cards.length) throw Error('No React-rendered cards at /' + page);
+      await iframe.contentDocument.fonts.ready;
       const sizes = cards.map(card => ({
         height: Number(card.getBoundingClientRect().height.toFixed(2)),
         computedHeight: getComputedStyle(card).height,
@@ -37,8 +40,17 @@ const sample = String.raw`<!doctype html><html lang="en"><head><meta charset="ut
       if (sizes.some(card => Math.abs(card.height - 112) > 0.5)) {
         throw Error(page + ' mismatched height: ' + JSON.stringify(sizes));
       }
-      results.push({ page, count: sizes.length, distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3) });
+      const clippedActions = cards.flatMap(card => {
+        const box = card.getBoundingClientRect();
+        return [...card.querySelectorAll('a,button')].filter(action => {
+          const rect = action.getBoundingClientRect();
+          return rect.height && rect.bottom > box.bottom + 1;
+        }).map(action => action.textContent?.trim() || action.getAttribute('aria-label') || 'action');
+      });
+      if (clippedActions.length) throw Error(page + ' at ' + viewport + 'px clips controls: ' + clippedActions.join(', '));
+      results.push({ page, viewport, count: sizes.length, distinctHeights: [...new Set(sizes.map(c => c.height))], sizes: sizes.slice(0,3) });
       iframe.remove();
+    }
     }
     document.getElementById('result').dataset.status = 'pass';
     document.getElementById('result').textContent = JSON.stringify(results);
@@ -91,7 +103,7 @@ try {
   const chrome = spawn(browser, [
     '--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--no-first-run', '--no-default-browser-check',
-    '--virtual-time-budget=55000', '--dump-dom',
+    '--virtual-time-budget=90000', '--dump-dom',
     'http://127.0.0.1:' + port + '/' + marker,
   ], { stdio: ['ignore','pipe','pipe'] });
   chrome.stdout.on('data', b => { if (out.length < 6000000) out += String(b); });
@@ -106,7 +118,7 @@ try {
       (match?.[2] || 'no browser result') + '; Chrome status: ' + exit +
       '; diagnostics: ' + err.slice(-850));
   }
-  console.log('PASS: browser measured identical 112px outer card heights on Subsidiaries, Founders, and Projects.');
+  console.log('PASS: browser measured 112px cards and unclipped controls at 1200px and 390px on Subsidiaries, Founders, and Projects.');
   console.log(match[2].replaceAll('&quot;', '"'));
 } finally {
   await new Promise(resolve => server.close(resolve));
