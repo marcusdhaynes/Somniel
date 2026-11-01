@@ -1,3 +1,19 @@
+# Somniel SPA routing: direct links and reloads must return the app shell.
+# This covers /login, /dashboard/*, /admin/* and all public routes.
+DirectoryIndex index.html
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Missing static assets must fail normally, never be rewritten as HTML.
+  RewriteRule ^(?:assets/|thumbnails/|sw\.js$) - [L,NC]
+
+  # Real files and directories, including / and the service worker, are served
+  # normally. Other routes boot React Router from index.html with status 200.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
+
 # Only Vite-generated fingerprinted assets are immutable.
 # Never cache HTML, auth callbacks, API responses, or user data here.
 <IfModule mod_headers.c>

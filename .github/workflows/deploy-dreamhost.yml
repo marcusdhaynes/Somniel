@@ -23,6 +23,11 @@ jobs:
 
       - name: Build production bundle
         run: npm run build
+        env:
+          SOMNIEL_WEB: 'true'
+
+      - name: Verify web paths, asset base, and Apache route fallback
+        run: node scripts/verify-site-build.mjs dreamhost
 
       - name: Record production transfer sizes
         run: node scripts/report-bundle.mjs
@@ -41,3 +46,27 @@ jobs:
             -e "ssh -i ~/.ssh/deploy_key -p 22 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             dist/ \
             "${{ secrets.DREAMHOST_SFTP_USER }}@${{ secrets.DREAMHOST_SFTP_HOST }}:/home/marcusdhaynes/somniel.com/"
+          # Validate exact uploaded document root contains the SPA and its
+          # Apache rewrite rules, not just a successfully transferred bundle.
+          ssh -i ~/.ssh/deploy_key -p 22 \
+            -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "${{ secrets.DREAMHOST_SFTP_USER }}@${{ secrets.DREAMHOST_SFTP_HOST }}" \
+            'test -s /home/marcusdhaynes/somniel.com/index.html && test -s /home/marcusdhaynes/somniel.com/.htaccess'
+
+      - name: HTTP smoke test direct public and protected routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in / /login /projects /founders /subsidiaries /dashboard /dashboard/files /admin /admin/settings; do
+            tmp=$(mktemp)
+            code=$(curl -sSL --retry 3 --retry-delay 2 --max-time 25 \
+              -o "$tmp" -w '%{http_code}' "https://somniel.com$path")
+            if [[ "$code" != "200" ]] || ! grep -q 'id="root"' "$tmp"; then
+              echo "::error::https://somniel.com$path returned HTTP $code or not Somniel's application shell"
+              head -c 400 "$tmp" || true
+              rm -f "$tmp"
+              exit 1
+            fi
+            echo "PASS https://somniel.com$path (HTTP $code)"
+            rm -f "$tmp"
+          done
