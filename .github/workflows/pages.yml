@@ -44,6 +44,7 @@ jobs:
       # returns HTTP 200 for deep links rather than a 404 app-shell fallback.
       - run: node scripts/build-pages-routes.mjs
       - run: node scripts/prerender-public.mjs pages
+      - run: node scripts/verify-public-prerender.mjs pages
       # Preserve a generic client SPA fallback, not the public homepage snapshot.
       - run: cp dist/login/index.html dist/404.html
       - uses: actions/configure-pages@v5

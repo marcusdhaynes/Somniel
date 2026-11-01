@@ -27,7 +27,9 @@ jobs:
           SOMNIEL_WEB: 'true'
 
       - name: Pre-render four public pages before React loads
-        run: node scripts/prerender-public.mjs dreamhost
+        run: |
+          node scripts/prerender-public.mjs dreamhost
+          node scripts/verify-public-prerender.mjs dreamhost
 
       - name: Verify web paths, asset base, and Apache route fallback
         run: node scripts/verify-site-build.mjs dreamhost
