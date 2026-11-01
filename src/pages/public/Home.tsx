@@ -22,7 +22,7 @@ const Home: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <span className="inline-block px-3 py-1 mb-4 text-[7px] font-bold tracking-[0.4em] uppercase bg-accent/10 text-accent border border-accent/20 rounded-full backdrop-blur-md shadow-xl shadow-accent/10">
               The Architecture of Tomorrow
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
                   key={i} 
                   initial={{ opacity: 0, y: 50, rotateX: -30 }}
                   animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                  transition={{ delay: i * 0.05, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
                   className="inline-block mr-[0.15em] last:mr-0"
                 >
                   {word === 'Future' ? <span className="text-accent italic font-light lowercase font-serif">{word}</span> : word}
@@ -43,7 +43,7 @@ const Home: React.FC = () => {
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.7 }}
-              transition={{ delay: 0.8, duration: 1.2 }}
+              transition={{ duration: 0.2 }}
               className="text-sm md:text-lg text-muted max-w-2xl mx-auto mb-8 leading-relaxed font-light tracking-tight"
             >
               {content.hero.subtitle}
@@ -85,7 +85,7 @@ const Home: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
                 className="p-3 md:p-4 rounded-[1rem] md:rounded-[1.5rem] bg-surface/20 border border-white/5 hover:border-accent/40 transition-all group relative overflow-hidden backdrop-blur-xl shadow-lg shadow-black/5"
               >
                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-accent/5 rounded-full blur-xl transition-transform group-hover:scale-150 duration-1000" />
@@ -117,7 +117,7 @@ const Home: React.FC = () => {
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05, duration: 0.6 }}
+                transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2 }}
                 className="space-y-1 md:space-y-2"
               >
                 <p className="text-2xl md:text-4xl font-serif font-bold text-fg tracking-[-0.06em] leading-none">{stat.value}</p>

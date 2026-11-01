@@ -52,13 +52,13 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute -top-8 inset-x-0 bottom-0 bg-bg z-0" />
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-accent/5 blur-[150px] rounded-full animate-pulse" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-accent/5 blur-[150px] rounded-full animate-pulse delay-1000" />
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-accent/5 blur-[150px] rounded-full" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-accent/5 blur-[150px] rounded-full delay-1000" />
       
       <motion.div
         initial={{ opacity: 0, scale: 0.98, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
         className="w-full max-w-xl relative z-10"
       >
         <div className="p-16 md:p-24 rounded-[4rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] relative overflow-hidden group">
@@ -69,7 +69,7 @@ const Login: React.FC = () => {
             <motion.div 
               initial={{ rotate: -10, scale: 0.9 }}
               animate={{ rotate: 0, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              transition={{ duration: 0.2 }}
               className="w-20 h-20 bg-accent/10 rounded-[2rem] flex items-center justify-center mx-auto mb-12 group-hover:scale-110 transition-all duration-700 shadow-2xl shadow-accent/10 border border-accent/20"
             >
               <ShieldCheck className="w-10 h-10 text-accent" />
@@ -78,7 +78,7 @@ const Login: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
+              transition={{ duration: 0.2 }}
             >
               <div className="flex items-center justify-center space-x-3 mb-6">
                 <Sparkles className="w-4 h-4 text-accent/60" />
@@ -96,7 +96,7 @@ const Login: React.FC = () => {
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ duration: 0.2 }}
             onClick={handleLogin}
             disabled={signingIn}
             aria-busy={signingIn}
@@ -119,7 +119,7 @@ const Login: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 1 }}
+            transition={{ duration: 0.2 }}
             className="mt-16 pt-10 border-t border-white/5 text-center"
           >
             <p className="text-[10px] text-muted/30 uppercase tracking-[0.5em] font-bold">

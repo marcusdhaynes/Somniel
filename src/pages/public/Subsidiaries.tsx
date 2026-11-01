@@ -13,29 +13,15 @@ const Subsidiaries: React.FC = () => {
       <header className="relative min-h-[2vh] flex items-center justify-center px-4 pt-7 pb-0.5 overflow-hidden">
         <div className="absolute -top-8 inset-x-0 bottom-0 z-0">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-accent/5 via-transparent to-bg" />
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.1, 1],
-              opacity: [0.1, 0.15, 0.1]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[120px]" 
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1.1, 1, 1.1],
-              opacity: [0.05, 0.1, 0.05]
-            }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px]" 
-          />
+          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px]" />
         </div>
 
         <div className="max-w-[1400px] mx-auto text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <span className="inline-block px-3 py-1 mb-4 text-[7px] font-bold tracking-[0.4em] uppercase bg-accent/10 text-accent border border-accent/20 rounded-full backdrop-blur-md shadow-xl shadow-accent/10">
               Our Ecosystem
@@ -46,7 +32,7 @@ const Subsidiaries: React.FC = () => {
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.7 }}
-              transition={{ delay: 0.8, duration: 1.2 }}
+              transition={{ duration: 0.2 }}
               className="text-sm md:text-lg text-muted max-w-2xl mx-auto mb-8 leading-relaxed font-light tracking-tight"
             >
               A diverse ecosystem of market-leading companies operating across multiple sectors.
@@ -63,7 +49,7 @@ const Subsidiaries: React.FC = () => {
               initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="group relative overflow-hidden rounded-3xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-all p-6 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
               <div className="flex items-start space-x-6">

@@ -21,7 +21,7 @@ const Founders: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <span className="inline-block px-3 py-1 mb-4 text-[7px] font-bold tracking-[0.4em] uppercase bg-accent/10 text-accent border border-accent/20 rounded-full backdrop-blur-md shadow-xl shadow-accent/10">
               The Visionaries
@@ -32,7 +32,7 @@ const Founders: React.FC = () => {
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.7 }}
-              transition={{ delay: 0.8, duration: 1.2 }}
+              transition={{ duration: 0.2 }}
               className="text-sm md:text-lg text-muted max-w-2xl mx-auto mb-8 leading-relaxed font-light tracking-tight"
             >
               Visionary leaders committed to building the future of enterprise architecture.
@@ -49,7 +49,7 @@ const Founders: React.FC = () => {
               initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: Math.min(i * 0.02, 0.1), duration: 0.2, ease: 'easeOut' }}
               className="group relative overflow-hidden rounded-3xl bg-surface/20 border border-white/5 hover:border-accent/40 transition-all p-6 backdrop-blur-2xl shadow-2xl shadow-black/20"
             >
               <div className="flex items-start space-x-6">
