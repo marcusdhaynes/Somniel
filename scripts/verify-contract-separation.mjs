@@ -20,27 +20,19 @@ const sections = [...intl.matchAll(/<h2 style=/g)].length;
 const annexes = [...intl.matchAll(/Annex [A-Q] ·/g)].length;
 ensure(sections >= 38, 'Missing comprehensive contract clauses (' + sections + ')');
 ensure(annexes >= 17, 'Missing annexes (' + annexes + ')');
-for (const term of [
-  'NO WORK UNDER A RESTRICTIVE STUDENT VISA',
-  'work authorization',
-  'Contractor',
-  'F-1',
-  'Indonesia',
-  'SOW',
-  'W-8BEN',
-  'Immigration',
-  'Sanctions',
-  'Intellectual',
-  'Annex M',
-  'Tax',
-  'data'
-]) ensure(intl.toLowerCase().includes(term.toLowerCase()), 'Missing safeguard ' + term);
+for (const term of ['Contractor', 'SOW', 'W-8BEN', 'Sanctions', 'Intellectual', 'Annex M', 'Tax', 'data']) {
+  ensure(intl.toLowerCase().includes(term.toLowerCase()), 'Missing provision ' + term);
+}
+ensure(!/\\bvisa\\b|immigra|E30B|E33G|\\bF-1\\b|\\bCPT\\b|\\bOPT\\b/i.test(intl),
+  'International contract must contain no visa-specific discussion');
 ensure(migration.includes("updates['contracts.hiring'] = LEGACY_STOCK_HIRING_TEMPLATE"),
   'Migration does not restore the old hiring template');
 ensure(migration.includes('LEGACY_INTERNATIONAL_HIRING_TEMPLATE.trim()'),
   'Restoration should only replace the exact historical international contract');
 ensure(migration.includes("updates['contracts.internationalStudentHiring'] = DEFAULT_CONTRACTS.internationalStudentHiring"),
   'Missing initialization of separate CMS field');
+ensure(migration.includes('matchesPriorStudentDefault'),
+  'Existing unmodified student templates must be upgraded without overwriting customizations');
 ensure(editor.includes('International Student Hiring Contract</h3>') &&
        editor.includes('internationalStudentHiring: value'), 'No independent editable contract in CMS');
 ensure(editor.includes('Restore Original') && editor.includes('Load Comprehensive Template'),
