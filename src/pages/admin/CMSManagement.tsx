@@ -858,9 +858,26 @@ const CMSManagement: React.FC = () => {
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 
   React.useEffect(() => {
-    if (!loading && content && !localContent) {
-      setLocalContent(content);
-    }
+    if (loading || !content || localContent) return;
+    let active = true;
+    // The editor needs complete defaults; public visitors never download them.
+    void import('../../data/defaultContracts').then(({ DEFAULT_CONTRACTS }) => {
+      if (!active) return;
+      const saved = content.contracts || {};
+      setLocalContent({
+        ...content,
+        contracts: {
+          hiring: saved.hiring || DEFAULT_CONTRACTS.hiring,
+          termination: saved.termination || DEFAULT_CONTRACTS.termination,
+          changeOfPosition: saved.changeOfPosition || DEFAULT_CONTRACTS.changeOfPosition,
+          nda: saved.nda || DEFAULT_CONTRACTS.nda,
+        }
+      });
+    }).catch(error => {
+      console.error('Could not load editor templates:', error);
+      if (active) setLocalContent(content);
+    });
+    return () => { active = false; };
   }, [content, localContent, loading]);
 
   const handleSave = async () => {

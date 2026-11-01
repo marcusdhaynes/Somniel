@@ -360,8 +360,12 @@ const EmployeeManagement: React.FC = () => {
     }
   };
 
-  const handleGenerateContract = (emp: Employee, type: 'hiring' | 'termination' | 'changeOfPosition' | 'nda') => {
+  const handleGenerateContract = async (emp: Employee, type: 'hiring' | 'termination' | 'changeOfPosition' | 'nda') => {
     if (!content) return;
+    // Keep large default templates out of the main bundle. CMS overrides,
+    // when present, always take precedence over the default text.
+    const fallback = content.contracts?.[type] ? '' :
+      (await import('../../data/defaultContracts')).DEFAULT_CONTRACTS[type];
     
     const data = {
       employeeName: emp.name,
@@ -382,19 +386,19 @@ const EmployeeManagement: React.FC = () => {
     let template = '';
 
     if (type === 'hiring') {
-      template = content.contracts?.hiring;
+      template = content.contracts?.hiring || fallback;
       html = generateHiringContract(data, template);
       title = `Hiring Contract - ${emp.name}`;
     } else if (type === 'termination') {
-      template = content.contracts?.termination;
+      template = content.contracts?.termination || fallback;
       html = generateTerminationContract(data, template);
       title = `Termination Contract - ${emp.name}`;
     } else if (type === 'changeOfPosition') {
-      template = content.contracts?.changeOfPosition;
+      template = content.contracts?.changeOfPosition || fallback;
       html = generateChangeOfPositionContract(data, template);
       title = `Change of Position Contract - ${emp.name}`;
     } else if (type === 'nda') {
-      template = content.contracts?.nda;
+      template = content.contracts?.nda || fallback;
       html = generateNDAContract(data, template);
       title = `NDA Agreement - ${emp.name}`;
     }
