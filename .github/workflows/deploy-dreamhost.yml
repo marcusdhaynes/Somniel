@@ -32,6 +32,9 @@ jobs:
       - name: Verify uniform compact public banner heights
         run: node scripts/verify-public-card-layout.mjs
 
+      - name: Capture actual project application previews
+        run: node scripts/capture-project-previews.mjs
+
       - name: Pre-render four public pages before React loads
         run: |
           node scripts/prerender-public.mjs dreamhost
