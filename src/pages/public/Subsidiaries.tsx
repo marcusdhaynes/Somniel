@@ -10,30 +10,30 @@ const Subsidiaries: React.FC = () => {
 
   return (
     <div className="relative overflow-hidden">
-      <header className="relative min-h-[2vh] flex items-center justify-center px-4 pt-7 pb-0.5 overflow-hidden">
+      <header className="public-section-hero relative flex items-center justify-center overflow-hidden">
         <div className="absolute -top-8 inset-x-0 bottom-0 z-0">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-accent/5 via-transparent to-bg" />
           <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px]" />
         </div>
 
-        <div className="max-w-[1400px] mx-auto text-center relative z-10">
+        <div className="public-section-hero-content mx-auto text-center relative z-10">
           <motion.div
             initial={false}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
-            <span className="inline-block px-3 py-1 mb-4 text-[7px] font-bold tracking-[0.4em] uppercase bg-accent/10 text-accent border border-accent/20 rounded-full backdrop-blur-md shadow-xl shadow-accent/10">
+            <span className="public-section-eyebrow inline-block px-3 py-1 text-[7px] font-bold tracking-[0.4em] uppercase bg-accent/10 text-accent border border-accent/20 rounded-full backdrop-blur-md shadow-xl shadow-accent/10">
               Our Ecosystem
             </span>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-[-0.06em] text-fg mb-6 leading-[0.9] max-w-[90vw] mx-auto uppercase">
+            <h1 className="public-section-heading font-serif font-bold tracking-[-0.04em] text-fg mx-auto uppercase">
               Subsidiary <span className="text-accent italic font-light lowercase font-serif">Businesses</span>
             </h1>
             <motion.p 
               initial={false}
               animate={{ opacity: 0.7 }}
               transition={{ duration: 0.2 }}
-              className="text-sm md:text-lg text-muted max-w-2xl mx-auto mb-8 leading-relaxed font-light tracking-tight"
+              className="public-section-intro text-muted max-w-2xl mx-auto font-light tracking-tight"
             >
               A diverse ecosystem of market-leading companies operating across multiple sectors.
             </motion.p>

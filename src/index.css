@@ -186,3 +186,69 @@ html[data-density="comfortable"] .condensed-card {
     .public-section-grid { grid-template-columns: repeat(3, minmax(0, 18rem)); }
   }
 }
+
+/* Both the large title/intro banners AND the entity cards must use common,
+   measurable boxes across routes. The old headers were content-height based:
+   a wrapped intro made the Subsidiaries hero taller than the Founders hero.
+   Keep a fixed shared height and allow text to balance inside that box. */
+.public-section-hero {
+  box-sizing: border-box;
+  height: 224px;
+  min-height: 224px;
+  max-height: 224px;
+  width: 100%;
+  padding: 12px 16px;
+  overflow: hidden;
+}
+.public-section-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 70rem;
+  height: 100%;
+  min-height: 0;
+}
+.public-section-hero-content > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+.public-section-eyebrow {
+  margin: 0 0 10px;
+  flex-shrink: 0;
+}
+.public-section-heading {
+  font-size: clamp(1.55rem, 4.1vw, 3.35rem);
+  line-height: 1.08;
+  max-width: 100%;
+  margin: 0;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.public-section-intro {
+  font-size: clamp(0.75rem, 1.3vw, 1rem);
+  line-height: 1.45;
+  max-width: 46rem;
+  margin: 12px auto 0;
+  text-align: center;
+  text-wrap: pretty;
+}
+@media (max-width: 640px) {
+  .public-section-hero {
+    height: 204px;
+    min-height: 204px;
+    max-height: 204px;
+    padding: 10px 14px;
+  }
+  .public-section-heading {
+    font-size: clamp(1.45rem, 7vw, 2.3rem);
+  }
+  .public-section-eyebrow { margin-bottom: 8px; }
+  .public-section-intro { margin-top: 10px; line-height: 1.35; }
+}
