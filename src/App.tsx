@@ -30,6 +30,7 @@ const FileExplorer = lazy(() => import('./pages/dashboard/FileExplorer'));
 // Admin Pages
 const AdminOverview = lazy(() => import('./pages/admin/AdminOverview'));
 const EmployeeManagement = lazy(() => import('./pages/admin/EmployeeManagement'));
+const ContractorProjects = lazy(() => import('./pages/admin/ContractorProjects'));
 const PayrollManagement = lazy(() => import('./pages/admin/PayrollManagement'));
 const PayScale = lazy(() => import('./pages/admin/PayScale'));
 const CMSManagement = lazy(() => import('./pages/admin/CMSManagement'));
@@ -49,7 +50,7 @@ const RouteWarmup: React.FC = () => {
     // Slow-data users are automatically excluded from speculative work.
     const destinations = user
       ? (isAdmin
-        ? ['/admin', '/admin/employees', '/admin/cms', '/admin/payroll',
+        ? ['/admin', '/admin/employees', '/admin/contractor-projects', '/admin/cms', '/admin/payroll',
            '/admin/payscale', '/admin/roadmap', '/admin/settings']
         : ['/dashboard', '/dashboard/files', '/dashboard/settings'])
       : ['/projects', '/subsidiaries', '/founders'];
@@ -100,6 +101,7 @@ const App: React.FC = () => {
                   <Route path="/admin" element={<ProtectedRoute adminOnly><AdminWorkspace /></ProtectedRoute>}>
                     <Route index element={page(<AdminOverview />)} />
                     <Route path="employees" element={page(<EmployeeManagement />)} />
+                    <Route path="contractor-projects" element={page(<ContractorProjects />)} />
                     <Route path="payroll" element={page(<PayrollManagement />)} />
                     <Route path="payscale" element={page(<PayScale />)} />
                     <Route path="cms" element={page(<CMSManagement />)} />
