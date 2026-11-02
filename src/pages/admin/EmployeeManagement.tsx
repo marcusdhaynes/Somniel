@@ -268,7 +268,7 @@ const EmployeeManagement: React.FC = () => {
         setLocalTimeInCompany(editingEmployee.timeInCompany || '');
         setLocalTimeInPosition(editingEmployee.timeInPosition || '');
       }
-      const fields = Object.entries(editingEmployee.customFields || {}).filter(([key]) => key !== 'engagementType').map(([key, value]) => ({ 
+      const fields = Object.entries(editingEmployee.customFields || {}).filter(([key]) => !['engagementType', '__draftName', '__missingRequired'].includes(key)).map(([key, value]) => ({ 
         id: Math.random().toString(36).substr(2, 9),
         key, 
         value 
