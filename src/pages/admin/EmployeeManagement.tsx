@@ -170,7 +170,9 @@ const EmployeeManagement: React.FC = () => {
   const { content } = useCMS();
 
   useEffect(() => {
-    const unsubEmployees = onSnapshot(collection(db, 'employees'), (snapshot) => {
+    const unsubEmployees = onSnapshot(collection(db, 'employees'), { includeMetadataChanges: true }, (snapshot) => {
+      // Preserve the last good directory until the server confirms an empty result.
+      if (snapshot.metadata.fromCache && snapshot.empty) return;
       setEmployees(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee)));
       setLoading(false);
     }, (error) => {
