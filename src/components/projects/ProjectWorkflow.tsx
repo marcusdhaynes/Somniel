@@ -46,7 +46,10 @@ const ProjectWorkflow: React.FC<Props> = ({ project, save }) => {
     finally { setBusy(false); }
   };
   const spec = PROJECT_STAGES[stage], Icon = icons[stage];
-  const canFill = !!project.contractorId && stage <= next;
+  const canFill = stage <= next;
+  const canApprove = !!project.contractorId && stage <= next;
+  const missingFields = spec.fields.filter(field => field.required &&
+    (!(values[field.key] || '').trim() || (field.type === 'checkbox' && values[field.key] !== 'yes')));
   return <div className="overflow-hidden rounded-3xl border border-border bg-surface">
     <header className="border-b border-border p-5 sm:p-6 bg-gradient-to-r from-accent/10 via-surface to-bg">
       <div className="flex flex-wrap justify-between gap-3 items-start">
@@ -93,9 +96,15 @@ const ProjectWorkflow: React.FC<Props> = ({ project, save }) => {
         </div>
         {message && <p role="status" className="rounded-xl border border-accent/20 bg-accent/5 p-3 text-xs text-fg">{message}</p>}
         {!project.contractorId && <p className="rounded-xl border border-border bg-bg p-4 text-xs text-muted">
-          First assign a contractor or award an existing bid. Assignment does not authorize productive work.</p>}
+          You can save incomplete drafts now. Assign a contractor before approving any stage; assignment does not authorize work.</p>}
+        {!!missingFields.length && <p className="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-500" role="status">{missingFields.length} required field{missingFields.length === 1 ? '' : 's'} incomplete. Red outlines identify missing information; Save Draft remains available.</p>
         <div className="grid sm:grid-cols-2 gap-3">
-          {spec.fields.map(field => <label key={field.key} className={'block ' + (field.type==='textarea'||field.type==='checkbox' ? 'sm:col-span-2' : '')}>
+          {spec.fields.map(field => {
+            const incomplete = field.required && (!(values[field.key] || '').trim() ||
+              (field.type === 'checkbox' && values[field.key] !== 'yes'));
+            return <label key={field.key} className={'block ' +
+              (field.type==='textarea'||field.type==='checkbox' ? 'sm:col-span-2 ' : '') +
+              (incomplete ? 'project-workflow-field-incomplete' : '')}>
             {field.type!=='checkbox' && <span className="block text-[11px] font-bold text-fg mb-1.5">{field.label}{field.required && <span className="text-accent ml-1">*</span>}</span>}
             {field.type==='textarea' ?
               <textarea className={control+' min-h-28 resize-y'} rows={4} disabled={!canFill} placeholder="Describe the facts and document references..."
@@ -108,7 +117,8 @@ const ProjectWorkflow: React.FC<Props> = ({ project, save }) => {
               <input className={control} disabled={!canFill} type={field.type||'text'} min={field.type==='number'?'0':undefined}
                 step={field.type==='number'?'0.01':undefined} value={values[field.key]||''}
                 onChange={e=>change(field.key,e.target.value)} />}
-          </label>)}
+          </label>;
+          })}
         </div>
         <div className="flex flex-wrap justify-between gap-3 items-center pt-4 border-t border-border">
           <button className={button+' text-muted'} disabled={stage===0} onClick={() => choose(Math.max(0,stage-1))}>
@@ -116,7 +126,7 @@ const ProjectWorkflow: React.FC<Props> = ({ project, save }) => {
           <div className="flex gap-2">
             <button disabled={busy||!canFill} onClick={() => void submit(false)}
               className={button+' border border-border text-fg bg-bg'}>Save Draft</button>
-            <button disabled={busy||!canFill} onClick={() => void submit(true)}
+            <button disabled={busy||!canApprove} onClick={() => void submit(true)}
               className={button+' bg-accent text-bg hover:opacity-90'}>
               <Check size={15}/>{stage===4?'Record Payment':'Approve & Continue'}<ChevronRight size={14}/></button>
           </div>
