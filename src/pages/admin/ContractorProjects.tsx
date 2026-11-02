@@ -10,7 +10,7 @@ const panel='rounded-2xl border border-border bg-surface/85';
 const mode=(project:ContractorProject)=>project.mode==='bounty'?'Open Bounty':project.mode==='bid'?'Competitive Bid':'Direct Assignment';
 const ContractorProjects:React.FC=()=>{
   const store=useProjectStore();
-  const {contractors,otherWorkers,peopleReady,projects,create,assign,bid,save,markAsContractor,completeProjectTitle,isWorkerIncomplete,loading,error}=store;
+  const {contractors,otherWorkers,peopleReady,projects,create,assign,bid,save,markAsContractor,completeProjectTitle,isWorkerIncomplete,loading,error,retryAccess}=store;
   const [chosen,setChosen]=useState('');
   const [filter,setFilter]=useState<'all'|'open'|'assigned'>('all');
   const [query,setQuery]=useState('');
@@ -66,7 +66,9 @@ const ContractorProjects:React.FC=()=>{
       </div>
     </header>
     {(feedback||error)&&<div role="status" className="flex justify-between gap-3 items-start p-3 rounded-xl border border-accent/20 bg-accent/5 text-xs text-fg">
-      <p>{feedback||error}</p><button onClick={()=>setFeedback('')} title="Dismiss"><X size={14}/></button></div>}
+      <p className="flex-1">{feedback||error}</p>
+      {error&&<button type="button" onClick={retryAccess} className="shrink-0 rounded-lg border border-accent/25 px-2 py-1 font-semibold text-accent">Retry Access</button>}
+      {feedback&&<button onClick={()=>setFeedback('')} title="Dismiss"><X size={14}/></button>}</div>}
 
     <div className="grid gap-4 xl:grid-cols-[235px_minmax(0,1fr)]">
       <aside className={panel+' p-4 space-y-3'}>
