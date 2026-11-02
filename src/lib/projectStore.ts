@@ -78,7 +78,7 @@ export function useProjectStore() {
       if (index === 4 && (Number(record.paidAmount) <= 0 ||
         Number(record.paidAmount) !== Number(record.invoiceAmount) ||
         String(record.paidCurrency).toUpperCase() !== String(record.invoiceCurrency).toUpperCase()))
-        throw Error('Final receipt must reconcile to the full approved invoice, in the same currency. Record partial payments separately before final approval.');
+        throw Error('Final receipt must reconcile to the full approved invoice, in the same currency. This form does not support partial payments.');
     }
     // Editing an earlier document invalidates later approvals.
     const completedStages = current.filter(i => i < index);
