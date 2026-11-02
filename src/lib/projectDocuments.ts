@@ -51,6 +51,7 @@ export type ContractorProject = {
   id: string;
   kind: 'contractor_project';
   title: string;
+  titleMissing?: boolean;
   description: string;
   mode: 'bid' | 'bounty' | 'direct';
   budget: number;
