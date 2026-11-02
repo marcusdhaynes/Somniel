@@ -1406,7 +1406,7 @@ const CMSManagement: React.FC = () => {
               </div>
 
 
-              {/* Independent International Student Hiring Contract. Never edits the standard Hiring Contract. */}
+              {/* Independent International Engagement Agreement. Never edits the standard Hiring Contract. */}
               <div className="p-4 rounded-2xl bg-bg/50 border border-border space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
@@ -1414,7 +1414,7 @@ const CMSManagement: React.FC = () => {
                       <Globe className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">International Student Hiring Contract</h3>
+                      <h3 className="text-[10px] font-bold normal-case tracking-widest text-fg">International Engagement Agreement</h3>
                       <p className="text-[8px] text-muted normal-case tracking-widest mt-0.5">Separate International Agreement • Engagement and Contractor Terms</p>
                     </div>
                   </div>
@@ -1422,7 +1422,7 @@ const CMSManagement: React.FC = () => {
                     <button
                       type="button"
                       onClick={async () => {
-                        if (!window.confirm('Load the comprehensive International Student Hiring Contract in its own editor? This does NOT change the standard Hiring Contract. Save any customized international terms first.')) return;
+                        if (!window.confirm('Load the comprehensive International Engagement Agreement in its own editor? This does NOT change the standard Hiring Contract. Save any customized international terms first.')) return;
                         const { DEFAULT_CONTRACTS } = await import('../../data/defaultContracts');
                         setLocalContent((current: any) => ({
                           ...current,
@@ -1430,11 +1430,11 @@ const CMSManagement: React.FC = () => {
                         }));
                       }}
                       className="rounded-lg border border-accent/30 px-3 py-1.5 text-[9px] font-bold text-accent hover:bg-accent/10"
-                      title="Load the independent comprehensive international student template"
+                      title="Load the independent comprehensive international engagement template"
                     >Load Comprehensive Template</button>
                     <button
                       type="button"
-                      onClick={() => setPreviewContract({ type: 'International Student Hiring', template: localContent.contracts?.internationalStudentHiring || '' })}
+                      onClick={() => setPreviewContract({ type: 'International Engagement', template: localContent.contracts?.internationalStudentHiring || '' })}
                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-bg transition-colors text-[9px] font-bold normal-case tracking-widest"
                     ><Eye className="w-3 h-3" /><span>Preview</span></button>
                   </div>
@@ -1445,7 +1445,7 @@ const CMSManagement: React.FC = () => {
                 </p>
                 <div className="space-y-1">
                   <label className="text-[8px] font-bold normal-case tracking-[0.2em] text-muted">
-                    International Student HTML Template (Double Curly Brace Variables)
+                    International Engagement HTML Template (Double Curly Brace Variables)
                   </label>
                   <EditableTextarea
                     rows={12}
