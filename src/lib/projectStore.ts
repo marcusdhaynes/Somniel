@@ -143,5 +143,6 @@ export function useProjectStore() {
     await updateDoc(doc(db,'tasks',project.id),{ record:{ ...record }, completedStages, status, updatedAt:serverTimestamp() });
     void logActivity(approve ? 'Project Stage Approved' : 'Project Draft Saved', project.title + ' · Stage ' + (index+1));
   };
-  return { contractors, otherWorkers, peopleReady, projects, loading, error, create, assign, bid, save, markAsContractor, completeProjectTitle, isWorkerIncomplete };
+  const retryAccess = () => { setError(''); setRetryIndex(value => value + 1); };
+  return { contractors, otherWorkers, peopleReady, projects, loading, error, retryAccess, create, assign, bid, save, markAsContractor, completeProjectTitle, isWorkerIncomplete };
 }
