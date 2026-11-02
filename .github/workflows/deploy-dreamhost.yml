@@ -24,6 +24,9 @@ jobs:
       - name: Verify original and international hiring contracts are isolated
         run: node scripts/verify-contract-separation.mjs
 
+      - name: Verify contractor visibility and incomplete drafts
+        run: node --import tsx scripts/verify-workforce-drafts.mjs
+
       - name: Verify PayScale component references
         run: node scripts/verify-payscale-components.mjs
 
