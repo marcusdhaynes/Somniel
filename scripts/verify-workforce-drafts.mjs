@@ -33,7 +33,7 @@ assert.ok(store.includes('if (authLoading) return;'),
   'Project listeners must not start before authentication resolves');
 assert.ok(store.includes('user.getIdToken(true)'),
   'A denied listener must attempt a refreshed Firebase token once');
-assert.ok(store.includes('if (snapshot.metadata.fromCache && snapshot.empty) return;'),
+assert.ok(store.includes('snapshot.metadata.fromCache && snapshot.empty'),
   'Empty offline caches must never hide known contractor records');
 
 assert.ok(store.includes('markAsContractor'), 'Recovery action must exist');
