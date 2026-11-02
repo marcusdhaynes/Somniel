@@ -62,7 +62,8 @@ export function useProjectStore() {
       !window.confirm('Reassigning resets all recorded approvals and payment records. Continue?')) return false;
     await updateDoc(doc(db, 'tasks', project.id), {
       contractorId: person.id, contractorName: person.name, status: 'planned',
-      record: {}, completedStages: [], bids: (project.bids || []).map(b => ({
+      record: !project.contractorId && !(project.completedStages || []).length ? (project.record || {}) : {},
+      completedStages: [], bids: (project.bids || []).map(b => ({
         ...b, state: b.id === awardedBidId ? 'awarded' : b.state === 'awarded' ? 'declined' : b.state
       })), updatedAt: serverTimestamp()
     });
@@ -80,7 +81,7 @@ export function useProjectStore() {
     void logActivity('Project Bid Recorded', project.title + ' · ' + person.name);
   };
   const save = async (project: ContractorProject, index: number, record: Record<string,string>, approve: boolean) => {
-    if (!project.contractorId) throw Error('Assign a contractor first.');
+    if (!project.contractorId && approve) throw Error('Assign a contractor before approving a stage. Drafts may be saved without an assignment.');
     const current = project.completedStages || [];
     const next = [0,1,2,3,4].find(i => !current.includes(i)) ?? 5;
     if (index > next) throw Error('Prior stages are incomplete.');
