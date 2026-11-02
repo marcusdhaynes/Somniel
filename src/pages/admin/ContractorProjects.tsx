@@ -10,7 +10,7 @@ const panel='rounded-2xl border border-border bg-surface/85';
 const mode=(project:ContractorProject)=>project.mode==='bounty'?'Open Bounty':project.mode==='bid'?'Competitive Bid':'Direct Assignment';
 const ContractorProjects:React.FC=()=>{
   const store=useProjectStore();
-  const {contractors,projects,create,assign,bid,save,loading,error}=store;
+  const {contractors,otherWorkers,peopleReady,projects,create,assign,bid,save,markAsContractor,isWorkerIncomplete,loading,error}=store;
   const [chosen,setChosen]=useState('');
   const [filter,setFilter]=useState<'all'|'open'|'assigned'>('all');
   const [query,setQuery]=useState('');
@@ -19,6 +19,7 @@ const ContractorProjects:React.FC=()=>{
   const [bidId,setBidId]=useState('');
   const [createOpen,setCreateOpen]=useState(false);
   const [bidOpen,setBidOpen]=useState(false);
+  const [projectMissing,setProjectMissing]=useState(false);
   const [pending,setPending]=useState(false);
   const [feedback,setFeedback]=useState('');
   const selected=projects.find(x=>x.id===chosen)||projects[0];
@@ -34,13 +35,14 @@ const ContractorProjects:React.FC=()=>{
     catch(e){setFeedback(e instanceof Error?e.message:String(e));}
     finally{setPending(false);setDragOver('');}
   };
+  const restoreWorker=(id:string)=>void safe(()=>markAsContractor(id), 'Record designated as Contractor. Existing data has been preserved.');
   const doAssign=(p:ContractorProject,id:string,bidRef?:string)=>{
     if(!id)return;
     void safe(()=>assign(p,id,bidRef),'Assignment recorded. Legal approval must be independently verified before work.');
   };
   const onCreate=(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();const data=new FormData(e.currentTarget);
-    void safe(async()=>{const id=await create(data);setChosen(id);setCreateOpen(false);},
+    void safe(async()=>{const id=await create(data);setChosen(id);setCreateOpen(false);setProjectMissing(false);},
       'Project created. Select or award a contractor to begin the approval workflow.');
   };
   const onBid=(e:React.FormEvent<HTMLFormElement>)=>{
@@ -70,14 +72,32 @@ const ContractorProjects:React.FC=()=>{
         <div><h2 className="font-serif text-lg text-fg">Contractors</h2>
           <p className="text-[11px] text-muted">Drag a person onto an opportunity</p></div>
         <div className="space-y-2 xl:max-h-[490px] overflow-y-auto">
-          {!contractors.length&&<div className="border border-dashed border-border rounded-xl p-4 text-xs text-muted">Create a team member in Employees, then choose Contractor as the engagement type.</div>}
-          {contractors.map(c=><div key={c.id} draggable onDragStart={e=>e.dataTransfer.setData('text/plain',c.id)}
-            title="Drag To Project" className="flex gap-2 items-center rounded-xl border border-border bg-bg/70 px-3 py-2 cursor-grab active:cursor-grabbing hover:border-accent/40">
+          {!peopleReady && <p className="text-xs text-muted">Loading contractor directory…</p>}
+          {peopleReady && !contractors.length&&<div className="border border-dashed border-red-500/25 rounded-xl p-4 text-xs text-muted">No records currently classified as contractors. Check existing team records below to restore the Contractor designation; no records are automatically removed.</div>}
+          {contractors.map(c=><div key={c.id} draggable={!c.terminated}
+            onDragStart={e=>{ if(!c.terminated) e.dataTransfer.setData('text/plain',c.id); }}
+            title={c.terminated ? 'Inactive: Reactivate In Employees Before Assignment' : 'Drag To Project'}
+            className={'flex gap-2 items-center rounded-xl border bg-bg/70 px-3 py-2 ' +
+              (isWorkerIncomplete(c) ? 'border-red-500/45' : 'border-border') +
+              (c.terminated ? ' opacity-65' : ' cursor-grab active:cursor-grabbing hover:border-accent/40')}>
             <span className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-serif font-bold">{c.name.slice(0,1).toUpperCase()}</span>
             <span className="flex-1 min-w-0"><span className="block truncate text-xs font-bold text-fg">{c.name}</span>
-              <span className="block truncate text-[10px] text-muted">{c.position||'Contractor'}</span></span>
+              <span className="block truncate text-[10px] text-muted">{c.position||'Contractor'}{c.terminated?' · Inactive':''}</span>
+              {isWorkerIncomplete(c)&&<span className="block text-[10px] font-bold text-red-500">Incomplete Profile</span>}</span>
             <GripVertical size={15} className="text-muted/60"/></div>)}
         </div>
+        {peopleReady && !!otherWorkers.length && <details className="rounded-xl border border-border bg-bg/60 p-3">
+          <summary className="cursor-pointer text-[11px] font-semibold text-fg">Find Missing Contractors ({otherWorkers.length} Other Team Records)</summary>
+          <p className="text-[10px] text-muted my-2 leading-relaxed">Older records may have no Contractor tag. Reclassify only records that actually belong in the contractor directory.</p>
+          <div className="max-h-56 overflow-y-auto space-y-2">
+            {otherWorkers.map(person=><div key={person.id} className="flex justify-between items-center gap-2 border-b border-border/60 py-1.5">
+              <div className="min-w-0"><p className="truncate text-[11px] font-semibold text-fg">{person.name || 'Unnamed Team Member'}</p>
+                <p className="text-[9px] text-muted">{person.position||'No Position'}{person.terminated?' · Inactive':''}</p></div>
+              <button type="button" disabled={pending} onClick={()=>restoreWorker(person.id)}
+                className="shrink-0 rounded-lg border border-accent/20 px-2 py-1 text-[9px] font-bold text-accent disabled:opacity-50">Mark Contractor</button>
+            </div>)}
+          </div>
+        </details>}
         <div className="rounded-xl bg-accent/5 border border-accent/15 p-3 text-[11px] leading-relaxed text-muted">
           <ShieldCheck size={18} className="text-accent mb-2"/><strong className="block text-fg mb-1">Legal Gate First</strong>
           A bid, bounty claim or assignment does not authorize productive work. Signed-agreement and independent clearance checks come first.</div>
@@ -108,8 +128,8 @@ const ContractorProjects:React.FC=()=>{
               (selected?.id===p.id||dragOver===p.id?'bg-accent/10 border-accent':'bg-surface border-border hover:border-accent/40')}>
             <div className="flex items-center justify-between gap-2">
               <span className="rounded-md bg-bg border border-border text-[9px] font-bold px-2 py-1 text-muted">{mode(p)}</span>
-              <span className={'text-[9px] font-bold '+(p.completedStages?.includes(4)?'text-green-500':'text-accent')}>
-                {p.completedStages?.includes(4)?'Settled':p.contractorId?'Assigned':'Open'}</span></div>
+              <span className={'text-[9px] font-bold '+(p.titleMissing?'text-red-500':p.completedStages?.includes(4)?'text-green-500':'text-accent')}>
+                {p.titleMissing?'Incomplete Draft':p.completedStages?.includes(4)?'Settled':p.contractorId?'Assigned':'Open'}</span></div>
             <h3 className="font-serif text-lg text-fg mt-3 leading-tight">{p.title}</h3>
             <p className="mt-1 text-xs text-muted line-clamp-2 min-h-8">{p.description||'Scope is finalized in the work order.'}</p>
             <div className="mt-4 pt-3 border-t border-border flex gap-2 items-center justify-between">
@@ -158,8 +178,12 @@ const ContractorProjects:React.FC=()=>{
       <div role="dialog" aria-modal="true" aria-label="New Project" className={panel+' w-full max-w-xl max-h-[95dvh] overflow-y-auto p-5 sm:p-7 shadow-2xl'}>
         <div className="flex items-center justify-between mb-4"><div><p className="text-[10px] font-bold text-accent">NEW OPPORTUNITY</p>
           <h2 className="font-serif text-2xl text-fg">Create Project</h2></div><button onClick={()=>setCreateOpen(false)} title="Close"><X size={19}/></button></div>
-        <form onSubmit={onCreate} className="space-y-3">
-          <label className="block text-xs font-bold text-fg">Project Name *<input name="title" maxLength={180} required className={input+' mt-1'}/></label>
+        <form noValidate onSubmit={onCreate} onInput={e=>setProjectMissing(!(e.currentTarget.elements.namedItem('title') as HTMLInputElement)?.value.trim())}
+          className="project-create-form space-y-3">
+          <p className="text-[11px] text-muted">Save an unfinished project now. Missing required fields are outlined red and remain incomplete until finished.</p>
+          <label className="block text-xs font-bold text-fg">Project Name *
+            <input name="title" maxLength={180} required placeholder="Enter Project Name"
+              className={input+' mt-1'+(projectMissing?' !border-red-500':'')}/></label>
           <label className="block text-xs font-bold text-fg">Project Brief<textarea name="description" rows={3} maxLength={3000} className={input+' mt-1'}/></label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-xs font-bold text-fg">Project Type
@@ -170,7 +194,7 @@ const ContractorProjects:React.FC=()=>{
           </div>
           <p className="rounded-xl border border-accent/15 bg-accent/5 text-xs text-muted p-3">Project creation is planning only. Work cannot start before a real legal clearance and signed agreement.</p>
           <div className="flex justify-end gap-2"><button type="button" onClick={()=>setCreateOpen(false)} className={btn+' text-muted'}>Cancel</button>
-            <button disabled={pending} className={btn+' bg-accent text-bg'}><Plus size={15}/> Create Project</button></div>
+            <button disabled={pending} className={btn+' bg-accent text-bg'}><Plus size={15}/> Save Project{projectMissing?' Draft':''}</button></div>
         </form>
       </div>
     </div>}
