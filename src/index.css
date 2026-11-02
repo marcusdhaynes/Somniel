@@ -453,3 +453,9 @@ html[data-density="comfortable"] .condensed-card {
   border-color: #dc2626 !important;
   box-shadow: 0 0 0 2px rgb(220 38 38 / .12);
 }
+
+
+.project-workflow-field-incomplete > span {
+  border: 1px solid rgb(220 38 38 / .6);
+  box-shadow: 0 0 0 2px rgb(220 38 38 / .08);
+}
