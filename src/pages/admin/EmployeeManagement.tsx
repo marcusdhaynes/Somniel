@@ -397,7 +397,7 @@ const EmployeeManagement: React.FC = () => {
     } else if (type === 'internationalStudentHiring') {
       template = content.contracts?.internationalStudentHiring || fallback;
       html = generateHiringContract(data, template);
-      title = `International Student Hiring Contract - ${emp.name}`;
+      title = `International Engagement Agreement - ${emp.name}`;
     } else if (type === 'termination') {
       template = content.contracts?.termination || fallback;
       html = generateTerminationContract(data, template);
@@ -786,8 +786,8 @@ const EmployeeManagement: React.FC = () => {
                               <button
                                 onClick={() => handleGenerateContract(emp, 'internationalStudentHiring')}
                                 className="p-0.5 text-muted hover:text-accent transition-all rounded hover:bg-accent/10 border border-transparent hover:border-accent/20"
-                                title="International Student Hiring Contract"
-                                aria-label={`International Student Hiring Contract for ${emp.name}`}
+                                title="International Engagement Agreement"
+                                aria-label={`International Engagement Agreement for ${emp.name}`}
                               >
                                 <Globe className="w-2 h-2" />
                               </button>
