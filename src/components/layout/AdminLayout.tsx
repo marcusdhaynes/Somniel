@@ -17,6 +17,7 @@ const AdminLayout: React.FC = () => {
   const getPageTitle = () => {
     const path = location.pathname.toLowerCase();
     if (path.includes('employees')) return 'Employees';
+    if (path.includes('contractor-projects')) return 'Projects';
     if (path.includes('payroll')) return 'Payroll';
     if (path.includes('cms')) return 'Content';
     if (path.includes('roadmap')) return 'Roadmap';
