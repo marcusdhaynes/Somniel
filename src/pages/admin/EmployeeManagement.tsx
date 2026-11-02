@@ -1,4 +1,5 @@
 import { printContractPreview, saveContractPdf } from '../../lib/contractPreview';
+import { engagementKind, isWorkerIncomplete, workerMissingFields } from '../../lib/workforce';
 import React, { useState, useEffect, useCallback, useDeferredValue, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { db, handleFirestoreError, OperationType, logActivity } from '../../firebase';
@@ -88,6 +89,9 @@ const EmployeeManagement: React.FC = () => {
   const EMPLOYEES_PER_PAGE = 40;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [engagementType, setEngagementType] = useState<'employee' | 'contractor'>('employee');
+  const workerFormRef = useRef<HTMLFormElement>(null);
+  const [missingRequired, setMissingRequired] = useState<string[]>([]);
+  const [workerSaveError, setWorkerSaveError] = useState('');
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -252,7 +256,7 @@ const EmployeeManagement: React.FC = () => {
   useEffect(() => {
     if (editingEmployee) {
       setLocalVocationalTraining(editingEmployee.vocationalTraining || []);
-      setEngagementType(editingEmployee.customFields?.engagementType === 'contractor' ? 'contractor' : 'employee');
+      setEngagementType(engagementKind(editingEmployee));
       const start = editingEmployee.startDate || '';
       setStartDate(start);
       if (start) {
@@ -287,28 +291,44 @@ const EmployeeManagement: React.FC = () => {
     }
   };
 
+  // Save drafts without granting work approval; mark missing required fields in red.
+  const updateWorkerMissing = (form: HTMLFormElement, kind = engagementType) => {
+    const entries = Object.fromEntries(Array.from(new FormData(form).entries()).map(([key, val]) => [key, String(val)]));
+    setMissingRequired(workerMissingFields(entries, kind));
+  };
+  useEffect(() => {
+    if (isModalOpen && workerFormRef.current) updateWorkerMissing(workerFormRef.current);
+  }, [isModalOpen, editingEmployee, engagementType]);
+
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+    const raw = Object.fromEntries(Array.from(formData.entries()).map(([key, val]) => [key, String(val)]));
+    const missing = workerMissingFields(raw, engagementType);
+    setMissingRequired(missing);
+    setWorkerSaveError('');
+
     const customFieldsObj: Record<string, string> = {};
     customFields.forEach(f => {
       if (f.key.trim()) customFieldsObj[f.key] = f.value;
     });
 
     const data: any = {
-      name: formData.get('name'),
-      position: formData.get('position'),
-      rank: formData.get('rank'),
+      name: raw.name.trim() || (editingEmployee?.customFields?.__draftName === 'true' ? editingEmployee.name :
+        `Draft ${engagementType === 'contractor' ? 'Contractor' : 'Employee'} ${new Date().toISOString().slice(0, 16).replace(/[^0-9]/g, '')}`),
+      position: raw.position || '',
+      rank: raw.rank || '',
       timeInPosition: localTimeInPosition,
       timeInCompany: localTimeInCompany,
-      education: formData.get('education'),
+      education: raw.education || '',
       experience: Number(formData.get('experience')),
       status: 'green', // Default to green if status field is removed
       terminated: editingEmployee?.terminated || false,
       vocationalTraining: localVocationalTraining,
       earningsContribution: Number(formData.get('earningsContribution')),
-      customFields: { ...customFieldsObj, engagementType },
+      customFields: { ...customFieldsObj, engagementType,
+        __draftName: raw.name.trim() ? 'false' : 'true',
+        __missingRequired: JSON.stringify(missing) },
       performanceReports: editingEmployee?.performanceReports || [],
       phone: formData.get('phone'),
       email: engagementType === 'contractor'
@@ -327,7 +347,7 @@ const EmployeeManagement: React.FC = () => {
       }];
     }
 
-    data.baseSalary = engagementType === 'contractor' ? 0 : calculatePay(data);
+    data.baseSalary = engagementType === 'contractor' || missing.length ? 0 : calculatePay(data);
 
     try {
       if (editingEmployee) {
@@ -340,7 +360,8 @@ const EmployeeManagement: React.FC = () => {
       setIsModalOpen(false);
       setEditingEmployee(null);
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, 'employees');
+      console.error('Unable to save workforce draft:', error);
+      setWorkerSaveError(error instanceof Error ? error.message : 'The record could not be saved.');
     }
   };
 
@@ -673,7 +694,8 @@ const EmployeeManagement: React.FC = () => {
                               </div>
                             </div>
                             <p className="max-w-[9rem] truncate text-[7px] md:text-[8px] font-bold text-fg leading-tight group-hover:text-accent transition-colors" title={emp.name}>{emp.name}</p>
-                            {emp.customFields?.engagementType === 'contractor' && <span className="text-[7px] text-accent">Contractor</span>}
+                            {engagementKind(emp) === 'contractor' && <span className="text-[7px] text-accent">Contractor</span>}
+                            {isWorkerIncomplete(emp) && <span className="text-[7px] text-red-500 font-bold">Incomplete</span>
                           </div>
                         </td>
                         <td className="block min-w-0 px-1 py-0 text-center align-middle relative">
@@ -1032,7 +1054,18 @@ const EmployeeManagement: React.FC = () => {
                 </button>
               </div>
               
-              <form onSubmit={handleSave} className="p-2 space-y-1.5 overflow-y-auto custom-scrollbar">
+              <form ref={workerFormRef} noValidate onSubmit={handleSave}
+                onInputCapture={e => updateWorkerMissing(e.currentTarget)}
+                onChangeCapture={e => updateWorkerMissing(e.currentTarget)}
+                className="employee-draft-form p-2 space-y-1.5 overflow-y-auto custom-scrollbar">
+                <div className="rounded-lg border border-border bg-bg/60 px-3 py-2 flex items-center justify-between gap-2">
+                  <p className="text-[10px] text-muted">Save now, complete missing information later.</p>
+                  <span className={cn('rounded-md border px-2 py-1 text-[9px] font-bold',
+                    missingRequired.length ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-emerald-500/20 text-emerald-500')}>
+                    {missingRequired.length ? missingRequired.length + ' Required Missing' : 'Complete'}
+                  </span>
+                </div>
+                {workerSaveError && <p role="alert" className="rounded-lg border border-red-500/30 p-2 text-[10px] text-red-500">{workerSaveError}</p>
                 <div className="rounded-xl border border-border bg-bg/70 p-2 flex items-center gap-2 justify-between">
                   <div>
                     <p className="font-bold text-[10px] text-fg">Engagement Type</p>
@@ -1058,7 +1091,7 @@ const EmployeeManagement: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Full Name</label>
-                    <EditableInput name="name" defaultValue={editingEmployee?.name} required className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium flex items-center" />
+                    <EditableInput name="name" defaultValue={editingEmployee?.customFields?.__draftName === 'true' ? '' : editingEmployee?.name} required className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium flex items-center" />
                   </div>
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Birthday</label>
@@ -1078,6 +1111,7 @@ const EmployeeManagement: React.FC = () => {
                     ) : (<div className="relative flex items-center group/email h-7">
                       <EditableInput 
                         name="emailUsername" 
+                        required
                         type="text" 
                         defaultValue={editingEmployee?.email?.split('@')[0]} 
                         placeholder="username"
@@ -1097,7 +1131,8 @@ const EmployeeManagement: React.FC = () => {
                   </div>
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Position</label>
-                    <select name="position" defaultValue={editingEmployee?.position} className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium appearance-none flex items-center">
+                    <select name="position" required defaultValue={editingEmployee?.position || ''} className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium appearance-none flex items-center">
+                      <option value="">Choose Position</option>
                       {config?.factors.position.map(f => (
                         <option key={f.name} value={f.name}>{f.name}</option>
                       ))}
@@ -1105,7 +1140,8 @@ const EmployeeManagement: React.FC = () => {
                   </div>
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Rank</label>
-                    <select name="rank" defaultValue={editingEmployee?.rank} className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium appearance-none flex items-center">
+                    <select name="rank" required={engagementType === 'employee'} defaultValue={editingEmployee?.rank || ''} className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium appearance-none flex items-center">
+                      <option value="">Choose Rank</option>
                       {config?.factors.rank.map(f => (
                         <option key={f.name} value={f.name}>{f.name}</option>
                       ))}
@@ -1347,7 +1383,7 @@ const EmployeeManagement: React.FC = () => {
 
                 <div className="pt-2 border-t border-border flex justify-end gap-1">
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-2 py-1 rounded-lg text-[7px] font-bold uppercase tracking-[0.1em] text-muted hover:text-fg transition-colors">Cancel</button>
-                  <button type="submit" className="btn-vibrant px-3 py-1 rounded-lg text-[7px] font-bold uppercase tracking-[0.1em] transition-all shadow-lg shadow-accent/10">Save Record</button>
+                  <button type="submit" className="btn-vibrant px-3 py-1 rounded-lg text-[7px] font-bold uppercase tracking-[0.1em] transition-all shadow-lg shadow-accent/10">{missingRequired.length ? 'Save Incomplete Draft' : 'Save Record'}</button>
                 </div>
               </form>
             </motion.div>
