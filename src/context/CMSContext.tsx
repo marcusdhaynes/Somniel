@@ -226,7 +226,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                       hash ^= value.charCodeAt(i);
                       hash = Math.imul(hash, 16777619);
                     }
-                    return ['be8cfe2e', '6e0fb208', '44e200fc', '7fa863f5', 'ca99c535', 'b218b495'].includes((hash >>> 0).toString(16).padStart(8, '0'));
+                    return ['be8cfe2e', '6e0fb208', '44e200fc', '7fa863f5', 'ca99c535', 'b218b495', '29156255'].includes((hash >>> 0).toString(16).padStart(8, '0'));
                   };
                   const savedStudent = contracts.internationalStudentHiring;
                   if (!savedStudent?.trim() || matchesPriorStudentDefault(savedStudent)) {
