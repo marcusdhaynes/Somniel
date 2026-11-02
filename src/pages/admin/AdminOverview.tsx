@@ -46,7 +46,7 @@ const AdminOverview: React.FC = () => {
     });
 
     const unsubTasks = onSnapshot(taskQuery, (snapshot) => {
-      setTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(task => task.kind !== 'contractor_project'));
       setTasksReady(true);
     }, (error) => {
       try {
