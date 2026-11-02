@@ -1,6 +1,6 @@
 /** Project documentation is an internal audit trail, not a government work permit or e-signature. */
 export type FieldSpec = { key: string; label: string; required?: boolean; type?: 'text' | 'date' | 'number' | 'textarea' | 'checkbox'; hint?: string };
-export const PROJECT_STAGES = [
+export const PROJECT_STAGES: { title: string; subtitle: string; document: string; fields: FieldSpec[] }[] = [
   { title: 'Legal Approval + Signed Agreement', subtitle: 'Verify the actual legal basis and the executed agreement.', document: 'Legal Approval & Agreement Verification', fields: [
     { key: 'reviewer', label: 'Qualified Legal Reviewer', required: true },
     { key: 'legalReference', label: 'Written Legal Clearance Reference', required: true },
@@ -43,7 +43,7 @@ export const PROJECT_STAGES = [
     { key: 'paymentReference', label: 'Transaction / Remittance Reference', required: true },
     { key: 'paymentVerifiedBy', label: 'Payment Verified By', required: true }
   ] }
-] as const;
+];
 
 export type ProjectField = (typeof PROJECT_STAGES)[number]['fields'][number];
 export type Bid = { id: string; contractorId: string; contractorName: string; amount: string; currency: string; note: string; placedAt: string; state: 'submitted' | 'awarded' | 'declined' };
