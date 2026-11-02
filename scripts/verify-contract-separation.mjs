@@ -38,7 +38,7 @@ ensure(controls === 39, 'Expected exactly 39 essential fields, found ' + control
 for (const key of ['legal-field-grid','legal-initials','signature_company_typed','signature_party_typed','approval_reviewer','Start Approval Record']) {
   ensure(intl.includes(key), 'Missing contract field or approval: ' + key);
 }
-for (const term of ['Contractor','SOW','Sanctions','Annex E','tax','privacy','salary','employment','local']) {
+for (const term of ['Contractor','SOW','Sanctions','Annex E','tax','privacy','compensation','employment','local']) {
   ensure(intl.toLowerCase().includes(term.toLowerCase()), 'Missing required term: ' + term);
 }
 ensure(!/\bvisa\b|immigra|E30B|E33G|\bF-1\b|\bCPT\b|\bOPT\b|\bstudent\b|\bacademic\b|\bscholarship\b/i.test(intl),
