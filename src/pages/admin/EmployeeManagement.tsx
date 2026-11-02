@@ -1065,7 +1065,7 @@ const EmployeeManagement: React.FC = () => {
                     {missingRequired.length ? missingRequired.length + ' Required Missing' : 'Complete'}
                   </span>
                 </div>
-                {workerSaveError && <p role="alert" className="rounded-lg border border-red-500/30 p-2 text-[10px] text-red-500">{workerSaveError}</p>
+                {workerSaveError && <p role="alert" className="rounded-lg border border-red-500/30 p-2 text-[10px] text-red-500">{workerSaveError}</p>}
                 <div className="rounded-xl border border-border bg-bg/70 p-2 flex items-center gap-2 justify-between">
                   <div>
                     <p className="font-bold text-[10px] text-fg">Engagement Type</p>
