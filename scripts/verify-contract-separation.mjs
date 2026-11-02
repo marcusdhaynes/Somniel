@@ -19,13 +19,26 @@ const intl = defaults.slice(start, end);
 const sections = [...intl.matchAll(/class="legal-clause"/g)].length;
 const annexes = [...intl.matchAll(/class="legal-annex-heading"/g)].length;
 ensure(sections === 38, 'Expected 38 complete contract clauses (' + sections + ')');
-ensure(annexes === 17, 'Expected Annex A-Q (' + annexes + ')');
+ensure(annexes === 6, 'Expected six consolidated annexes (' + annexes + ')');
 const controls = [...intl.matchAll(/data-contract-field="/g)].length;
-ensure(controls >= 300, 'Expected >= 300 editable fields and acknowledgments, found ' + controls);
-for (const key of ['legal-field-grid','legal-initials','signature_company_typed','signature_party_typed','signature_legal_name','Start Approval Record']) {
+
+const wordCount = intl.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+ensure(wordCount >= 5500, 'Contract must contain substantive obligations (' + wordCount + ' words)');
+ensure(!/Annex [G-Z]\b|\{\{startDate\}\}/.test(intl), 'Stale annex or duplicate date reference');
+ensure([...intl.matchAll(/class="legal-initials"/g)].length === 4,
+  'Only four major-part acknowledgment areas should remain');
+ensure(!/data-contract-field="clause_\d+/.test(intl),
+  'Repetitive initials for each clause must not return');
+for (const key of ['party_name','service_country','services_scope','approval_confirmed',
+                   'approval_start_date','signature_company_date','signature_party_date']) {
+  ensure(intl.includes('data-contract-field="' + key + '"'), 'Essential field missing: ' + key);
+}
+
+ensure(controls === 39, 'Expected exactly 39 essential fields, found ' + controls);
+for (const key of ['legal-field-grid','legal-initials','signature_company_typed','signature_party_typed','approval_reviewer','Start Approval Record']) {
   ensure(intl.includes(key), 'Missing contract field or approval: ' + key);
 }
-for (const term of ['Contractor','SOW','Sanctions','Annex M','tax','privacy','salary','employment','local']) {
+for (const term of ['Contractor','SOW','Sanctions','Annex E','tax','privacy','salary','employment','local']) {
   ensure(intl.toLowerCase().includes(term.toLowerCase()), 'Missing required term: ' + term);
 }
 ensure(!/\bvisa\b|immigra|E30B|E33G|\bF-1\b|\bCPT\b|\bOPT\b|\bstudent\b|\bacademic\b|\bscholarship\b/i.test(intl),
@@ -53,20 +66,20 @@ const headingTexts = [
   ...[...intl.matchAll(/<p class="legal-eyebrow">([^<]+)<\/p>/g)].map(x => x[1]),
   ...[...intl.matchAll(/<div class="legal-notice"><strong>([^<]+)<\/strong>/g)].map(x => x[1])
 ];
-ensure(headingTexts.length === 70, 'Unexpected number of contract display headings: ' + headingTexts.length);
+ensure(headingTexts.length === 56, 'Unexpected number of contract display headings: ' + headingTexts.length);
 for (const heading of headingTexts) {
   ensure(heading === titleCase(heading), 'Heading not Title Case: ' + heading);
 }
 const annexTags = [...intl.matchAll(/<header class="legal-annex-heading"><span>([^<]+)<\/span>/g)].map(x => x[1]);
-ensure(annexTags.length === 17 && annexTags.every(label => /^Annex [A-Q]$/.test(label)),
+ensure(annexTags.length === 6 && annexTags.every(label => /^Annex [A-F]$/.test(label)),
   'Annex tags must be consistently Title Case');
 const fieldLabels = [...intl.matchAll(/<span class="legal-label">([^<]+)<\/span>/g)].map(x => x[1]);
 const accessibilityLabels = [...intl.matchAll(/aria-label="([^"]*)"/g)].map(x => x[1]);
-ensure(fieldLabels.length === 345 && accessibilityLabels.length === 345,
+ensure(fieldLabels.length === 39 && accessibilityLabels.length === 39,
   'Expected 345 exact field and accessibility labels');
 fieldLabels.forEach((label, index) => {
-  ensure(label === titleCase(label), 'Field label not Title Case: ' + label);
-  ensure(label === accessibilityLabels[index], 'Accessible field label does not match visible text: ' + label);
+  ensure(label.replace(/ \*$/, '') === titleCase(label.replace(/ \*$/, '')), 'Field label not Title Case: ' + label);
+  ensure(label.replace(/ \*$/, '') === accessibilityLabels[index], 'Accessible field label does not match visible text: ' + label);
 });
 ensure(intl.includes('Controlled Template | Revision'), 'Document metadata should use Title Case');
 
@@ -86,4 +99,4 @@ ensure(employee.includes("handleGenerateContract(emp, 'internationalStudentHirin
        employee.includes('content.contracts?.internationalStudentHiring'),
   'Employee documents must generate the separate contract');
 console.log('PASS: standard Hiring Contract unchanged; independent neutral engagement template has ' +
- sections + ' Title Case clauses, ' + annexes + ' annexes, and ' + controls + ' consistent Title Case labels, with safe migration.');
+ sections + ' Title Case clauses, ' + annexes + ' annexes, and ' + controls + ' essential Title Case fields, with safe migration.');
