@@ -61,6 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type }) => {
 
   const adminItems = [
     { name: 'Employees', path: '/admin/employees', icon: Users },
+    { name: 'Projects', path: '/admin/contractor-projects', icon: LayoutGrid },
     { name: 'Content', path: '/admin/cms', icon: Settings2 },
     { name: 'Payroll', path: '/admin/payroll', icon: DollarSign },
     { name: 'Pay Scale', path: '/admin/payscale', icon: Briefcase },
