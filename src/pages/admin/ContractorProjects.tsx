@@ -10,7 +10,7 @@ const panel='rounded-2xl border border-border bg-surface/85';
 const mode=(project:ContractorProject)=>project.mode==='bounty'?'Open Bounty':project.mode==='bid'?'Competitive Bid':'Direct Assignment';
 const ContractorProjects:React.FC=()=>{
   const store=useProjectStore();
-  const {contractors,otherWorkers,peopleReady,projects,create,assign,bid,save,markAsContractor,isWorkerIncomplete,loading,error}=store;
+  const {contractors,otherWorkers,peopleReady,projects,create,assign,bid,save,markAsContractor,completeProjectTitle,isWorkerIncomplete,loading,error}=store;
   const [chosen,setChosen]=useState('');
   const [filter,setFilter]=useState<'all'|'open'|'assigned'>('all');
   const [query,setQuery]=useState('');
@@ -20,6 +20,7 @@ const ContractorProjects:React.FC=()=>{
   const [createOpen,setCreateOpen]=useState(false);
   const [bidOpen,setBidOpen]=useState(false);
   const [projectMissing,setProjectMissing]=useState(false);
+  const [completedTitle,setCompletedTitle]=useState('');
   const [pending,setPending]=useState(false);
   const [feedback,setFeedback]=useState('');
   const selected=projects.find(x=>x.id===chosen)||projects[0];
@@ -144,6 +145,16 @@ const ContractorProjects:React.FC=()=>{
     </div>
 
     {selected&&<section className="space-y-4">
+      {selected.titleMissing && <form noValidate onSubmit={e=>{
+        e.preventDefault();
+        void safe(()=>completeProjectTitle(selected,completedTitle),'Required project name completed and saved.');
+      }} className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 flex flex-wrap gap-3 items-end">
+        <label className="flex-1 min-w-[180px] text-xs font-semibold text-red-500">Project Name — Required
+          <input value={completedTitle} onChange={e=>setCompletedTitle(e.target.value)}
+            aria-invalid={!completedTitle.trim()} placeholder="Finish Project Name"
+            className={input+' mt-1 !border-red-500'} /></label>
+        <button disabled={!completedTitle.trim()||pending} className={btn+' bg-accent text-bg'}>Save Project Name</button>
+      </form>}
       <div className={panel+' p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3'}>
         <div><p className="text-[10px] font-bold text-accent tracking-[.12em]">PROJECT WORKSPACE / {mode(selected).toUpperCase()}</p>
           <h2 className="font-serif text-2xl text-fg mt-1">{selected.title}</h2>
