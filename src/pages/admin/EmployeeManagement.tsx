@@ -87,6 +87,7 @@ const EmployeeManagement: React.FC = () => {
   const [employeePage, setEmployeePage] = useState(0);
   const EMPLOYEES_PER_PAGE = 40;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [engagementType, setEngagementType] = useState<'employee' | 'contractor'>('employee');
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -251,6 +252,7 @@ const EmployeeManagement: React.FC = () => {
   useEffect(() => {
     if (editingEmployee) {
       setLocalVocationalTraining(editingEmployee.vocationalTraining || []);
+      setEngagementType(editingEmployee.customFields?.engagementType === 'contractor' ? 'contractor' : 'employee');
       const start = editingEmployee.startDate || '';
       setStartDate(start);
       if (start) {
@@ -268,6 +270,7 @@ const EmployeeManagement: React.FC = () => {
       setCustomFields(fields);
     } else {
       setLocalVocationalTraining([]);
+      setEngagementType('employee');
       setStartDate('');
       setEndDate('');
       setLocalTimeInCompany('');
@@ -305,10 +308,12 @@ const EmployeeManagement: React.FC = () => {
       terminated: editingEmployee?.terminated || false,
       vocationalTraining: localVocationalTraining,
       earningsContribution: Number(formData.get('earningsContribution')),
-      customFields: customFieldsObj,
+      customFields: { ...customFieldsObj, engagementType },
       performanceReports: editingEmployee?.performanceReports || [],
       phone: formData.get('phone'),
-      email: formData.get('emailUsername') ? `${formData.get('emailUsername')}@somniel.com`.toLowerCase() : '',
+      email: engagementType === 'contractor'
+        ? String(formData.get('contractorEmail') || '').trim().toLowerCase()
+        : (formData.get('emailUsername') ? `${formData.get('emailUsername')}@somniel.com`.toLowerCase() : ''),
       birthday: formData.get('birthday'),
       startDate: startDate,
       endDate: endDate,
@@ -322,7 +327,7 @@ const EmployeeManagement: React.FC = () => {
       }];
     }
 
-    data.baseSalary = calculatePay(data);
+    data.baseSalary = engagementType === 'contractor' ? 0 : calculatePay(data);
 
     try {
       if (editingEmployee) {
@@ -668,6 +673,7 @@ const EmployeeManagement: React.FC = () => {
                               </div>
                             </div>
                             <p className="max-w-[9rem] truncate text-[7px] md:text-[8px] font-bold text-fg leading-tight group-hover:text-accent transition-colors" title={emp.name}>{emp.name}</p>
+                            {emp.customFields?.engagementType === 'contractor' && <span className="text-[7px] text-accent">Contractor</span>}
                           </div>
                         </td>
                         <td className="block min-w-0 px-1 py-0 text-center align-middle relative">
@@ -1017,7 +1023,7 @@ const EmployeeManagement: React.FC = () => {
               <div className="px-2 py-1 border-b border-border flex items-center justify-between bg-surface/50">
                 <div className="space-y-0.5">
                   <h2 className="text-xs font-serif font-bold text-fg">
-                    {editingEmployee ? 'Update Profile' : 'New Team Member'}
+                    {editingEmployee ? 'Update Profile' : engagementType === 'contractor' ? 'New Contractor' : 'New Team Member'}
                   </h2>
                   <p className="text-[6px] font-bold uppercase tracking-[0.1em] text-muted">Employee Information System</p>
                 </div>
@@ -1027,6 +1033,28 @@ const EmployeeManagement: React.FC = () => {
               </div>
               
               <form onSubmit={handleSave} className="p-2 space-y-1.5 overflow-y-auto custom-scrollbar">
+                <div className="rounded-xl border border-border bg-bg/70 p-2 flex items-center gap-2 justify-between">
+                  <div>
+                    <p className="font-bold text-[10px] text-fg">Engagement Type</p>
+                    <p className="text-[8px] text-muted">Contractors use project-based fees, not employee pay scales.</p>
+                  </div>
+                  <div className="flex rounded-lg border border-border bg-surface p-0.5 gap-0.5">
+                    {(['employee', 'contractor'] as const).map(type => (
+                      <button key={type} type="button" onClick={() => setEngagementType(type)}
+                        className={cn('px-2.5 py-1.5 rounded-md text-[9px] font-bold transition-colors',
+                          engagementType === type ? 'bg-accent text-bg' : 'text-muted hover:text-fg')}>
+                        {type === 'employee' ? 'Employee' : 'Contractor'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {engagementType === 'contractor' && (
+                  <p className="text-[9px] text-muted leading-relaxed rounded-lg border border-accent/20 bg-accent/5 p-2">
+                    A contractor record is not proof of independent-contractor classification or work authorization.
+                    Projects require verified legal clearance and a signed agreement before a work request can begin.
+                  </p>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Full Name</label>
@@ -1043,7 +1071,11 @@ const EmployeeManagement: React.FC = () => {
                   </div>
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Email Address</label>
-                    <div className="relative flex items-center group/email h-7">
+                    {engagementType === 'contractor' ? (
+                      <input name="contractorEmail" type="email" placeholder="contractor@example.com" required
+                        defaultValue={editingEmployee?.customFields?.engagementType === 'contractor' ? editingEmployee.email : ''}
+                        className="w-full h-7 bg-bg border border-border rounded-lg px-1.5 text-[9px] text-fg" />
+                    ) : (<div className="relative flex items-center group/email h-7">
                       <EditableInput 
                         name="emailUsername" 
                         type="text" 
@@ -1052,7 +1084,7 @@ const EmployeeManagement: React.FC = () => {
                         className="w-full h-full bg-bg border border-border rounded-lg pl-1.5 pr-[4.5rem] text-[9px] text-fg focus:outline-none focus:border-accent/50 transition-all font-medium flex items-center" 
                       />
                       <span className="absolute right-1.5 text-[8px] font-bold text-muted/40 pointer-events-none group-focus-within/email:text-accent/40 transition-colors">@somniel.com</span>
-                    </div>
+                    </div>)}
                   </div>
                   <div className="flex flex-col justify-center space-y-0.5">
                     <label className="text-[6px] font-bold uppercase tracking-widest text-muted">Phone Number</label>
