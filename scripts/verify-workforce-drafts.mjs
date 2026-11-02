@@ -27,6 +27,15 @@ assert.ok(employee.includes('ref={workerFormRef} noValidate'), 'Employee draft m
 assert.ok(employee.includes('__missingRequired: JSON.stringify(missing)'), 'Incomplete state must persist');
 assert.ok(employee.includes('setWorkerSaveError('), 'Failed writes must stay visible');
 assert.ok(store.includes('setOtherWorkers('), 'Unclassified workers must be recoverable');
+assert.ok(store.includes('const { user, loading: authLoading, isAdmin } = useAuth()'),
+  'Project listeners must respect the established Firebase administrator session');
+assert.ok(store.includes('if (authLoading) return;'),
+  'Project listeners must not start before authentication resolves');
+assert.ok(store.includes('user.getIdToken(true)'),
+  'A denied listener must attempt a refreshed Firebase token once');
+assert.ok(store.includes('if (snapshot.metadata.fromCache && snapshot.empty) return;'),
+  'Empty offline caches must never hide known contractor records');
+
 assert.ok(store.includes('markAsContractor'), 'Recovery action must exist');
 assert.ok(page.includes('Find Missing Contractors'), 'Recovery UI must be present');
 assert.ok(page.includes('Inactive'), 'Inactive contractors must be labeled');
