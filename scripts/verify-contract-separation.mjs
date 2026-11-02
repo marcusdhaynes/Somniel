@@ -91,7 +91,7 @@ ensure(migration.includes("updates['contracts.internationalStudentHiring'] = DEF
   'Missing initialization of separate CMS field');
 ensure(migration.includes('matchesPriorStudentDefault') && migration.includes('44e200fc'),
   'Recognized previous stock template must be upgraded without overwriting customizations');
-ensure(editor.includes('International Student Hiring Contract</h3>') &&
+ensure(editor.includes('International Engagement Agreement</h3>') &&
        editor.includes('internationalStudentHiring: value'), 'No independent editable contract in CMS');
 ensure(editor.includes('Restore Original') && editor.includes('Load Comprehensive Template'),
   'Missing distinct contract reset controls');
