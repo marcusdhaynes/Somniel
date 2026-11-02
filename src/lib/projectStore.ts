@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db, logActivity } from '../firebase';
 import { Bid, ContractorProject, requiredStageFields } from './projectDocuments';
+import { engagementKind, isWorkerIncomplete } from './workforce';
 export type Contractor = { id: string; name: string; position: string; email?: string; terminated?: boolean; customFields?: Record<string, string> };
 export const today = () => new Date().toISOString().slice(0,10);
 export const money = (amount: number | string, code = 'USD') => {
@@ -12,14 +13,19 @@ export const money = (amount: number | string, code = 'USD') => {
 };
 export function useProjectStore() {
   const [contractors, setContractors] = useState<Contractor[]>([]);
+  const [otherWorkers, setOtherWorkers] = useState<Contractor[]>([]);
+  const [peopleReady, setPeopleReady] = useState(false);
   const [projects, setProjects] = useState<ContractorProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   useEffect(() => {
-    const people = onSnapshot(collection(db, 'employees'), snapshot => setContractors(snapshot.docs
-      .map(d => ({ id:d.id, ...d.data() } as Contractor))
-      .filter(x => x.customFields?.engagementType === 'contractor' && !x.terminated)),
-      err => setError('Contractors: ' + err.message));
+    // Keep legacy-tagged AND inactive records visible. Never silently discard people by a single flag.
+    const people = onSnapshot(collection(db, 'employees'), snapshot => {
+      const all = snapshot.docs.map(d => ({ id:d.id, ...d.data() } as Contractor));
+      setContractors(all.filter(x => engagementKind(x) === 'contractor'));
+      setOtherWorkers(all.filter(x => engagementKind(x) !== 'contractor'));
+      setPeopleReady(true);
+    }, err => { setPeopleReady(true); setError('Contractor directory unavailable: ' + err.message); });
     // Project data is admin-private; existing tasks validation supports project metadata.
     const work = onSnapshot(collection(db, 'tasks'), snapshot => {
       setProjects(snapshot.docs.map(d => ({ id:d.id, ...d.data() } as ContractorProject))
@@ -28,12 +34,19 @@ export function useProjectStore() {
     }, err => { setError('Projects: ' + err.message); setLoading(false); });
     return () => { people(); work(); };
   }, []);
-  const create = async (form: FormData) => {
-    const title = String(form.get('title') || '').trim();
+  const markAsContractor = async (personId: string) => {
+    const person = otherWorkers.find(x => x.id === personId);
+    if (!person) throw Error('This team record is no longer available.');
+    await updateDoc(doc(db, 'employees', person.id), { 'customFields.engagementType': 'contractor' });
+    void logActivity('Contractor Classification Updated', person.name + ' was designated as Contractor in the directory.');
+  };
+    const create = async (form: FormData) => {
+    const titleInput = String(form.get('title') || '').trim();
+    const title = titleInput || 'Draft Project ' + new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
     const budget = Number(form.get('budget') || 0);
-    if (!title || !Number.isFinite(budget) || budget < 0) throw Error('Enter a project title and valid budget.');
+    if (!Number.isFinite(budget) || budget < 0) throw Error('Enter a valid nonnegative budget.');
     const result = await addDoc(collection(db, 'tasks'), {
-      title, kind: 'contractor_project', description: String(form.get('description') || ''),
+      title, titleMissing: !titleInput, kind: 'contractor_project', description: String(form.get('description') || ''),
       mode: String(form.get('mode') || 'bid'), budget,
       currency: String(form.get('currency') || 'USD').toUpperCase(), dueDate: String(form.get('dueDate') || ''),
       status: 'planned', record: {}, bids: [], completedStages: [], createdAt: serverTimestamp(), updatedAt: serverTimestamp()
@@ -43,7 +56,8 @@ export function useProjectStore() {
   };
   const assign = async (project: ContractorProject, personId: string, awardedBidId?: string) => {
     const person = contractors.find(x => x.id === personId);
-    if (!person) throw Error('Select an active contractor.');
+    if (!person) throw Error('Select an existing contractor.');
+    if (person.terminated) throw Error('Reactivate this contractor in Employees before assigning new work.');
     if ((project.completedStages || []).length &&
       !window.confirm('Reassigning resets all recorded approvals and payment records. Continue?')) return false;
     await updateDoc(doc(db, 'tasks', project.id), {
@@ -87,5 +101,5 @@ export function useProjectStore() {
     await updateDoc(doc(db,'tasks',project.id),{ record:{ ...record }, completedStages, status, updatedAt:serverTimestamp() });
     void logActivity(approve ? 'Project Stage Approved' : 'Project Draft Saved', project.title + ' · Stage ' + (index+1));
   };
-  return { contractors, projects, loading, error, create, assign, bid, save };
+  return { contractors, otherWorkers, peopleReady, projects, loading, error, create, assign, bid, save, markAsContractor, isWorkerIncomplete };
 }
