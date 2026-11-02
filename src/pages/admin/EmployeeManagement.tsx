@@ -695,7 +695,7 @@ const EmployeeManagement: React.FC = () => {
                             </div>
                             <p className="max-w-[9rem] truncate text-[7px] md:text-[8px] font-bold text-fg leading-tight group-hover:text-accent transition-colors" title={emp.name}>{emp.name}</p>
                             {engagementKind(emp) === 'contractor' && <span className="text-[7px] text-accent">Contractor</span>}
-                            {isWorkerIncomplete(emp) && <span className="text-[7px] text-red-500 font-bold">Incomplete</span>
+                            {isWorkerIncomplete(emp) && <span className="text-[7px] text-red-500 font-bold">Incomplete</span>}
                           </div>
                         </td>
                         <td className="block min-w-0 px-1 py-0 text-center align-middle relative">
