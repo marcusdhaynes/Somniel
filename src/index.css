@@ -444,6 +444,11 @@ html[data-density="comfortable"] .condensed-card {
   color: #dc2626;
 }
 .project-workflow-field-incomplete :is(input,textarea,select),
+.project-create-form :is(input,select,textarea):required:invalid,
+.project-create-form :is(input,select,textarea)[aria-invalid="true"] {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgb(220 38 38 / .12);
+}
 .project-create-field-incomplete :is(input,textarea,select) {
   border-color: #dc2626 !important;
   box-shadow: 0 0 0 2px rgb(220 38 38 / .12);
