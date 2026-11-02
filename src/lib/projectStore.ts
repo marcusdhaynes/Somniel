@@ -20,7 +20,9 @@ export function useProjectStore() {
   const [error, setError] = useState('');
   useEffect(() => {
     // Keep legacy-tagged AND inactive records visible. Never silently discard people by a single flag.
-    const people = onSnapshot(collection(db, 'employees'), snapshot => {
+    const people = onSnapshot(collection(db, 'employees'), { includeMetadataChanges: true }, snapshot => {
+      // An empty offline cache is not proof that the server has no contractors.
+      if (snapshot.metadata.fromCache && snapshot.empty) return;
       const all = snapshot.docs.map(d => ({ id:d.id, ...d.data() } as Contractor));
       setContractors(all.filter(x => engagementKind(x) === 'contractor'));
       setOtherWorkers(all.filter(x => engagementKind(x) !== 'contractor'));
