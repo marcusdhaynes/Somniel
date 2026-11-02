@@ -76,7 +76,9 @@ export function useProjectStore() {
       if (missing.length) throw Error('Required: ' + missing.map(x => x.label).join(', '));
       if (index === 3 && Number(record.invoiceAmount) <= 0) throw Error('Invoice amount must be positive.');
       if (index === 4 && (Number(record.paidAmount) <= 0 ||
-        Number(record.paidAmount) > Number(record.invoiceAmount))) throw Error('Payment must be positive and within the approved invoice.');
+        Number(record.paidAmount) !== Number(record.invoiceAmount) ||
+        String(record.paidCurrency).toUpperCase() !== String(record.invoiceCurrency).toUpperCase()))
+        throw Error('Final receipt must reconcile to the full approved invoice, in the same currency. Record partial payments separately before final approval.');
     }
     // Editing an earlier document invalidates later approvals.
     const completedStages = current.filter(i => i < index);
