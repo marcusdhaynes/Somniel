@@ -3,6 +3,7 @@ import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from 
 import { db, logActivity } from '../firebase';
 import { Bid, ContractorProject, requiredStageFields } from './projectDocuments';
 import { engagementKind, isWorkerIncomplete } from './workforce';
+import { useAuth } from '../context/AuthContext';
 export type Contractor = { id: string; name: string; position: string; email?: string; terminated?: boolean; customFields?: Record<string, string> };
 export const today = () => new Date().toISOString().slice(0,10);
 export const money = (amount: number | string, code = 'USD') => {
@@ -12,6 +13,8 @@ export const money = (amount: number | string, code = 'USD') => {
   catch { return code + ' ' + n.toFixed(2); }
 };
 export function useProjectStore() {
+  const { user, loading: authLoading, isAdmin } = useAuth();
+  const [retryIndex, setRetryIndex] = useState(0);
   const [contractors, setContractors] = useState<Contractor[]>([]);
   const [otherWorkers, setOtherWorkers] = useState<Contractor[]>([]);
   const [peopleReady, setPeopleReady] = useState(false);
@@ -19,23 +22,53 @@ export function useProjectStore() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   useEffect(() => {
-    // Keep legacy-tagged AND inactive records visible. Never silently discard people by a single flag.
+    // A permission-denied listener does not recover by itself. Do not subscribe before Firebase
+    // has an established admin identity; refresh the ID token and reattach once if denied.
+    if (authLoading) return;
+    if (!user || !isAdmin) {
+      setError('Sign in with an authorized Somniel administrator account to access contractor projects.');
+      setLoading(false);
+      setPeopleReady(true);
+      return;
+    }
+    let active = true;
+    setError('');
+    const onDenied = (area: string, error: { code?: string; message?: string }) => {
+      if (!active) return;
+      const code = String(error?.code || '');
+      if (code.includes('permission-denied') && retryIndex === 0) {
+        void user.getIdToken(true).then(() => {
+          if (active) setRetryIndex(1);
+        }).catch(() => {
+          if (active) {
+            setError(area + ': Your login was accepted, but the database denied access. The Firebase security rules must be checked for the Somniel admin account.');
+            setPeopleReady(true);
+            setLoading(false);
+          }
+        });
+        return;
+      }
+      setError(code.includes('permission-denied')
+        ? area + ': Access denied by the database even after refreshing your admin session. No records were deleted. Check the configured database and security policies.'
+        : area + ': ' + (error.message || 'Unavailable'));
+      setPeopleReady(true);
+      setLoading(false);
+    };
     const people = onSnapshot(collection(db, 'employees'), { includeMetadataChanges: true }, snapshot => {
-      // An empty offline cache is not proof that the server has no contractors.
-      if (snapshot.metadata.fromCache && snapshot.empty) return;
+      if (!active || (snapshot.metadata.fromCache && snapshot.empty)) return;
       const all = snapshot.docs.map(d => ({ id:d.id, ...d.data() } as Contractor));
       setContractors(all.filter(x => engagementKind(x) === 'contractor'));
       setOtherWorkers(all.filter(x => engagementKind(x) !== 'contractor'));
       setPeopleReady(true);
-    }, err => { setPeopleReady(true); setError('Contractor directory unavailable: ' + err.message); });
-    // Project data is admin-private; existing tasks validation supports project metadata.
+    }, err => onDenied('Contractor directory', err));
     const work = onSnapshot(collection(db, 'tasks'), snapshot => {
+      if (!active) return;
       setProjects(snapshot.docs.map(d => ({ id:d.id, ...d.data() } as ContractorProject))
         .filter(x => x.kind === 'contractor_project').sort((a,b) => a.title.localeCompare(b.title)));
       setLoading(false);
-    }, err => { setError('Projects: ' + err.message); setLoading(false); });
-    return () => { people(); work(); };
-  }, []);
+    }, err => onDenied('Projects', err));
+    return () => { active = false; people(); work(); };
+  }, [authLoading, user?.uid, isAdmin, retryIndex]);
   const completeProjectTitle = async (project: ContractorProject, titleInput: string) => {
     const title = titleInput.trim();
     if (!title) throw Error('Enter a project name to complete this required field.');
