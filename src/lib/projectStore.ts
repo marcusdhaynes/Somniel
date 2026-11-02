@@ -34,7 +34,13 @@ export function useProjectStore() {
     }, err => { setError('Projects: ' + err.message); setLoading(false); });
     return () => { people(); work(); };
   }, []);
-  const markAsContractor = async (personId: string) => {
+  const completeProjectTitle = async (project: ContractorProject, titleInput: string) => {
+    const title = titleInput.trim();
+    if (!title) throw Error('Enter a project name to complete this required field.');
+    await updateDoc(doc(db, 'tasks', project.id), { title, titleMissing: false, updatedAt: serverTimestamp() });
+    void logActivity('Project Details Updated', project.id + ' · Name completed');
+  };
+    const markAsContractor = async (personId: string) => {
     const person = otherWorkers.find(x => x.id === personId);
     if (!person) throw Error('This team record is no longer available.');
     await updateDoc(doc(db, 'employees', person.id), { 'customFields.engagementType': 'contractor' });
@@ -102,5 +108,5 @@ export function useProjectStore() {
     await updateDoc(doc(db,'tasks',project.id),{ record:{ ...record }, completedStages, status, updatedAt:serverTimestamp() });
     void logActivity(approve ? 'Project Stage Approved' : 'Project Draft Saved', project.title + ' · Stage ' + (index+1));
   };
-  return { contractors, otherWorkers, peopleReady, projects, loading, error, create, assign, bid, save, markAsContractor, isWorkerIncomplete };
+  return { contractors, otherWorkers, peopleReady, projects, loading, error, create, assign, bid, save, markAsContractor, completeProjectTitle, isWorkerIncomplete };
 }
