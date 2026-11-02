@@ -97,7 +97,7 @@ const ProjectWorkflow: React.FC<Props> = ({ project, save }) => {
         {message && <p role="status" className="rounded-xl border border-accent/20 bg-accent/5 p-3 text-xs text-fg">{message}</p>}
         {!project.contractorId && <p className="rounded-xl border border-border bg-bg p-4 text-xs text-muted">
           You can save incomplete drafts now. Assign a contractor before approving any stage; assignment does not authorize work.</p>}
-        {!!missingFields.length && <p className="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-500" role="status">{missingFields.length} required field{missingFields.length === 1 ? '' : 's'} incomplete. Red outlines identify missing information; Save Draft remains available.</p>
+        {!!missingFields.length && <p className="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-500" role="status">{missingFields.length} required field{missingFields.length === 1 ? '' : 's'} incomplete. Red outlines identify missing information; Save Draft remains available.</p>}
         <div className="grid sm:grid-cols-2 gap-3">
           {spec.fields.map(field => {
             const incomplete = field.required && (!(values[field.key] || '').trim() ||
