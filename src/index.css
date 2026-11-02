@@ -402,3 +402,28 @@ html[data-density="comfortable"] .condensed-card {
   .legal-document .legal-annex {break-inside:auto;}
   .legal-document .legal-field,.legal-document .legal-clause{break-inside:avoid;}
 }
+
+
+/* Compact execution controls: substantive clauses stay readable; initial each part once. */
+.legal-document .legal-part-signoff {
+  border: 1px solid #dbe2ea;
+  border-left: 3px solid #50657b;
+  background: #f7f9fb;
+  border-radius: 4px;
+  margin: 16px 0 30px;
+  padding: 13px 16px;
+  break-inside: avoid;
+}
+.legal-document .legal-part-signoff > p { margin: 0 0 10px; font-size: 11px; }
+.legal-document .legal-part-signoff .legal-initials { justify-content: flex-start; gap: 20px; }
+.legal-document .legal-part-signoff .legal-field { width: 145px; max-width: 45%; }
+.legal-document .legal-field.legal-required .legal-label { color: #263c52; }
+.legal-document .legal-annex p { line-height: 1.72; margin: 10px 0 14px; }
+.legal-document .legal-annex h3 { break-after: avoid; }
+@media (max-width: 639px) {
+  .legal-document .legal-part-signoff {padding: 12px;}
+  .legal-document .legal-part-signoff .legal-field {width: auto; flex: 1; max-width: 50%;}
+}
+@media print {
+  .legal-document .legal-part-signoff {break-inside: avoid;}
+}
