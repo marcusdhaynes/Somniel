@@ -28,5 +28,14 @@
   "current_stage": "database_reserved_not_live",
   "source_data_migrated": false,
   "docs": "AGENTS.md",
-  "canonical_map": "marcusdhaynes/somniel-holdings/database-routing.json"
+  "canonical_map": "marcusdhaynes/somniel-holdings/database-routing.json",
+  "domain_storage_guidance": {
+    "store": [
+      "Authorized company projects, employees, contracts, contractor workflows, invoices and access audit records"
+    ],
+    "avoid": [
+      "Credentials, unprotected HR data, privileged service keys in browser"
+    ],
+    "cutover": "Current production Firebase and public.somniel_* gateway must remain intact until privately migrated and authenticated."
+  }
 }
