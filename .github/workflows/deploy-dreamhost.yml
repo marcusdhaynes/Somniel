@@ -60,6 +60,9 @@ jobs:
       - name: Verify PayScale component references
         run: node scripts/verify-payscale-components.mjs
 
+      - name: Verify automatically updated Projects gallery
+        run: node scripts/verify-project-gallery.mjs
+
       - name: Build production bundle
         run: npm run build
         env:
