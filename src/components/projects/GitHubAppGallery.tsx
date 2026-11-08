@@ -239,7 +239,7 @@ const GitHubAppGallery: React.FC = () => {
             combined.set(key, {
               ...prior, repo: item.repo, name: prior?.name || item.name || item.repo,
               description: prior?.description || item.description || 'Explore this application.',
-              url: prior?.url || item.url, pushedAt: item.pushedAt
+              url: item.url || prior?.url || '', pushedAt: item.pushedAt
             });
           }
           setCaptures(nextCaptures);
@@ -257,7 +257,7 @@ const GitHubAppGallery: React.FC = () => {
           combined.set(key, {
             repo: repo.name, name: prior?.name || repo.name.replace(/[_-]/g, ' '),
             description: prior?.description || repo.description || 'Explore this application.',
-            url: prior?.url || homepage, thumbnail: prior?.thumbnail,
+            url: homepage, thumbnail: prior?.thumbnail,
             pushedAt: repo.pushed_at || prior?.pushedAt
           });
         }
