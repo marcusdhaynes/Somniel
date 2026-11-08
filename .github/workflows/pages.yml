@@ -49,6 +49,7 @@ jobs:
       - run: node scripts/verify-contract-separation.mjs
       - run: node --import tsx scripts/verify-workforce-drafts.mjs
       - run: node scripts/verify-payscale-components.mjs
+      - run: node scripts/verify-project-gallery.mjs
       - run: npm run build:web
       - run: node scripts/verify-site-build.mjs portable
 
@@ -66,6 +67,7 @@ jobs:
           node-version: '24'
       - run: npm install --no-audit --no-fund
       - run: node scripts/verify-payscale-components.mjs
+      - run: node scripts/verify-project-gallery.mjs
       - run: npm run build:web
         env:
           GITHUB_PAGES: 'true'
