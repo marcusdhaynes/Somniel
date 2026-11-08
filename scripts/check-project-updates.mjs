@@ -14,7 +14,8 @@ async function needsRefresh() {
     combined.set(key, { ...(combined.get(key) || {}), ...app });
   }
   const signature = catalogSignature([...combined.values()]);
-  const url = 'https://somniel.com/thumbnails/manifest.json?check=' + Date.now();
+  const url = (process.env.SOMNIEL_PREVIEW_MANIFEST_URL ||
+    'https://somniel.com/thumbnails/manifest.json') + '?check=' + Date.now();
   const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(18000) });
   if (!response.ok) return true;
   const live = await response.json();
