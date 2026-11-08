@@ -46,8 +46,27 @@ const card = (title, description, img, url) => '<article class="tile">' +
   (img ? '<img src="' + safeUrl(img) + '" alt="" width="70" height="70" decoding="async" loading="lazy">' : '') +
   '<h2>' + escape(title) + '</h2><p>' + escape(description) + '</p>' +
   (url ? '<a href="' + safeUrl(url) + '" rel="noopener noreferrer">Visit</a>' : '') + '</article>';
-const apps = ['Calliopen','Calypso','Candlelight','ChatGPTBackup','Deltos',
+const fallbackAppNames = ['Calliopen','Calypso','Candlelight','ChatGPTBackup','Deltos',
   'MarmaladePlayer','Pheme','ProSeU','Sennet','Starborn','Subversion'];
+let apps = fallbackAppNames.map(name => ({
+  name, url: 'https://marcusdhaynes.github.io/' + encodeURIComponent(name) + '/', thumbnail: ''
+}));
+// Use the same discovered app list as the interactive page. Newly published
+// apps appear in first-paint HTML after the scheduled capture deployment too.
+try {
+  const manifest = JSON.parse(await readFile(join('dist', 'thumbnails', 'manifest.json'), 'utf8'));
+  if (manifest.schema === 2 && manifest.apps && typeof manifest.apps === 'object') {
+    const found = Object.values(manifest.apps).filter(app =>
+      app && typeof app.name === 'string' && typeof app.url === 'string' &&
+      /^https:\/\//.test(app.url) && app.repo);
+    if (found.length) apps = found.map(app => ({
+      name: app.name,
+      url: app.url,
+      thumbnail: /^thumbnails\/live\/[a-z0-9-]+\.png$/.test(app.modes?.light || '') ?
+        base + app.modes.light : ''
+    }));
+  }
+} catch { /* Safe known-app fallback if a capture is unavailable. */ }
 const pages = {
   '': {
     title: 'Somniel Holdings LLC',
@@ -81,8 +100,8 @@ const pages = {
     eyebrow: 'Innovation Lab',
     headline: 'Future Initiatives',
     text: 'Experimental ventures and emerging technologies architected to redefine the boundaries of modern enterprise.',
-    cards: apps.map(name => card(name, 'Somniel application', null,
-      'https://marcusdhaynes.github.io/' + encodeURIComponent(name) + '/')).join('') +
+    cards: apps.map(app => card(app.name, 'Published Somniel application', app.thumbnail,
+      app.url)).join('') +
       data.projects.map(x => card(x.name, x.description)).join('')
   }
 };
