@@ -65,7 +65,9 @@ async function screenshot(site, filename, dark) {
     child.on('error', () => { clearTimeout(timeout); resolve(false); });
   });
   const size = await stat(filename).then(file => file.size).catch(() => 0);
-  if (!completed || size < 18000) {
+  // Small legitimate app homepages often compress below 18 KB. Never
+  // reject a real PNG merely because it is visually simple.
+  if (!completed || size < 1200) {
     await rm(filename, { force: true });
     return false;
   }
@@ -81,8 +83,8 @@ async function capture(app) {
   // through arbitrary homepage values returned by a repository API.
   if (!deployedGithubPage(app.url)) return;
   const deployment = await probeSite(app.url);
-  if (!deployment.ok) return;
-  entry.siteStamp = deployment.siteStamp;
+  if (!deployment.ok) console.warn('Homepage HEAD check unavailable for ' + app.repo + '; trying Chrome directly.');
+  entry.siteStamp = deployment.siteStamp || '';
   if (!chrome) return;
   const version = createHash('sha256').update(app.url + '|' + app.pushedAt +
     '|' + entry.siteStamp + '|' + manifest.generatedAt).digest('hex').slice(0, 12);
