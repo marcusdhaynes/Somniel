@@ -39,6 +39,12 @@ assert.ok(gallery.includes('pushed_at') && gallery.includes('somnielPreviewVersi
   'Preview links must update when published code changes');
 assert.ok(gallery.includes('aria-pressed') && gallery.includes('darkAvailable'),
   'Light/Dark controls must be accessible and displayed only for verified modes');
+assert.ok(!gallery.includes('Preview Unavailable') && gallery.includes('application placeholder'),
+  'Every card must display a local branded image instead of a broken-preview error');
+assert.ok(gallery.includes('sources = [screenshot, staticScreenshot, remoteScreenshot]'),
+  'Prefer local screenshot assets over slow third-party snapshot services');
+assert.ok(capture.includes('size < 1200'),
+  'Accept small but valid captured app screenshots');
 assert.ok(gallery.includes('manifest.schema === 2'),
   'Gallery must validate the versioned capture manifest');
 assert.ok(capture.includes('catalogFromRepos') === false && capture.includes('fetchPublicApps'),
