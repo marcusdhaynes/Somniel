@@ -85,7 +85,7 @@ async function capture(app) {
   entry.siteStamp = deployment.siteStamp;
   if (!chrome) return;
   const version = createHash('sha256').update(app.url + '|' + app.pushedAt +
-    '|' + entry.siteStamp).digest('hex').slice(0, 12);
+    '|' + entry.siteStamp + '|' + manifest.generatedAt).digest('hex').slice(0, 12);
   const lightName = key + '-' + version + '-light.png';
   const darkName = key + '-' + version + '-dark.png';
   const lightFile = join(dir, lightName), darkFile = join(dir, darkName);
