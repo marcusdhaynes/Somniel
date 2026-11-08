@@ -37,13 +37,15 @@ function deployedGithubPage(value) {
       /^\/[A-Za-z0-9_.-]+\/?$/.test(url.pathname) && !url.search && !url.hash;
   } catch { return false; }
 }
-async function isReachable(site) {
+async function probeSite(site) {
   try {
-    const response = await fetch(site, { method: 'HEAD', redirect: 'follow',
+    const response = await fetch(site, { method: 'HEAD', redirect: 'follow', cache: 'no-store',
       signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'Somniel-Preview-Check' } });
-    return response.ok && (!response.headers.get('content-type') ||
-      response.headers.get('content-type').includes('text/html'));
-  } catch { return false; }
+    if (!response.ok || (response.headers.get('content-type') &&
+      !response.headers.get('content-type').includes('text/html'))) return { ok: false };
+    return { ok: true, siteStamp: response.headers.get('etag') ||
+      response.headers.get('last-modified') || '' };
+  } catch { return { ok: false }; }
 }
 async function screenshot(site, filename, dark) {
   const args = [
@@ -72,13 +74,18 @@ async function screenshot(site, filename, dark) {
 
 async function capture(app) {
   const key = slug(app.repo);
-  const version = createHash('sha256').update(app.url + '|' + app.pushedAt).digest('hex').slice(0, 12);
   const entry = { repo: app.repo, name: app.name, description: app.description,
     url: app.url, pushedAt: app.pushedAt, modes: {} };
   manifest.apps[key] = entry;
   // Build jobs can only navigate verified public GitHub Pages sites; avoid SSRF
   // through arbitrary homepage values returned by a repository API.
-  if (!chrome || !deployedGithubPage(app.url) || !(await isReachable(app.url))) return;
+  if (!deployedGithubPage(app.url)) return;
+  const deployment = await probeSite(app.url);
+  if (!deployment.ok) return;
+  entry.siteStamp = deployment.siteStamp;
+  if (!chrome) return;
+  const version = createHash('sha256').update(app.url + '|' + app.pushedAt +
+    '|' + entry.siteStamp).digest('hex').slice(0, 12);
   const lightName = key + '-' + version + '-light.png';
   const darkName = key + '-' + version + '-dark.png';
   const lightFile = join(dir, lightName), darkFile = join(dir, darkName);
