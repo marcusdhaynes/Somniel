@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Github, ImageOff, RefreshCw, Moon, Sun } from 'lucide-react';
+import { ArrowUpRight, Github, RefreshCw, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 type App = {
@@ -94,16 +94,34 @@ const AppCard: React.FC<{ app: App; captured?: Capture }> = ({ app, captured }) 
   const [imageReady, setImageReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const pushVersion = app.pushedAt || '';
-  const fresh = captured && (!pushVersion || captured.pushedAt === pushVersion);
-  const darkAvailable = !!fresh && !!captured?.modes.dark && !!captured?.modes.light;
+  // A last-known-good local capture is preferable to a broken third-party
+  // thumbnail. Keep displaying it while the next app deployment is captured.
+  const fresh = !!captured && (!pushVersion || captured.pushedAt === pushVersion);
+  const darkAvailable = !!captured?.modes.dark && !!captured?.modes.light;
   const shownMode = mode === 'dark' && darkAvailable ? 'dark' : 'light';
-  const capturedPath = fresh && !refresh ? captured?.modes[shownMode] : undefined;
+  const capturedPath = captured?.modes[shownMode];
   const screenshot = capturedPath && safePath(capturedPath) ?
     import.meta.env.BASE_URL + capturedPath : undefined;
-  const remoteScreenshot = previewUrl(app.url, pushVersion, refresh);
   const staticScreenshot = app.thumbnail ? import.meta.env.BASE_URL + app.thumbnail : undefined;
-  const sources = [screenshot, remoteScreenshot, staticScreenshot].filter((x): x is string => !!x);
+  const remoteScreenshot = previewUrl(app.url, pushVersion, refresh);
+  const sources = [screenshot, staticScreenshot, remoteScreenshot].filter((x): x is string => !!x);
   const source = sources[fallback];
+  // Always retain an image, even if the website has never rendered a usable
+  // screenshot. This is a branded fallback, not a false live-site capture.
+  const placeholder = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">' +
+    '<defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#111a30"/>' +
+    '<stop offset="1" stop-color="#263b58"/></linearGradient></defs>' +
+    '<rect width="800" height="500" fill="url(#g)"/>' +
+    '<circle cx="690" cy="70" r="170" fill="#ffffff" opacity=".04"/>' +
+    '<rect x="42" y="42" width="716" height="416" rx="22" fill="#10192a" stroke="#52647b"/>' +
+    '<circle cx="72" cy="73" r="6" fill="#b87878"/><circle cx="93" cy="73" r="6" fill="#c3a16d"/>' +
+    '<circle cx="114" cy="73" r="6" fill="#6eae99"/>' +
+    '<path d="M42 96H758" stroke="#52647b"/>' +
+    '<text x="400" y="268" fill="#e7ebf3" font-family="Arial,sans-serif" font-size="45" font-weight="700" text-anchor="middle">' +
+    app.name.replace(/[&<>\"]/g, '') + '</text>' +
+    '<text x="400" y="317" fill="#a5b3c9" font-family="Arial,sans-serif" font-size="19" text-anchor="middle">Application Preview</text></svg>'
+  );
   const repoUrl = 'https://github.com/marcusdhaynes/' + encodeURIComponent(app.repo);
   useEffect(() => {
     setFallback(0); setFailed(false); setImageReady(false); setRefresh(0);
@@ -130,23 +148,19 @@ const AppCard: React.FC<{ app: App; captured?: Capture }> = ({ app, captured }) 
         <a href={app.url} target="_blank" rel="noopener noreferrer"
           aria-label={'Open ' + app.name + ' live site'}
           className="absolute inset-0 block">
-          {failed || !source ? (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
-              <ImageOff className="h-8 w-8 opacity-60" aria-hidden="true"/>
-              <span className="px-4 text-center text-xs">{app.name} Preview Unavailable</span>
-              <span className="text-[10px]">Open the live application</span>
-            </div>
-          ) : (
-            <>
-              {!imageReady && <div className="absolute inset-0 flex items-center justify-center bg-subtle">
-                <span className="font-serif text-xl font-bold text-fg/75">{app.name}</span>
-              </div>}
-              <img src={source} key={source} alt={app.name + ' ' + shownMode + ' homepage preview'}
-                className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
-                width="480" height="300" loading="lazy" decoding="async"
-                onLoad={() => setImageReady(true)} onError={captureError}/>
-            </>
-          )}
+          <>
+            {!imageReady && !failed && source && <img src={placeholder} alt=""
+              className="absolute inset-0 h-full w-full object-cover" aria-hidden="true"/>}
+            <img src={failed || !source ? placeholder : source}
+              key={failed || !source ? 'placeholder-' + app.repo : source}
+              alt={failed || !source ? app.name + ' application placeholder' :
+                app.name + ' ' + shownMode + ' homepage preview'}
+              className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
+              width="480" height="300" loading="eager" decoding="async"
+              fetchPriority="high"
+              onLoad={() => setImageReady(true)}
+              onError={() => { if (!failed) captureError(); }}/>
+          </>
         </a>
         {darkAvailable && (
           <div className="absolute left-2 top-2 z-10 flex gap-0.5 rounded-lg border border-white/15 bg-black/75 p-1 backdrop-blur-md"
@@ -164,7 +178,9 @@ const AppCard: React.FC<{ app: App; captured?: Capture }> = ({ app, captured }) 
           </div>
         )}
         <span className="absolute bottom-2 left-2 rounded-full border border-white/20 bg-black/75 px-2.5 py-1 text-[10px] font-semibold text-white">
-          {screenshot && fallback === 0 ? 'Captured Homepage' : 'Live Site Preview'}
+          {failed || !source ? 'Application' :
+            screenshot && fallback === 0 ? 'Captured Homepage' :
+            staticScreenshot && source === staticScreenshot ? 'App Screenshot' : 'Live Site Preview'}
         </span>
         {captured && !fresh && (
           <span className="absolute bottom-2 right-2 rounded-full bg-accent px-2 py-1 text-[9px] font-semibold text-bg">
