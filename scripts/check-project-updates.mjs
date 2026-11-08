@@ -23,6 +23,38 @@ async function needsRefresh() {
     console.log('A new app, modified app or catalog format was detected.');
     return true;
   }
+  // App deployments can finish AFTER the repository push. Compare the
+  // published homepage's stable ETag so screenshots refresh when the actual
+  // public application changes, even if the Git SHA did not change again.
+  const monitored = Object.values(live.apps || {}).filter(app => {
+    if (!app || !app.siteStamp) return false;
+    try {
+      const site = new URL(app.url);
+      return site.protocol === 'https:' &&
+        site.hostname === 'marcusdhaynes.github.io' &&
+        /^\/[A-Za-z0-9_.-]+\/?$/.test(site.pathname);
+    } catch { return false; }
+  }).slice(0, 80);
+  let next = 0;
+  let deploymentChanged = false;
+  async function check() {
+    while (next < monitored.length && !deploymentChanged) {
+      const app = monitored[next++];
+      try {
+        const res = await fetch(app.url, { method: 'HEAD', cache: 'no-store',
+          signal: AbortSignal.timeout(7000) });
+        if (!res.ok) continue;
+        const currentStamp = res.headers.get('etag') ||
+          res.headers.get('last-modified') || '';
+        if (currentStamp && currentStamp !== app.siteStamp) {
+          console.log('Deployed homepage updated:', app.repo);
+          deploymentChanged = true;
+        }
+      } catch { /* Offline app: preserve the last usable capture. */ }
+    }
+  }
+  await Promise.all([check(), check(), check(), check()]);
+  if (deploymentChanged) return true;
   // Refresh unchanged apps daily as a safety net for deployed site changes
   // not represented by a fresh repository push.
   const age = Date.now() - Date.parse(live.generatedAt || '');
