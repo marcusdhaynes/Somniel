@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '5-55/10 * * * *'
 permissions:
   contents: read
   pages: write
@@ -11,9 +13,32 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
+  project_updates:
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - id: check
+        name: Check public app updates
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SOMNIEL_PREVIEW_MANIFEST_URL: https://marcusdhaynes.github.io/Somniel/thumbnails/manifest.json
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            node scripts/check-project-updates.mjs
+          else
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
   # Keep the Tauri desktop/mobile frontend build using relative asset URLs.
   # This tests the portable mode without altering the GitHub Pages deployment.
   verify-portable:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -28,6 +53,8 @@ jobs:
       - run: node scripts/verify-site-build.mjs portable
 
   deploy:
+    needs: project_updates
+    if: needs.project_updates.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -48,6 +75,8 @@ jobs:
       # Materialize each known SPA route as an index.html so GitHub Pages
       # returns HTTP 200 for deep links rather than a 404 app-shell fallback.
       - run: node scripts/capture-project-previews.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: node scripts/build-pages-routes.mjs
       - run: node scripts/prerender-public.mjs pages
       - run: node scripts/verify-public-prerender.mjs pages
