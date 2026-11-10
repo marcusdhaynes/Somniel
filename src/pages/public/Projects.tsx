@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useCMS } from '../../context/CMSContext';
 import { Zap, ArrowRight, Sparkles } from 'lucide-react';
 import GitHubAppGallery from '../../components/projects/GitHubAppGallery';
+import CryptoSection from '../../components/projects/CryptoSection';
 
 const Projects: React.FC = () => {
   const { content } = useCMS();
@@ -43,6 +44,8 @@ const Projects: React.FC = () => {
       </header>
 
       <GitHubAppGallery />
+
+      <CryptoSection />
 
       <div className="mx-auto max-w-7xl px-6 pt-1 lg:px-12"><h2 className="font-serif text-xl font-semibold text-fg">Additional Initiatives</h2></div>
 
