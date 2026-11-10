@@ -2,6 +2,37 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { PUBLIC_DEFAULTS } from '../data/publicFallback.mjs';
 
+export interface CryptoAsset {
+  id: string;
+  name: string;
+  symbol: string;
+  tagline: string;
+  description: string;
+  network: string;
+  standard: string;
+  mintAddress: string;
+  decimals: number;
+  totalSupply: string;
+  status: string;
+  explorerUrl: string;
+  holderWallet: string;
+  holderLabel: string;
+  holderAta?: string;
+  logo?: string;
+  metadataUri?: string;
+  launched: string;
+  mintRevoked: boolean;
+  freezeRevoked: boolean;
+  metadataRevoked: boolean;
+  utility: string[];
+  allocations: string[];
+  products: string[];
+  transactions: string[];
+  rescueShare?: string;
+  blueprint?: string;
+  mainnetNotes?: string;
+}
+
 interface CMSContent {
   hero: {
     title: string;
@@ -31,6 +62,7 @@ interface CMSContent {
     status: string;
     isExperimental?: boolean;
   }>;
+  cryptos: CryptoAsset[];
   benefits: Array<{ id: string; text: string }>;
   training: {
     academic: Array<{ id: string; text: string }>;
@@ -246,6 +278,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               contracts: data.contracts
                 ? { ...DEFAULT_CONTENT.contracts, ...data.contracts }
                 : DEFAULT_CONTENT.contracts,
+              cryptos: Array.isArray(data.cryptos) && data.cryptos.length > 0 ? data.cryptos : DEFAULT_CONTENT.cryptos,
             } as CMSContent);
           } else if (!snapshot.metadata.fromCache && isAdmin) {
             // Never write default CMS documents from public/unauthorized pages
