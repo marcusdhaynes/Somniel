@@ -2,7 +2,7 @@ import { printContractPreview, saveContractPdf } from '../../lib/contractPreview
 import React, { useState } from 'react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { useCMS } from '../../context/CMSContext';
-import { Save, RefreshCcw, Plus, Trash2, Layout, Users, Zap, Gift, Globe, GripVertical, ShieldCheck, Eye, X, Printer, Download, FileText, UserPlus, RefreshCw, UserMinus } from 'lucide-react';
+import { Save, RefreshCcw, Plus, Trash2, Layout, Users, Zap, Gift, Globe, GripVertical, ShieldCheck, Eye, X, Printer, Download, FileText, UserPlus, RefreshCw, UserMinus, Coins } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { EditableInput, EditableTextarea } from '../../components/EditableInput';
 
@@ -292,6 +292,188 @@ const ProjectItem = ({ project, i, localContent, setLocalContent }: any) => {
     </Reorder.Item>
   );
 };
+
+const CryptoItem = ({ crypto, i, localContent, setLocalContent }: any) => {
+  const controls = useDragControls();
+  const cryptos = localContent.cryptos || [];
+  const update = (patch: any) => {
+    const newCryptos = [...cryptos];
+    newCryptos[i] = { ...newCryptos[i], ...patch };
+    setLocalContent({ ...localContent, cryptos: newCryptos });
+  };
+  const updateList = (key: string, val: string) =>
+    update({ [key]: val.split('\n').map((line: string) => line.trim()).filter(Boolean) });
+  const listValue = (key: string) => ((crypto[key] || []) as string[]).join('\n');
+  const fieldClass = "w-full bg-bg border border-border rounded-lg px-2.5 py-1.5 text-xs text-fg focus:border-accent/50 outline-none font-medium select-text";
+  const labelClass = "text-[7px] font-bold uppercase tracking-[0.2em] text-muted";
+
+  return (
+    <Reorder.Item
+      key={crypto.id}
+      value={crypto}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{
+        scale: 1.02,
+        boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        zIndex: 50,
+        cursor: "grabbing"
+      }}
+      layout
+      transition={{ type: "spring", stiffness: 600, damping: 30 }}
+      className="p-3 rounded-xl bg-bg/50 border border-border space-y-3 relative group hover:border-accent/30 select-none"
+    >
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-1">
+          <DragHandle controls={controls} />
+          <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-accent">Crypto #{i + 1} — {crypto.symbol || 'New token'}</span>
+        </div>
+        <button
+          onClick={() => setLocalContent({ ...localContent, cryptos: cryptos.filter((_: any, index: number) => index !== i) })}
+          className="p-1.5 text-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 bg-bg rounded-lg border border-border"
+        >
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="space-y-1">
+          <label className={labelClass}>Token Name</label>
+          <EditableInput placeholder="Token Name" value={crypto.name} onCommit={(val) => update({ name: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Symbol</label>
+          <EditableInput placeholder="Symbol" value={crypto.symbol} onCommit={(val) => update({ symbol: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Status</label>
+          <select
+            value={crypto.status}
+            onChange={(e) => update({ status: e.target.value })}
+            className="w-full bg-bg border border-border rounded-lg px-2.5 py-1.5 text-xs text-fg focus:outline-none focus:border-accent/50 font-medium appearance-none select-text"
+          >
+            <option value="Live on Devnet">Live on Devnet</option>
+            <option value="Live on Mainnet">Live on Mainnet</option>
+            <option value="Planned">Planned</option>
+            <option value="Active">Active</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className={labelClass}>Tagline</label>
+        <EditableInput placeholder="Tagline" value={crypto.tagline || ''} onCommit={(val) => update({ tagline: val })} className={fieldClass} />
+      </div>
+      <div className="space-y-1">
+        <label className={labelClass}>Description</label>
+        <EditableTextarea placeholder="Description" rows={3} value={crypto.description || ''} onCommit={(val) => update({ description: val })} className={`${fieldClass} leading-relaxed`} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label className={labelClass}>Mint Address</label>
+          <EditableInput placeholder="Mint address" value={crypto.mintAddress || ''} onCommit={(val) => update({ mintAddress: val })} className={`${fieldClass} font-mono`} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Explorer URL</label>
+          <EditableInput placeholder="Explorer URL" value={crypto.explorerUrl || ''} onCommit={(val) => update({ explorerUrl: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Network</label>
+          <EditableInput placeholder="Network" value={crypto.network || ''} onCommit={(val) => update({ network: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Token Standard</label>
+          <EditableInput placeholder="Token standard" value={crypto.standard || ''} onCommit={(val) => update({ standard: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Decimals</label>
+          <EditableInput type="number" placeholder="Decimals" value={crypto.decimals ?? 6} onCommit={(val) => update({ decimals: Number(val) })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Total Supply</label>
+          <EditableInput placeholder="Total supply" value={crypto.totalSupply || ''} onCommit={(val) => update({ totalSupply: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Launched</label>
+          <EditableInput placeholder="Launched" value={crypto.launched || ''} onCommit={(val) => update({ launched: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Logo (path or URL)</label>
+          <EditableInput placeholder="crypto/cern-logo.jpg" value={crypto.logo || ''} onCommit={(val) => update({ logo: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Holder Wallet</label>
+          <EditableInput placeholder="Holder wallet" value={crypto.holderWallet || ''} onCommit={(val) => update({ holderWallet: val })} className={`${fieldClass} font-mono`} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Holder Label</label>
+          <EditableInput placeholder="Holder label" value={crypto.holderLabel || ''} onCommit={(val) => update({ holderLabel: val })} className={fieldClass} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Holder Token Account (ATA)</label>
+          <EditableInput placeholder="Holder ATA" value={crypto.holderAta || ''} onCommit={(val) => update({ holderAta: val })} className={`${fieldClass} font-mono`} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>On-chain Metadata URI</label>
+          <EditableInput placeholder="Metadata URI" value={crypto.metadataUri || ''} onCommit={(val) => update({ metadataUri: val })} className={fieldClass} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {([
+          ['mintRevoked', 'Mint authority revoked'],
+          ['freezeRevoked', 'Freeze authority revoked'],
+          ['metadataRevoked', 'Metadata immutable'],
+        ] as const).map(([key, label]) => (
+          <label key={key} className="flex items-center space-x-1.5 cursor-pointer bg-bg border border-border rounded-lg px-2 py-1.5">
+            <input
+              type="checkbox"
+              checked={!!crypto[key]}
+              onChange={(e) => update({ [key]: e.target.checked })}
+              className="w-3 h-3 rounded border-border bg-bg text-accent focus:ring-accent/20"
+            />
+            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-muted">{label}</span>
+          </label>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label className={labelClass}>Utility (one per line)</label>
+          <EditableTextarea rows={4} value={listValue('utility')} onCommit={(val) => updateList('utility', val)} className={`${fieldClass} leading-relaxed`} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Ecosystem Products (one per line)</label>
+          <EditableTextarea rows={4} value={listValue('products')} onCommit={(val) => updateList('products', val)} className={`${fieldClass} leading-relaxed`} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Genesis Allocation (one per line: Pool — Share — Tokens — Release)</label>
+          <EditableTextarea rows={4} value={listValue('allocations')} onCommit={(val) => updateList('allocations', val)} className={`${fieldClass} leading-relaxed`} />
+        </div>
+        <div className="space-y-1">
+          <label className={labelClass}>Transactions (one per line: Label: signature)</label>
+          <EditableTextarea rows={4} value={listValue('transactions')} onCommit={(val) => updateList('transactions', val)} className={`${fieldClass} leading-relaxed font-mono`} />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className={labelClass}>Rescue Share</label>
+        <EditableInput placeholder="Rescue Share" value={crypto.rescueShare || ''} onCommit={(val) => update({ rescueShare: val })} className={fieldClass} />
+      </div>
+      <div className="space-y-1">
+        <label className={labelClass}>Blueprint Note</label>
+        <EditableTextarea placeholder="Blueprint note" rows={2} value={crypto.blueprint || ''} onCommit={(val) => update({ blueprint: val })} className={`${fieldClass} leading-relaxed`} />
+      </div>
+      <div className="space-y-1">
+        <label className={labelClass}>Mainnet Notes</label>
+        <EditableTextarea placeholder="Mainnet notes" rows={2} value={crypto.mainnetNotes || ''} onCommit={(val) => update({ mainnetNotes: val })} className={`${fieldClass} leading-relaxed`} />
+      </div>
+    </Reorder.Item>
+  );
+};
+
 
 const BenefitItem = ({ benefit, i, localContent, setLocalContent }: any) => {
   const controls = useDragControls();
@@ -829,7 +1011,7 @@ const CMSManagement: React.FC = () => {
       .every(key => typeof (content.contracts as any)?.[key] === 'string' &&
         (content.contracts as any)[key].trim().length > 0))
   );
-  const [activeTab, setActiveTab] = React.useState<'hero' | 'subsidiaries' | 'founders' | 'projects' | 'benefits' | 'training' | 'performanceReport' | 'positions' | 'ranks' | 'contracts' | 'nda'>('hero');
+  const [activeTab, setActiveTab] = React.useState<'hero' | 'subsidiaries' | 'founders' | 'projects' | 'crypto' | 'benefits' | 'training' | 'performanceReport' | 'positions' | 'ranks' | 'contracts' | 'nda'>('hero');
   const [previewContract, setPreviewContract] = React.useState<{ type: string, template?: string, data?: any } | null>(null);
 
   // The confirmed document is copied once. Subsequent live updates must not
@@ -904,6 +1086,7 @@ const CMSManagement: React.FC = () => {
     { id: 'subsidiaries', name: 'Subsidiaries', icon: Globe },
     { id: 'founders', name: 'Founders', icon: Users },
     { id: 'projects', name: 'Projects', icon: Zap },
+    { id: 'crypto', name: 'Crypto', icon: Coins },
     { id: 'benefits', name: 'Benefits', icon: Gift },
     { id: 'training', name: 'Training', icon: RefreshCcw },
     { id: 'performanceReport', name: 'Performance Report', icon: Layout },
@@ -1108,6 +1291,47 @@ const CMSManagement: React.FC = () => {
                     i={i} 
                     localContent={localContent} 
                     setLocalContent={setLocalContent} 
+                  />
+                ))}
+              </Reorder.Group>
+            </div>
+          )}
+
+          {activeTab === 'crypto' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <h3 className="text-sm font-serif font-bold tracking-tight text-fg">Crypto</h3>
+                  <p className="text-[7px] font-bold uppercase tracking-[0.2em] text-muted">Tokens shown in the Crypto section of the Projects page</p>
+                </div>
+                <button
+                  onClick={() => setLocalContent({
+                    ...localContent,
+                    cryptos: [...(localContent.cryptos || []), { id: Date.now().toString(), name: 'New Token', symbol: '', tagline: '', description: '', network: 'Solana Devnet', standard: 'Token-2022', mintAddress: '', decimals: 6, totalSupply: '', status: 'Live on Devnet', explorerUrl: '', holderWallet: '', holderLabel: '', holderAta: '', logo: '', metadataUri: '', launched: '', mintRevoked: true, freezeRevoked: true, metadataRevoked: true, utility: [], allocations: [], products: [], transactions: [], rescueShare: '', blueprint: '', mainnetNotes: '' }]
+                  })}
+                  className="w-7 h-7 flex items-center justify-center bg-accent/10 text-accent border border-accent/20 rounded-lg hover:bg-accent hover:text-bg transition-all shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <p className="text-[10px] leading-relaxed text-muted">
+                Add a token here and it appears in the Crypto section on /projects after you publish. Never paste a
+                private key, seed phrase, API key, or password into any field — only public on-chain details
+                (mint address, explorer links, transaction signatures) belong here.
+              </p>
+              <Reorder.Group
+                axis="y"
+                values={localContent.cryptos || []}
+                onReorder={(newCryptos) => setLocalContent({ ...localContent, cryptos: newCryptos })}
+                className="flex flex-col gap-3"
+              >
+                {(localContent.cryptos || []).map((crypto: any, i: number) => (
+                  <CryptoItem
+                    key={crypto.id || i}
+                    crypto={crypto}
+                    i={i}
+                    localContent={localContent}
+                    setLocalContent={setLocalContent}
                   />
                 ))}
               </Reorder.Group>
