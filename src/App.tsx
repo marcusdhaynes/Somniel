@@ -3,6 +3,7 @@ import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { UpdateBanner } from './updates';
 import { prefetchOnIdle } from './lib/routePrefetch';
 
 // Public websites use readable history URLs; Tauri desktop/mobile builds
@@ -74,6 +75,7 @@ const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <CMSProvider>
+            <UpdateBanner />
             <RouteWarmup />
             <Router basename={import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL}>
               <Suspense fallback={null}>

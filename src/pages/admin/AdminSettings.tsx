@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Check, LogOut, Moon, Sun, Monitor, Zap, LayoutGrid, RotateCcw, ShieldCheck, Settings2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { UpdatesSection } from '../../updates';
 
 const SettingsOption: React.FC<{
   label: string; description: string; active: boolean; onClick: () => void;
@@ -98,6 +99,8 @@ const AdminSettings: React.FC = () => {
       <button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-muted hover:text-fg">
         <RotateCcw className="h-4 w-4" /> Reset appearance preferences
       </button>
+
+      <UpdatesSection />
     </section>
   );
 };
