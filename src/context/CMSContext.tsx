@@ -29,6 +29,7 @@ export interface CryptoAsset {
   products: string[];
   transactions: string[];
   rescueShare?: string;
+  shareLabel?: string;
   blueprint?: string;
   mainnetNotes?: string;
 }

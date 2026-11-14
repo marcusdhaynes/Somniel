@@ -37,10 +37,11 @@ export const PUBLIC_DEFAULTS = {
   projects: [
     { id: '1', name: 'Project X', description: 'Classified experimental initiative.', status: 'Active', isExperimental: true }
   ],
-  // Solana devnet tokens built for Somniel. Both are test-network scaffolds
+  // Solana devnet tokens built for Somniel. All three are test-network scaffolds
   // with fixed supply and revoked authorities — no monetary value, not for sale.
   // Verified on-chain (Nov 9, 2026): 1,000,000,000 supply, 6 decimals each,
   // mint / freeze / metadata-update authorities all null (revoked), Token-2022.
+  // AMAL added and verified on-chain Nov 14, 2026, on the same terms.
   cryptos: [
     {
       id: 'crypto-somn',
@@ -130,6 +131,59 @@ export const PUBLIC_DEFAULTS = {
       rescueShare: '12% of recognized net platform revenue, permanently assigned to the Rescue Share.',
       blueprint: 'Cernunnos Blueprint v1.0 — 40-page implementation-ready blueprint, October 10, 2026. Covers tokenomics, revenue and rescue-allocation model, legal structure, trust architecture, product specs, tech stack, and a 30-day launch plan.',
       mainnetNotes: 'Mainnet gate (per blueprint): legal review before any mainnet token, permanent metadata hosting (Arweave/IPFS) instead of the expiring file link, fresh mainnet wallet + real SOL, and a re-run of the mint script against mainnet. The blueprint recommends plain SPL at 9 decimals on mainnet; the devnet scaffold as built is Token-2022 at 6 decimals. No public token sale at start; USDC settles value and CERN coordinates access.',
+    },
+    {
+      id: 'crypto-amal',
+      name: 'Amal',
+      symbol: 'AMAL',
+      tagline: 'A hope for girls and women whose universities are closed to them.',
+      description: 'Amal (AMAL) is the token of a scholarship ecosystem built under Somniel Holdings LLC. "Amal" is Arabic for hope. AMAL funds law scholarships for girls and women in places where that education is banned, dangerous, or unaffordable, paid to universities directly from a restricted Scholarship Fund. Scholarships are paid in USDC/fiat from real revenue, never from token price. Minted on Solana devnet on November 14, 2026, as a fixed-supply Token-2022 asset with all authorities revoked.',
+      network: 'Solana Devnet',
+      standard: 'Token-2022',
+      mintAddress: '6zu9wwiMhk6domy6PkaNcVDa4hK2b1XEXqsNPSQcwNWq',
+      decimals: 6,
+      totalSupply: '1,000,000,000 AMAL',
+      status: 'Live on Devnet',
+      explorerUrl: 'https://explorer.solana.com/address/6zu9wwiMhk6domy6PkaNcVDa4hK2b1XEXqsNPSQcwNWq?cluster=devnet',
+      holderWallet: 'FDsKHfBWPPepJsBF8soVi9NiiHHja3CAkNMk3uwQVGUZ',
+      holderLabel: 'Deployer wallet — holds all 1,000,000,000 AMAL',
+      holderAta: '6uhsvi2arJTdjC25JuuKxoc6XLe9PHk5QKpKZmdWJW69',
+      logo: '',
+      launched: 'November 14, 2026',
+      mintRevoked: true,
+      freezeRevoked: true,
+      metadataRevoked: true,
+      utility: [
+        'Governance votes on scholarship grant regions and categories — never on individual recipients',
+        'Membership and access across the AMAL ecosystem, including Amal Academy',
+        'Learn-to-earn rewards for ecosystem participation',
+        'Utility and coordination only — not a security, and no return is promised',
+      ],
+      allocations: [
+        'Scholarship Endowment Treasury — 40% — 400M AMAL — Multisig; released only against verified scholarship needs',
+        'Ecosystem & Learn-to-Earn Rewards — 20% — 200M AMAL — Usage-based rewards',
+        'Liquidity — 15% — 150M AMAL — Mainnet, later; staged deployment',
+        'Operations & Team — 15% — 150M AMAL — 4-year vesting; 1-year cliff',
+        'University/NGO Partners & Reserves — 10% — 100M AMAL — Partner grants and reserves',
+      ],
+      products: [
+        'Amal Academy',
+        'Sponsor-a-Scholar',
+        'Public Scholarship Ledger',
+        'ProSeU',
+      ],
+      transactions: [
+        'Mint creation: 5Nwh4TaeSPhgBH8VR3hrjTSkfBWEobXCcwjRS4hyVzwr8j82ape5r5npgoPWE31SgzbzMRkjq1DvkncSQBQU7BCb',
+        'Deployer ATA creation: 4ESNAWhWHuWP8fQqU7CmiWWRhTFB3izQyacEYu4vHqcSNmHzgZ5xc2G6PYEM7UvXE2TvBWe1syyGpTwMx5yWFL9C',
+        'Supply mint: YveT16ToHVHfp59oQuzsykH2qfaQ9TkC9vsD8NdFspd4BZds4oX6YMt9WWc3SPa5GnBqEqX5tVGkmwtdNiiqqs9',
+        'Revoke mint authority: 2ULUrUxc9z6moPYmRFE2Ujcv6HtXdwioUBt4gEHoKEu9KZUZTvor3PvYjyYWRJri5uM3DL1fAVTsWiPy7GyyZqJi',
+        'Revoke freeze authority: cak4DqAzAmuXWC9RU9kokaWAdYsd85rFycBDdZsjHJgMJYFGq6JKMD6egDHWUQXSVrqrwaskWajsSGsKtyS9GZN',
+        'Revoke metadata authority: 5Au6WLJTjpFnpgU6Dt9BSV9sT2BcsYg81cLjwooDc2uvNRY4M4QqUwf8ovZPkKHap1PxnnAT5txbqi1bFSH8Xbbf',
+      ],
+      rescueShare: '25% of net revenue from AMAL-branded products, plus 100% of earmarked Sponsor-a-Scholar and donation money, goes to the restricted Scholarship Fund.',
+      shareLabel: 'Hope Share',
+      blueprint: 'AMAL Blueprint — 18-page investor brief, November 14, 2026. Covers the scholarship model and cost ladder, the Hope Share, token allocation, revenue scenarios for Somniel Holdings LLC and the Scholarship Fund, safeguarding and consent rules, and the mainnet gate.',
+      mainnetNotes: 'Mainnet gate (per blueprint): legal review first (securities and charitable-solicitation), the written-consent gate, a fiscal-sponsor structure for the Scholarship Fund, permanent metadata hosting (Arweave/IPFS) instead of the expiring file link, fresh mainnet wallet + real SOL, and a re-run of the mint script against mainnet. Sponsor-a-Scholar revenue in fiat comes before any mainnet token; no public token sale at launch.',
     },
   ],
 };

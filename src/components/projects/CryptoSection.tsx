@@ -159,7 +159,7 @@ const CryptoCard: React.FC<{ crypto: CryptoAsset; index: number }> = ({ crypto, 
 
         {crypto.rescueShare ? (
           <div className="mt-4 rounded-2xl border border-accent/25 bg-accent/5 px-4 py-3">
-            <p className="text-[7px] font-bold uppercase tracking-[0.2em] text-accent">Rescue Share</p>
+            <p className="text-[7px] font-bold uppercase tracking-[0.2em] text-accent">{crypto.shareLabel || 'Rescue Share'}</p>
             <p className="mt-1 text-sm font-medium leading-relaxed text-fg">{crypto.rescueShare}</p>
           </div>
         ) : null}
@@ -284,7 +284,7 @@ const CryptoSection: React.FC = () => {
             Crypto
           </h2>
           <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted">
-            Tokens built by Somniel on Solana devnet. Both are test-network scaffolds with fixed supply and revoked
+            Tokens built by Somniel on Solana devnet. All three are test-network scaffolds with fixed supply and revoked
             authorities — they have no monetary value, are not for sale, and cannot be minted further.
           </p>
         </div>
