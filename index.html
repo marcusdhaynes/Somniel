@@ -1,45 +1,12 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0B0E14" />
-    <!-- Set theme before paint to prevent the light/dark flash on cold loads. -->
-    <script>
-      // A separately-designed prerender shell must never replace the visible
-      // React layout after loading; keep it only as a no-JavaScript fallback.
-      document.documentElement.classList.add('somniel-js');
-      try {
-        const saved = localStorage.getItem('theme');
-        const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.add(dark ? 'dark' : 'light');
-        // Match the exact sidebar geometry before the first browser paint.
-        const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-        const narrow = matchMedia('(max-width: 767px)').matches;
-        document.documentElement.style.setProperty('--sidebar-width',
-          collapsed ? (narrow ? '2.3625rem' : '2.625rem')
-                    : (narrow ? '4.68rem' : '8.5rem'));
-        document.querySelector('meta[name="theme-color"]').content = dark ? '#0B0E14' : '#F3F2EE';
-      } catch (_) {}
-    </script>
-    <style>
-      html, body, #root { min-height: 100%; margin: 0; }
-      html { background: #F3F2EE; color: #1A1A1A; }
-      html.dark { background: #0B0E14; color: #FFFFFF; }
-      body { background: inherit; color: inherit; }
-    </style>
-    <!-- Discover font DNS/TLS and stylesheet ahead of the app CSS waterfall. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=optional" />
-    <title>Somniel Holdings LLC</title>
-    <meta name="description" content="Enterprise-grade holdings company platform featuring public corporate site, user dashboards, and comprehensive administrative backend with payroll, employee management, and CMS." />
-    <meta property="og:title" content="Somniel Holdings LLC" />
-    <meta property="og:description" content="Enterprise-grade holdings company platform featuring public corporate site, user dashboards, and comprehensive administrative backend with payroll, employee management, and CMS." />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+</head>
+<body>
+<p>It wasn't a very good adventure, but I'm grateful for the little good that was in it.  Goodbye.</p>
+<p>You did this Amal.  Enjoy your ego.  I hope it was worth it.</p>
+</body>
 </html>
-
